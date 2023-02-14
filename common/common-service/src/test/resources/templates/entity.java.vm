@@ -1,0 +1,86 @@
+package ${package.Entity};
+
+#foreach($pkg in ${table.importPackages})#if(${pkg} != "com.baomidou.mybatisplus.annotation.TableId" && ${pkg} != "cn.edu.hzu.common.entity.BaseEntity")
+import ${pkg};
+#end
+#end
+#if(${swagger2})
+#end
+#if(${entityLombokModel})
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+#end
+import com.baomidou.mybatisplus.annotation.*;
+import cn.edu.hzu.common.entity.BaseEntity;
+##乐观锁
+#set ( $versionFieldName ="version" )
+##逻辑删除
+#set ( $logicDeleteFieldName ="delete_flag" )
+## 不生成属性，使用父类的属性策略
+##set ( $myNO = "id"!=${field.name} && "org_by"!=${field.name} && "org_id"!=${field.name} && "create_id"!=${field.name} && "update_id"!=${field.name} && "version"!=${field.name} )
+
+/**
+ * <p>
+ * $!{table.comment}
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ *
+ */
+#if(${entityLombokModel})
+@Data
+#if(${superEntityClass})
+@EqualsAndHashCode(callSuper = true)
+#else
+@EqualsAndHashCode(callSuper = false)
+#end
+#end
+#if(${table.convert})
+@TableName("${table.name}")
+#end
+public class ${entity} extends BaseEntity {
+
+#if(${entitySerialVersionUID})
+    private static final long serialVersionUID = 1L;
+
+#end
+## ----------  BEGIN 字段循环遍历  ----------
+#foreach($field in ${table.fields})
+##        不生成属性，使用父类的属性策略
+#if("${field.comment}" != "" && "id"!=${field.name} && "create_id"!=${field.name} && "update_id"!=${field.name} && "version"!=${field.name})
+    /**
+     * ${field.comment}
+     */
+#end
+#if(${field.keyFlag})
+## 普通字段
+#elseif(${field.fill})
+## -----   存在字段填充设置   -----
+#if(${field.convert})
+@TableField(value = "${field.name}", fill = FieldFill.${field.fill})
+#else
+@TableField(fill = FieldFill.${field.fill})
+#end
+#elseif(${field.convert})
+#if(${field.name} == "delete_flag")
+    @TableField(value = "${field.name}", fill = FieldFill.INSERT)
+##        不生成属性，使用父类的属性策略 (注释用的井号需要放在最前面，不然会作为去空格符号)
+#elseif("id"!=${field.name} && "create_id"!=${field.name} && "update_id"!=${field.name} && "version"!=${field.name} )
+    @TableField("${field.name}")
+#end
+#end
+##    #if(${versionFieldName}==${field.name})
+##    @Version
+##    #end
+#if(${logicDeleteFieldName}==${field.name})
+    @TableLogic
+#end
+## 不生成属性，使用父类的属性策略
+#if( "id"!=${field.name} && "create_id"!=${field.name} && "update_id"!=${field.name} && "version"!=${field.name} )
+    private ${field.propertyType} ${field.propertyName};
+
+#end
+#end
+## ----------  END 字段循环遍历  ----------
+}

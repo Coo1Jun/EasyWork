@@ -1,0 +1,35 @@
+package ${cfg.queryParamPackage};
+
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+###foreach($pkg in ${table.importPackages})
+##import ${pkg};
+###end
+
+/**
+ * <pre>
+ * $!{table.comment} 新增参数
+ * </pre>
+ *
+ * @author ${author}
+ * @date ${date}
+ *
+ */
+@Data
+@EqualsAndHashCode
+@ApiModel(value = "${entity}新增", description = "$!{table.comment}新增参数")
+public class ${entity}AddParam {
+##
+##    #foreach($field in ${table.allFields})
+##        #foreach($addParam in ${cfg.addFieldList})
+##            #if(${field.name} == $addParam)
+##    @ApiModelProperty(value = "${field.comment}")
+##    private ${field.propertyType} ${field.propertyName};
+##
+##            #end
+##        #end
+##    #end
+}

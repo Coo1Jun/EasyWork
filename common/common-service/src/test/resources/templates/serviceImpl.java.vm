@@ -1,0 +1,111 @@
+package ${package.ServiceImpl};
+
+import ${package.Entity}.${entity};
+import ${package.Mapper}.${table.mapperName};
+import ${package.Service}.${table.serviceName};
+import ${superServiceImplClassPackage};
+import ${cfg.queryParamPath};
+import ${cfg.addParamPath};
+import ${cfg.editParamPath};
+import ${cfg.paramMapperPath};
+import ${cfg.dtoPath};
+import cn.edu.hzu.common.entity.BaseEntity;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import cn.edu.hzu.common.api.PageResult;
+import cn.edu.hzu.common.api.ResultCode;
+import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+
+
+
+/**
+ * <pre>
+ * $!{table.comment} 服务实现类
+ * </pre>
+ *
+ * @author ${author}
+ * @since ${date}
+ *
+ */
+@Slf4j
+@Service
+@Transactional(readOnly = true,rollbackFor={Exception.class, Error.class})
+public class ${table.serviceImplName} extends BaseServiceImpl<${table.mapperName}, ${entity}> implements ${table.serviceName} {
+
+    @Autowired
+    private ${entity}ParamMapper ${table.entityPath}ParamMapper;
+
+    @Override
+    public PageResult<${cfg.dtoType}> pageDto(${cfg.queryParamType} ${cfg.queryParamName}) {
+        Wrapper<${entity}> wrapper = getPageSearchWrapper(${cfg.queryParamName});
+        PageResult<${cfg.dtoType}> result = ${table.entityPath}ParamMapper.pageEntity2Dto(page(${cfg.queryParamName}, wrapper));
+
+        return Optional.ofNullable(result).orElse(new PageResult<>());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    @Transactional(rollbackFor={Exception.class, Error.class})
+    public boolean saveByParam(${cfg.addParamType} ${cfg.addParamName}) {
+        ${entity} ${table.entityPath} = ${table.entityPath}ParamMapper.addParam2Entity(${cfg.addParamName});
+        // Assert.notNull(ResultCode.PARAM_VALID_ERROR,${table.entityPath});
+        return save(${table.entityPath});
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    @Transactional(rollbackFor={Exception.class, Error.class})
+    public boolean updateByParam(${cfg.editParamType} ${cfg.editParamName}) {
+        ${entity} ${table.entityPath} = ${table.entityPath}ParamMapper.editParam2Entity(${cfg.editParamName});
+        // Assert.notNull(ResultCode.PARAM_VALID_ERROR,${table.entityPath});
+        return updateById(${table.entityPath});
+    }
+
+    @Override
+    public ${cfg.dtoType} getDtoById(String id) {
+        return ${table.entityPath}ParamMapper.entity2Dto(this.getById(id));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    @Transactional(rollbackFor={Exception.class, Error.class})
+    public boolean saveDtoBatch(List<${cfg.dtoType}> rows) {
+        return saveBatch(${table.entityPath}ParamMapper.dtoList2Entity(rows));
+    }
+
+    private Wrapper<${entity}> getPageSearchWrapper(${entity}QueryParam ${table.entityPath}QueryParam) {
+        LambdaQueryWrapper<${entity}> wrapper = Wrappers.<${entity}>lambdaQuery();
+    #foreach($field in ${table.allFields})
+        #foreach($queryParam in ${cfg.queryFieldList})
+            #if(${field.name} == $queryParam)
+                #if(${field.propertyType.equals("boolean")})
+        wrapper.eq(${entity}::is${field.capitalName}, ${table.entityPath}QueryParam.is${field.capitalName}());
+                #elseif(${field.propertyType} == 'Date')
+        String[] ${field.propertyName}Param = ${table.entityPath}QueryParam.get${field.capitalName}Param();
+        if (ArrayUtil.length(${field.propertyName}Param) == 2){
+            wrapper.between(${entity}::get${field.capitalName}, ${field.propertyName}Param[0], ${field.propertyName}Param[1]);
+        }
+                #else
+                    #if(${field.propertyType} == 'String')
+        wrapper.like(StringUtils.isNotBlank(${table.entityPath}QueryParam.get${field.capitalName}()),
+                     ${entity}::get${field.capitalName}, ${table.entityPath}QueryParam.get${field.capitalName}());
+                    #else
+        wrapper.like(null != ${table.entityPath}QueryParam.get${field.capitalName}(),
+                    ${entity}::get${field.capitalName}, ${table.entityPath}QueryParam.get${field.capitalName}());
+                    #end
+                #end
+            #end
+        #end
+    #end
+        if(BaseEntity.class.isAssignableFrom(${entity}.class)){
+            wrapper.orderByDesc(${entity}::getUpdateTime,${entity}::getCreateTime);
+        }
+        return wrapper;
+    }
+}

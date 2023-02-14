@@ -1,0 +1,172 @@
+package ${package.Controller};
+
+
+import cn.edu.hzu.common.api.PageResult;
+import cn.edu.hzu.common.api.RestResponse;
+import cn.edu.hzu.common.api.utils.ExcelUtils;
+import cn.edu.hzu.common.enums.CommonErrorEnum;
+import cn.edu.hzu.common.exception.CommonException;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import io.swagger.annotations.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import ${cfg.queryParamPath};
+import ${cfg.addParamPath};
+import ${cfg.editParamPath};
+import ${cfg.dtoPath};
+import org.springframework.web.bind.annotation.*;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.util.Arrays;
+import java.util.List;
+import javax.validation.constraints.NotEmpty;
+import ${package.Service}.${table.serviceName};
+#if(${restControllerStyle})
+import org.springframework.web.bind.annotation.RestController;
+#else
+import org.springframework.stereotype.Controller;
+#end
+#if(${superControllerClassPackage})
+import ${superControllerClassPackage};
+#end
+import org.springframework.web.multipart.MultipartFile;
+
+/**
+ * <p>
+ * $!{cfg.functionName}控制器
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ *
+ */
+#if(${restControllerStyle})
+@RestController
+#else
+@Controller
+#end
+#if(!$null.isNull(${cfg.businessName} ) && "$!cfg.businessName" != "")
+@RequestMapping("/${cfg.businessName}")
+#else
+@RequestMapping("/${table.entityPath}")
+#end
+#if(${kotlin})
+class ${table.controllerName}#if(${superControllerClass}) : ${superControllerClass}()#end
+#else#if($!{cfg.functionName})
+@Api(tags = "$!{cfg.functionName}服务接口")
+#else
+@Api(tags = "${table.entityPath}服务接口")#end
+public class ${table.controllerName} {
+
+    #set($tempName = "${cfg.colonTableName}")
+    #set($tempName = $tempName.replaceAll(":", "_"))
+@Autowired
+    private ${table.serviceName} ${table.entityPath}Service;
+
+    /**
+     *
+     * 分页获取${cfg.functionName}列表
+     *
+     * @author ${author}
+     * @since ${date}
+     *
+     */
+    @ApiOperation("分页获取${cfg.functionName}列表")
+    @GetMapping("/list")
+    public RestResponse<PageResult<${cfg.dtoType}>> pageList(@Valid ${entity}QueryParam ${table.entityPath}QueryParam){
+        return RestResponse.ok(${table.entityPath}Service.pageDto(${table.entityPath}QueryParam));
+    }
+
+    /**
+     *
+     * 新增${cfg.functionName}
+     *
+     * @author ${author}
+     * @since ${date}
+     *
+     */
+    @ApiOperation("新增${cfg.functionName}")
+    @PostMapping
+    public RestResponse<Boolean> add(@RequestBody @Valid ${entity}AddParam ${table.entityPath}AddParam) {
+        return RestResponse.ok(${table.entityPath}Service.saveByParam(${table.entityPath}AddParam));
+    }
+
+    /**
+     *
+     * 修改${cfg.functionName}
+     *
+     * @author ${author}
+     * @since ${date}
+     *
+     */
+    @ApiOperation(value = "修改${cfg.functionName}")
+    @PutMapping
+    public RestResponse<Boolean> update(@RequestBody @Valid ${entity}EditParam ${table.entityPath}EditParam) {
+        return RestResponse.ok(${table.entityPath}Service.updateByParam(${table.entityPath}EditParam));
+    }
+
+    /**
+     *
+     * 根据id删除${cfg.functionName}
+     *
+     * @author ${author}
+     * @since ${date}
+     *
+     */
+    @ApiOperation(value = "根据id删除${cfg.functionName}")
+    @DeleteMapping("/{ids}")
+    public RestResponse<Boolean> delete(@PathVariable("ids") @NotEmpty String[] ids) {
+        return RestResponse.ok(${table.entityPath}Service.removeByIds(Arrays.asList(ids)));
+    }
+
+    /**
+     *
+     * 根据id获取${cfg.functionName}
+     *
+     * @author ${author}
+     * @since ${date}
+     *
+     */
+    @ApiOperation(value = "根据id获取${cfg.functionName}")
+    @GetMapping(value = "/{id}")
+    public RestResponse<${cfg.dtoType}> get(@PathVariable String id) {
+        return RestResponse.ok(${table.entityPath}Service.getDtoById(id));
+    }
+
+    /**
+     *
+     * 导出${cfg.functionName}列表
+     *
+     * @author ${author}
+     * @since ${date}
+     *
+     */
+    @ApiOperation(value = "导出${cfg.functionName}列表")
+    @GetMapping("/export")
+    public void excelExport(@Valid ${entity}QueryParam ${table.entityPath}QueryParam, HttpServletResponse response){
+        PageResult<${cfg.dtoType}> pageResult  = ${table.entityPath}Service.pageDto(${table.entityPath}QueryParam);
+        ExcelUtils<${cfg.dtoType}> util = new ExcelUtils<>(${cfg.dtoType}.class);
+
+        util.exportExcelAndDownload(pageResult.getRecords(), "${cfg.functionName}", response);
+    }
+
+    /**
+     *
+     * Excel导入${cfg.functionName}
+     *
+     * @author ${author}
+     * @since ${date}
+     *
+     */
+    @ApiOperation(value = "Excel导入${cfg.functionName}")
+    @PostMapping("/import")
+    public RestResponse<Boolean> excelImport(@RequestParam("file") MultipartFile file){
+        ExcelUtils<${cfg.dtoType}> util = new ExcelUtils<>(${cfg.dtoType}.class);
+        List<${cfg.dtoType}> rows = util.importExcel(file);
+        if (CollectionUtils.isEmpty(rows)) {
+            throw new CommonException(CommonErrorEnum.IMPORT_DATA_EMPTY);
+        }
+        return RestResponse.ok(${table.entityPath}Service.saveDtoBatch(rows));
+    }
+
+}
+#end

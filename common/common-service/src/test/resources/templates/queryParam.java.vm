@@ -1,0 +1,26 @@
+package ${cfg.queryParamPackage};
+
+import cn.edu.hzu.common.param.PageParam;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+#foreach($pkg in ${table.customPackages})
+import ${pkg};
+#end
+
+/**
+ * <pre>
+ * $!{table.comment} 分页查询参数对象
+ * </pre>
+ *
+ * @author ${author}
+ * @date ${date}
+ *
+ */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ApiModel(value = "${entity}查询", description = "$!{table.comment}查询参数")
+public class ${entity}QueryParam extends PageParam {
+
+}

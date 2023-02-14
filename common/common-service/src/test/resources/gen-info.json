@@ -1,0 +1,14 @@
+{
+  "author": "LiZhengFan",
+  "moduleName": "sso-server",
+  "parentPackage": "com.sso.server.user",
+  "tables": "t_user",
+  "tablePrex": "t_",
+  "functionName": "用户信息",
+  "jdbcUrl": "jdbc:mysql://localhost:3306/easy_work?serverTimezone=GMT&useUnicode=true&characterEncoding=UTF-8",
+  "jdbcUsername": "root",
+  "jdbcPassword": "111777",
+  "jdbcDriver": "com.mysql.cj.jdbc.Driver",
+  "jdbcSchema": "",
+  "businessName": "user"
+}

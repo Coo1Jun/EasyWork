@@ -1,0 +1,38 @@
+{
+  "queryFields": [
+    "audit_year",
+    "draft_user_name",
+    "audit_status"
+  ],
+  "insertFields": [
+    "audit_year",
+    "audit_purpose",
+    "audit_scope",
+    "audit_basis",
+    "draft_user_id",
+    "draft_user_name",
+    "draft_time"
+  ],
+  "updateFields": [
+    "id",
+    "audit_year",
+    "audit_purpose",
+    "audit_scope",
+    "audit_basis",
+    "draft_user_id",
+    "draft_user_name",
+    "draft_time",
+    "version"
+  ],
+  "resultFields": [
+    "id",
+    "audit_year",
+    "audit_purpose",
+    "audit_scope",
+    "audit_basis",
+    "draft_user_id",
+    "draft_user_name",
+    "draft_time",
+    "version"
+  ]
+}

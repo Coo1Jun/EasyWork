@@ -1,0 +1,34 @@
+package ${cfg.queryParamPackage};
+
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+###foreach($pkg in ${table.customPackages})
+##import ${pkg};
+###end
+
+/**
+ * <pre>
+ * $!{table.comment} 编辑参数对象
+ * </pre>
+ *
+ * @author ${author}
+ * @date ${date}
+ *
+ */
+@Data
+@EqualsAndHashCode
+@ApiModel(value = "${entity}编辑", description = "$!{table.comment}编辑参数")
+public class ${entity}EditParam {
+
+    @ApiModelProperty(value = "主键ID")
+    private String id;
+
+
+
+    @ApiModelProperty(value = "版本号")
+    private Integer version;
+
+}

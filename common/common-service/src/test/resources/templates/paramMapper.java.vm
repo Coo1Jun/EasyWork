@@ -1,0 +1,77 @@
+package ${cfg.queryParamPackage};
+
+import cn.edu.hzu.common.api.PageResult;
+import cn.edu.hzu.common.entity.BaseEntity;
+import ${package.Entity}.${table.entityName};
+import org.mapstruct.Mapper;
+import java.util.List;
+
+/**
+ * <pre>
+ * $!{table.comment} 参数实体映射
+ * </pre>
+ *
+ * @author ${author}
+ * @date ${date}
+ *
+ */
+@Mapper(componentModel = "spring",imports = {BaseEntity.class})
+public interface  ${entity}ParamMapper{
+
+    /**
+     *
+     * 新增参数转换为实体类
+     *
+     * @param ${table.entityPath}AddParam 新增参数
+     * @return ${entity} 实体类
+     * @date ${date}
+     *
+     */
+    ${entity} addParam2Entity(${entity}AddParam ${table.entityPath}AddParam);
+
+    /**
+     *
+     * 修改参数转换为实体类
+     *
+     * @param ${table.entityPath}EditParam 修改参数
+     * @return ${entity} 实体类
+     * @date ${date}
+     *
+     */
+    ${entity} editParam2Entity(${entity}EditParam ${table.entityPath}EditParam);
+
+    /**
+     *
+     * 实体类换为Dto
+     *
+     * @param ${table.entityPath} 实体类
+     * @return ${cfg.dtoType} DTO
+     * @date ${date}
+     *
+     */
+    ${cfg.dtoType} entity2Dto(${entity} ${table.entityPath});
+
+    /**
+     *
+     * 分页实体转DTO
+     *
+     * @param page 分页实体
+     * @return PageResult<${cfg.dtoType}> 分页DTO
+     * @date ${date}
+     *
+     */
+    PageResult<${cfg.dtoType}> pageEntity2Dto(PageResult<${entity}> page);
+
+
+    /**
+     *
+     * dto集合转entity集合
+     *
+     * @param rows dto列表
+     * @return List<${entity}> entity列表
+     * @date ${date}
+     *
+     */
+    List<${entity}> dtoList2Entity(List<${cfg.dtoType}> rows);
+
+}

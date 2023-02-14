@@ -1,0 +1,416 @@
+<template>
+  <div>
+    <p-switch-form
+      ref="formRef"
+      :col="3"
+      :model="searchForm"
+    >
+    #foreach($field in ${table.allFields})
+    #foreach($queryParam in ${cfg.queryFieldList})
+      #if(${field.name} == $queryParam)
+      <p-switch-form-item label="${field.comment}">
+        <p-input
+          v-model="searchForm.${field.propertyName}"
+          allow-clear
+        />
+      </p-switch-form-item>
+      #end
+    #end
+    #end
+      <template slot="button">
+        <p-button type="primary" @click="handleSearch()">{{ $t('search') }}</p-button>
+        <p-button @click="resetForm()">{{ $t('clear') }}</p-button>
+      </template>
+    </p-switch-form>
+    <div class="btn-groups">
+      <p-button-group class="btn-groups--left">
+        <p-button type="primary" @click="add()">
+          {{ $t('create') }}
+        </p-button>
+        <p-button type="danger" @click="delAll()">
+          {{ $t('delete') }}
+        </p-button>
+      </p-button-group>
+      <p-button-group class="btn-groups--right">
+        <p-popover
+          class="col-config"
+          placement="bottom"
+          trigger="click"
+          :visible="isColCfgVisible"
+          @visibleChange="colCfgVisibleChange"
+        >
+          <p-button>
+            <span>{{ $t('showColumn') }}</span>
+            <p-icon
+              :type="!isColCfgVisible ? 'down' : 'up'"
+              style="margin-left: 0;"
+            />
+          </p-button>
+          <div
+            slot="content"
+            class="col-config-list"
+          >
+            <template v-for="col in columns">
+              <div
+                v-if="!col.fixed"
+                :key="col.key"
+                :class="{'col-config-item': true,'col-config-item--active': colCfgCache[col.key]}"
+                @click="updateColCfgCache(col.key)"
+              >
+                <span>{{ col.title }}</span>
+                <p-icon type="check" />
+              </div>
+            </template>
+            <p-button
+              class="col-contablePageChangefig-confirm"
+              size="small"
+              @click="updateColCfg"
+            >
+              {{ $t('ok') }}
+            </p-button>
+          </div>
+        </p-popover>
+      </p-button-group>
+    </div>
+    <p-table
+      :columns="visibleCols"
+      :datp-source="tableData"
+      :row-selection="rowSelection"
+      :pagination="pagination"
+      row-key="id"
+      bordered
+      :scroll="{ x: 1500 }"
+      @change="tableChange"
+    >
+    #foreach($field in ${table.allFields})
+    #foreach($resField in ${cfg.resultFieldList})
+      #if(${field.name} == $resField && ${field.propertyType} == 'Date')
+      <template slot="${field.propertyName}" slot-scope="text">
+        {{ text | moment }}
+      </template>
+        #end
+    #end
+#end
+      <template
+        slot="operation"
+        slot-scope="text, record"
+      >
+        <span>
+          <a
+            href="javascript:;"
+            @click="check(record)"
+          ><p-icon type="eye" /></a>
+          &nbsp;&nbsp;&nbsp;
+          <a
+            href="javascript:;"
+            @click="edit(record)"
+          ><p-icon type="edit" /></a>
+        </span>
+      </template>
+    </p-table>
+    <!-- 新增modal -->
+    <p-modal
+      :title="title"
+      :visible="visibleAdd"
+      @ok="handleOk"
+      :destroyOnClose="true"
+      @cancel="handleCancel"
+      okText="保存"
+    >
+      <p-form-model
+        ref="refFormAdd"
+        :model="addForm"
+        :rules="rulesAdd"
+        :label-col="labelCol"
+        :wrapper-col="wrapperCol"
+      >
+        #foreach($field in ${table.allFields})
+    #foreach($insertParam in ${cfg.addFieldList})
+        #if(${field.name} == $insertParam)
+        <p-form-model-item label="${field.comment}" prop="${field.propertyName}">
+          <p-input v-model="addForm.${field.propertyName}" />
+        </p-form-model-item>
+                #end
+    #end
+#end
+      </p-form-model>
+      <template slot="footer">
+        <p-button
+          type="primary"
+          @click="handleOk()"
+        >
+          <p-icon type="save" />
+          {{ $t('submit') }}
+        </p-button>
+        <p-button
+          type="primary"
+          @click="handleOk()"
+        >
+          <p-icon type="save" />
+          {{ $t('save') }}
+        </p-button>
+        <p-button
+          @click="handleCancel()"
+        >
+          {{ $t('cancel') }}
+        </p-button>
+      </template>
+    </p-modal>
+  </div>
+</template>
+
+<script>
+  import { axios } from 'axios'
+  import { createForm } from 'poros/utils'
+  const Form = createForm({})
+  export default {
+    data () {
+      return {
+        visibleAdd: false,
+        labelCol: { span: 4 },
+        wrapperCol: { span: 14 },
+        searchForm: {
+          #foreach($field in ${table.allFields})
+      #foreach($queryParam in ${cfg.queryFieldList})
+          #if(${field.name} == $queryParam)
+          ${field.propertyName}: '',
+                  #end
+      #end
+  #end
+        },
+        rulesAdd: {
+          #foreach($field in ${table.allFields})
+      #foreach($reqField in ${cfg.requiredFieldList})
+          #if(${field.name} == $reqField)
+              ${field.propertyName}: [
+            {required: true, message: '请输入${field.comment}', trigger: 'blur'},
+          ],
+                        #end
+      #end
+  #end
+        },
+        addForm: new Form({
+          #foreach($field in ${table.allFields})
+      #foreach($insertParam in ${cfg.addFieldList})
+          #if(${field.name} == $insertParam)
+          ${field.propertyName}: '',
+          #end
+      #end
+  #end
+        }),
+        rulesEdit: {
+          #foreach($field in ${table.allFields})
+      #foreach($reqField in ${cfg.requiredFieldList})
+          #if(${field.name} == $reqField)
+              ${field.propertyName}: [
+              {required: true, message: '请输入${field.comment}', trigger: 'blur'},
+          ],
+                    #end
+      #end
+  #end
+        },
+        tableData: [],
+        pagination: {
+          current: 1,
+          total: 0,
+          pageSize: 10, // 每页中显示10条数据
+          showSizeChanger: true,
+          showQuickJumper: true,
+          pageSizeOptions: ['10', '20', '30', '50'], // 每页中显示的数据
+          showTotal: total => this.$t('dataTotalTip', { total })
+        },
+        title: '新增${cfg.functionName}',
+        isEdit: false, // 是编辑还是新增
+        delAllCheck: '',
+        colCfgCache: {},
+        isColCfgVisible: false
+      }
+    },
+    computed: {
+      columns () {
+        return [
+          {
+            title: this.$t('no'),
+            dataIndex: 'serialNumber',
+            key: 'serialNumber',
+            align: 'center',
+            width: 50,
+            selected: true,
+            fixed: 'left',
+            scopedSlots: {customRender: 'serialNumber'},
+            isShow: true
+          },
+          #foreach($field in ${table.allFields})
+            #foreach($dtoField in ${cfg.resultFieldList})
+                #if(${field.name} == $dtoField)
+          {
+            title: '${field.comment}',
+            dataIndex: '${field.propertyName}',
+            key: '${field.propertyName}',
+            scopedSlots: { customRender: '${field.propertyName}' },
+            isShow: true
+          },
+                    #end
+            #end
+        #end
+          {
+            title: '操作',
+            dataIndex: 'operation',
+            key: 'operation',
+            width: 120,
+            selected: true,
+            fixed: 'right',
+            scopedSlots: { customRender: 'operation' },
+            isShow: true
+          }
+        ]
+      },
+      visibleCols () {
+        return this.columns.filter(v => v.fixed || v.isShow)
+      },
+      rowSelection () {
+        return {
+          onChange: (selectedRowKeys) => {
+            this.delAllCheck = selectedRowKeys
+          },
+          getCheckboxProps: record => ({
+            props: {
+              disabled: record.name === 'Disabled User', // Column configuration not to be checked
+              name: record.name
+            }
+          })
+        }
+      }
+    },
+    created () {
+      this.loadData()
+    },
+    methods: {
+      colCfgVisibleChange (visible) {
+        this.isColCfgVisible = visible
+        if (this.isColCfgVisible) {
+          this.colCfgCache = this.columns.reduce(function (cache, { key, fixed, isShow }) {
+            if (!fixed) cache[key] = isShow
+            return cache
+          }, {})
+        }
+      },
+      updateColCfgCache (key) {
+        this.colCfgCache[key] = !this.colCfgCache[key]
+      },
+      updateColCfg () {
+        this.isColCfgVisible = false
+        this.columns.forEach(col => {
+          col.isShow = this.colCfgCache[col.key]
+        })
+      },
+      loadData () {
+        const params = {
+          pageNo: this.pagination.current,
+          limit: this.pagination.pageSize
+        }
+        for (const key in this.searchForm) {
+          if (this.searchForm[key]) {
+            params[key] = this.searchForm[key]
+          }
+        }
+        axios().then(res => {
+          this.tableData = res.data.records
+          this.pagination.total = res.data.total
+        })
+      },
+      tableChange (pageOptions) {
+        this.pagination.current = pageOptions.current
+        this.pagination.pageSize = pageOptions.pageSize
+        this.loadData()
+      },
+      handleSearch () {
+        this.loadData()
+      },
+      resetForm () {
+        this.searchForm = new Form ()
+      },
+      showModal (data) {
+        if (data) {
+          this.isEdit = true
+          this.title = '编辑${cfg.functionName}'
+          this.editForm = Object.assign({}, data)
+        } else {
+          this.visibleAdd = true
+          this.isEdit = false
+          this.title = '新增${cfg.functionName}'
+          this.$nextTick(() => {
+            for (const key in this.addForm) {
+              this.addForm[key] = ''
+            }
+            this.$refs.refFormAdd.resetFields()
+          })
+        }
+      },
+      delAll () {
+        #set($deleteEmptyVar = "this.$message.success()")
+        #set($deleteEmpty = $deleteEmptyVar + "{ content: this.$t('deleteEmptyDataTips')}" +")")
+        if (this.delAllCheck === ''){
+          $deleteEmpty
+        } else {
+          this.$confirm({
+            content: this.$t('deleteData', { num: this.delAllCheck.length }),
+            onOk: () => {
+              delSysmIasApi(this.delAllCheck).then(res => {
+                if (res.code === 0) {
+                  #set($deletevar = "this.$message.success()")
+                  #set($deleteSuccess = $deletevar + "{ content: this.$t('deleteSuccess')}" +")")
+                  $deleteSuccess
+                  this.getTableData()
+                } else {
+                  #set($resvar = "this.$message.error()")
+                  #set($res = $resvar + "{ content: res.msg}" +")")
+                  $res
+                }
+              })
+            },
+            onCancel: () => {}
+          })
+        }
+      },
+      handleOk () {
+        let method = 'post'
+        let params = this.addForm
+        let refForm = 'refFormAdd'
+        if (this.isEdit) {
+          method = 'put'
+          params = this.editForm
+          refForm = 'refFormEdit'
+        }
+      #[[
+        this.$refs[refForm].validate(valid => {
+      ]]#
+          if (valid) {
+            axios().then(res => {
+              if (res.code === 0) {
+                #set($savevar = "this.$message.success()")
+                #set($saveSuccess = $savevar + "{content: this.$t('saveSuccess') }" +")")
+                $saveSuccess
+                this.loadData()
+                this.visibleAdd = false
+              } else {
+                #set($warningvar = "this.$message.warning()")
+                #set($warning = $warningvar + "{ content: res.msg }" +")")
+                $warning
+              }
+            })
+          }
+        })
+      },
+      handleCancel () {
+        this.visibleAdd = false
+      }
+    }
+  }
+</script>
+
+<style scoped lang="less">
+</style>
+
+<style lang="less">
+</style>
