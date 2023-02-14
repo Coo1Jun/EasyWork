@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sso.server.user.mapper.UserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.sso.server.user.entity.User">
+        <id column="id" property="id" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="remark" property="remark" />
+        <result column="nickname" property="nickname" />
+        <result column="real_name" property="realName" />
+        <result column="eng_name" property="engName" />
+        <result column="password" property="password" />
+        <result column="role" property="role" />
+        <result column="email" property="email" />
+        <result column="phone" property="phone" />
+        <result column="birth_date" property="birthDate" />
+        <result column="description" property="description" />
+        <result column="sex" property="sex" />
+        <result column="portrait" property="portrait" />
+        <result column="user_version" property="userVersion" />
+        <result column="version" property="version" />
+        <result column="create_id" property="createId" />
+        <result column="update_id" property="updateId" />
+        <result column="delete_flag" property="deleteFlag" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_by,
+        create_time,
+        update_by,
+        update_time,
+        remark,
+        id, nickname, real_name, eng_name, password, role, email, phone, birth_date, description, sex, portrait, user_version, version, create_id, update_id, delete_flag
+    </sql>
+
+<!--    <select id="getUserByLogin" parameterType="java.lang.String" resultType="com.sso.server.user.entity.User">-->
+<!--        select * from t_user where (eng_name = #{loginName} OR email = #{loginName} OR phone = #{loginName})-->
+<!--    </select>-->
+
+</mapper>
