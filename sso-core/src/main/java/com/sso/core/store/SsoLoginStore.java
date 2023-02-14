@@ -1,7 +1,7 @@
 package com.sso.core.store;
 
-import com.sso.core.conf.Conf;
-import com.sso.core.user.SsoUser;
+import cn.edu.hzu.common.constant.Constant;
+import cn.edu.hzu.common.entity.SsoUser;
 import com.sso.core.util.JedisUtil;
 
 /**
@@ -61,7 +61,7 @@ public class SsoLoginStore {
     }
 
     private static String redisKey(String storeKey){
-        return Conf.SSO_SESSIONID.concat("#").concat(storeKey);
+        return Constant.SSO_SESSIONID.concat("#").concat(storeKey);
     }
 
 }

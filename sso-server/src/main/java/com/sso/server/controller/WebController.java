@@ -3,11 +3,11 @@ package com.sso.server.controller;
 
 import cn.edu.hzu.common.api.RestResponse;
 import cn.edu.hzu.common.api.ResultCode;
-import com.sso.core.conf.Conf;
+import cn.edu.hzu.common.constant.Constant;
+import cn.edu.hzu.common.entity.SsoUser;
 import com.sso.core.login.SsoWebLoginHelper;
 import com.sso.core.store.SsoLoginStore;
 import com.sso.core.store.SsoSessionIdHelper;
-import com.sso.core.user.SsoUser;
 import com.sso.server.user.dto.UserDto;
 import com.sso.server.user.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ public class WebController {
         SsoUser ssoUser = SsoWebLoginHelper.loginCheck(request, response);
 
         if (ssoUser == null) {
-            return RestResponse.failed(Conf.SSO_LOGIN_FAIL_RESULT.getMsg());
+            return RestResponse.failed(ResultCode.SSO_LOGIN_FAIL_RESULT.getMsg());
         } else {
             return RestResponse.ok(ssoUser, "用户已登录");
         }
@@ -85,7 +85,7 @@ public class WebController {
         // 3、login, store storeKey + cookie sessionId
         String cookieValue = SsoWebLoginHelper.login(response, sessionId, ssoUser, ifRem);
 
-        return RestResponse.ok(Conf.SSO_SESSIONID + "=" + cookieValue, "登录成功");
+        return RestResponse.ok(Constant.SSO_SESSIONID + "=" + cookieValue, "登录成功");
     }
 
     /**
@@ -94,7 +94,7 @@ public class WebController {
      * @param request
      * @return
      */
-    @RequestMapping(Conf.SSO_LOGOUT)
+    @RequestMapping(Constant.SSO_LOGOUT)
     @ResponseBody
     public RestResponse logout(HttpServletRequest request, HttpServletResponse response) {
 

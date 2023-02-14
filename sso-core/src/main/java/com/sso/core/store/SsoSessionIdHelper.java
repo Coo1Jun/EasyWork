@@ -1,6 +1,7 @@
 package com.sso.core.store;
 
-import com.sso.core.user.SsoUser;
+
+import cn.edu.hzu.common.entity.SsoUser;
 
 /**
  * make client sessionId

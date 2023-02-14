@@ -1,9 +1,10 @@
 package com.sso.core.filter;
 
-import com.sso.core.conf.Conf;
+import cn.edu.hzu.common.api.ResultCode;
+import cn.edu.hzu.common.constant.Constant;
+import cn.edu.hzu.common.entity.SsoUser;
 import com.sso.core.login.SsoWebLoginHelper;
 import com.sso.core.path.impl.AntPathMatcher;
-import com.sso.core.user.SsoUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +40,9 @@ public class SsoWebFilter extends HttpServlet implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
 
-        ssoServer = filterConfig.getInitParameter(Conf.SSO_SERVER);
-        logoutPath = filterConfig.getInitParameter(Conf.SSO_LOGOUT_PATH);
-        excludedPaths = filterConfig.getInitParameter(Conf.SSO_EXCLUDED_PATHS);
+        ssoServer = filterConfig.getInitParameter(Constant.SSO_SERVER);
+        logoutPath = filterConfig.getInitParameter(Constant.SSO_LOGOUT_PATH);
+        excludedPaths = filterConfig.getInitParameter(Constant.SSO_EXCLUDED_PATHS);
 
         logger.info(">>>>>>>>> SsoWebFilter init. >>>>>>>>>");
     }
@@ -76,12 +77,12 @@ public class SsoWebFilter extends HttpServlet implements Filter {
 
             // json msg
             res.setContentType("application/json;charset=utf-8");
-            res.getWriter().println("{\"code\":" + Conf.SSO_LOGIN_FAIL_RESULT.getCode() + ", \"msg\":\"" + Conf.SSO_LOGIN_FAIL_RESULT.getMsg() + "\"}");
+            res.getWriter().println("{\"code\":" + ResultCode.SSO_LOGIN_FAIL_RESULT.getCode() + ", \"msg\":\"" + ResultCode.SSO_LOGIN_FAIL_RESULT.getMsg() + "\"}");
             return;
         }
 
         // 可以让请求随时可以拿到ssoUser实体
-        request.setAttribute(Conf.SSO_USER, ssoUser);
+        request.setAttribute(Constant.SSO_USER, ssoUser);
 
         // 已经登录 放行
         chain.doFilter(request, response);

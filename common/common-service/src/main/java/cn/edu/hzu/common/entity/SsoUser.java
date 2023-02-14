@@ -1,4 +1,4 @@
-package com.sso.core.user;
+package cn.edu.hzu.common.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * sso user
+ * 单点登录存放的用户信息实体
  */
 @Data
 public class SsoUser implements Serializable {

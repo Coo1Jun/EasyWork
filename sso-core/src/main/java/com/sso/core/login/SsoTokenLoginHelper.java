@@ -1,7 +1,7 @@
 package com.sso.core.login;
 
-import com.sso.core.conf.Conf;
-import com.sso.core.user.SsoUser;
+import cn.edu.hzu.common.constant.Constant;
+import cn.edu.hzu.common.entity.SsoUser;
 import com.sso.core.store.SsoLoginStore;
 import com.sso.core.store.SsoSessionIdHelper;
 
@@ -49,7 +49,7 @@ public class SsoTokenLoginHelper {
      * @param request
      */
     public static void logout(HttpServletRequest request) {
-        String headerSessionId = request.getHeader(Conf.SSO_SESSIONID);
+        String headerSessionId = request.getHeader(Constant.SSO_SESSIONID);
         logout(headerSessionId);
     }
 
@@ -93,7 +93,7 @@ public class SsoTokenLoginHelper {
      * @return
      */
     public static SsoUser loginCheck(HttpServletRequest request) {
-        String headerSessionId = request.getHeader(Conf.SSO_SESSIONID);
+        String headerSessionId = request.getHeader(Constant.SSO_SESSIONID);
         return loginCheck(headerSessionId);
     }
 

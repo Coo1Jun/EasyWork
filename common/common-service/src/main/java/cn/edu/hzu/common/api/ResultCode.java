@@ -62,7 +62,9 @@ public enum ResultCode implements IResultCode{
     /**
      * fall-back
      */
-    FAIL_FALL_BACK(9998, "fall back")
+    FAIL_FALL_BACK(9998, "fall back"),
+
+    SSO_LOGIN_FAIL_RESULT(401, "无用户登录信息或用户身份已过期，请重新登录！")
 
     ;
 
