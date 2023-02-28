@@ -26,8 +26,8 @@ public class AopLogConfig {
     /**
      * ssoServer服务的controller切入点
      */
-    final String ssoServerExecution = "execution(public * com.sso.server..controller.*.*(..))";
-    final String test = "execution(public * com.sso.server..service.*.*(..))";
+    final String ssoServerExecution = "execution(public * com.ew.server..controller.*.*(..))";
+    final String test = "execution(public * com.ew.server..service.*.*(..))";
 
     private static long startTime;
 
