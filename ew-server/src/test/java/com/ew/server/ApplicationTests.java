@@ -8,6 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.junit.runner.RunWith;
+import org.thymeleaf.context.Context;
+
+import javax.mail.MessagingException;
 
 /**
  *
@@ -29,8 +32,12 @@ public class ApplicationTests {
 	}
 
 	@Test
-	public void testSendEmail() {
-		mailService.sendMail("1425176577@qq.com", "Test Email", "Hello, this is a test email!");
+	public void testSendEmail() throws MessagingException {
+//		mailService.sendMail("1425176577@qq.com", "Test Email", "Hello, this is a test email!");
+		Context context = new Context();
+		context.setVariable("title", "Test Email");
+		context.setVariable("content", "Hello, this is a test email!");
+		mailService.sendMail("1425176577@qq.com", "Test Email", "email-templates", context);
 	}
 
 }
