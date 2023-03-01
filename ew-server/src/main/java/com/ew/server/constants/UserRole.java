@@ -1,4 +1,4 @@
-package com.ew.server.user.constants;
+package com.ew.server.constants;
 
 /**
  * @author lzf
