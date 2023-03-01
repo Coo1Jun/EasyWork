@@ -1,4 +1,6 @@
+package com.ew.server;
 
+import com.ew.server.email.service.MailService;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,17 +12,25 @@ import org.junit.runner.RunWith;
 /**
  *
  */
-@RunWith(SpringRunner.class)
+//@RunWith(SpringRunner.class)
 @SpringBootTest
 public class ApplicationTests {
 
 	@Autowired
 	ApplicationContext ctx;
 
+	@Autowired
+	MailService mailService;
+
 	@Test
 	public void testContextLoads() throws Exception {
 		Assert.assertNotNull(this.ctx);
 		Assert.assertTrue(this.ctx.containsBean("application"));
+	}
+
+	@Test
+	public void testSendEmail() {
+		mailService.sendMail("1425176577@qq.com", "Test Email", "Hello, this is a test email!");
 	}
 
 }

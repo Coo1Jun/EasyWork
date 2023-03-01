@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com</groupId>
-    <artifactId>sso-server</artifactId>
+    <artifactId>ew-server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>ew-server</name>
     <description>Demo project for Spring Boot</description>
@@ -101,6 +101,17 @@
             <artifactId>mapstruct-processor</artifactId>
             <version>1.5.0.Beta1</version>
         </dependency>
+        <!-- 邮箱 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+        <!-- thymeleaf -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
 
     </dependencies>
 
