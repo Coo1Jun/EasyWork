@@ -53,9 +53,9 @@ public class MyBatisPlusConfig {
                 this.strictInsertFill(metaObject, "version", Integer.class, 1);//乐观锁机制
                 // 还没配置登录人的信息等 先默认
                 this.setFieldValByName("createBy", currentUser.getRealName(), metaObject);//创建人
-                this.setFieldValByName("createId", currentUser.getEngName(), metaObject);//创建人ID
+                this.setFieldValByName("createId", currentUser.getUserid(), metaObject);//创建人ID
                 this.setFieldValByName("updateBy", currentUser.getRealName(), metaObject);//更新人
-                this.setFieldValByName("updateId", currentUser.getEngName(), metaObject);//更新人ID
+                this.setFieldValByName("updateId", currentUser.getUserid(), metaObject);//更新人ID
 
                 this.setFieldValByName("createTime", new Date(), metaObject);
                 this.setFieldValByName("updateTime", new Date(), metaObject);
@@ -66,7 +66,7 @@ public class MyBatisPlusConfig {
             public void updateFill(MetaObject metaObject) {
                 SsoUser currentUser = UserUtils.getCurrentUser();
                 this.setFieldValByName("updateBy", currentUser.getRealName(), metaObject);//更新人
-                this.setFieldValByName("updateId", currentUser.getEngName(), metaObject);//更新人ID
+                this.setFieldValByName("updateId", currentUser.getUserid(), metaObject);//更新人ID
 
                 this.setFieldValByName("updateTime", new Date(), metaObject);
             }
