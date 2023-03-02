@@ -94,6 +94,7 @@ public class FileMetaServiceImpl extends BaseServiceImpl<FileMetaMapper, FileMet
             fileMeta.setFileName(newFileName);
             fileMeta.setFileSize(file.getSize());
             fileMeta.setLocation(response.getUri());
+            fileMeta.setOriginalFilename(originalFilename);
             // 文件元信息保存到DB
             this.save(fileMeta);
             return fileMetaParamMapper.entity2Dto(fileMeta);

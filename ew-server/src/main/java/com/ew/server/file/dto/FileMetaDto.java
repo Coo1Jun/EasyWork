@@ -24,6 +24,8 @@ public class FileMetaDto{
     @ApiModelProperty(value = "主键ID")
     private String id;
 
+    private String originalFilename;
+
     private String location;
 
     /** 创建人ID */

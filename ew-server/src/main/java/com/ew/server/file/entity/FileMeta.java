@@ -30,6 +30,12 @@ public class FileMeta extends BaseEntity {
     private String fileName;
 
     /**
+     * 描述文件的名称，包括文件扩展名。
+     */
+    @TableField("original_filename")
+    private String originalFilename;
+
+    /**
      * 描述文件的大小，以字节为单位。
      */
     @TableField("file_size")
