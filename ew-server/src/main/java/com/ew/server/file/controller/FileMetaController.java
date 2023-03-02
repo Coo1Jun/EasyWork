@@ -58,48 +58,6 @@ public class FileMetaController {
 
     /**
      *
-     * 新增文件元信息
-     *
-     * @author LiZhengFan
-     * @since 2023-03-01
-     *
-     */
-    @ApiOperation("新增文件元信息")
-    @PostMapping
-    public RestResponse<Boolean> add(@RequestBody @Valid FileMetaAddParam fileMetaAddParam) {
-        return RestResponse.ok(fileMetaService.saveByParam(fileMetaAddParam));
-    }
-
-    /**
-     *
-     * 修改文件元信息
-     *
-     * @author LiZhengFan
-     * @since 2023-03-01
-     *
-     */
-    @ApiOperation(value = "修改文件元信息")
-    @PutMapping
-    public RestResponse<Boolean> update(@RequestBody @Valid FileMetaEditParam fileMetaEditParam) {
-        return RestResponse.ok(fileMetaService.updateByParam(fileMetaEditParam));
-    }
-
-    /**
-     *
-     * 根据id删除文件元信息
-     *
-     * @author LiZhengFan
-     * @since 2023-03-01
-     *
-     */
-    @ApiOperation(value = "根据id删除文件元信息")
-    @DeleteMapping("/{ids}")
-    public RestResponse<Boolean> delete(@PathVariable("ids") @NotEmpty String[] ids) {
-        return RestResponse.ok(fileMetaService.removeByIds(Arrays.asList(ids)));
-    }
-
-    /**
-     *
      * 根据id获取文件元信息
      *
      * @author LiZhengFan

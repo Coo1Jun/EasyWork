@@ -8,7 +8,6 @@ import cn.edu.hzu.common.service.impl.BaseServiceImpl;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.common.comm.ResponseMessage;
 import com.aliyun.oss.model.OSSObject;
-import com.aliyun.oss.model.ObjectMetadata;
 import com.aliyun.oss.model.PutObjectResult;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -168,11 +166,13 @@ public class FileMetaServiceImpl extends BaseServiceImpl<FileMetaMapper, FileMet
         return saveBatch(fileMetaParamMapper.dtoList2Entity(rows));
     }
 
-    private Wrapper<FileMeta> getPageSearchWrapper(FileMetaQueryParam fileMetaQueryParam) {
+    private Wrapper<FileMeta> getPageSearchWrapper(FileMetaQueryParam queryParam) {
         LambdaQueryWrapper<FileMeta> wrapper = Wrappers.<FileMeta>lambdaQuery();
-        if (BaseEntity.class.isAssignableFrom(FileMeta.class)) {
-            wrapper.orderByDesc(FileMeta::getUpdateTime, FileMeta::getCreateTime);
-        }
+        wrapper.eq(queryParam.getOriginalFilename() != null,
+                FileMeta::getOriginalFilename,
+                queryParam.getOriginalFilename());
+        // 根据创建时间升序
+        wrapper.orderByAsc(FileMeta::getCreateTime);
         return wrapper;
     }
 }
