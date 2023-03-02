@@ -83,4 +83,10 @@ public interface IFileMetaService extends IBaseService<FileMeta> {
      * @param file
      */
     FileMetaDto upload(MultipartFile file);
+
+    /**
+     * 批量删除文件
+     * @param ids
+     */
+    boolean delete(List<String> ids);
 }

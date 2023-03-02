@@ -1,10 +1,12 @@
 package com.ew.server.file.service.impl;
 
 import cn.edu.hzu.common.api.RestResponse;
+import cn.edu.hzu.common.api.utils.StringUtils;
 import cn.edu.hzu.common.exception.CommonException;
 import com.aliyun.oss.common.comm.ResponseMessage;
 import com.aliyun.oss.model.OSSObject;
 import com.aliyun.oss.model.PutObjectResult;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.ew.server.constants.OSSConstant;
 import com.ew.server.file.entity.FileMeta;
 import com.ew.server.file.mapper.FileMetaMapper;
@@ -35,6 +37,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -52,6 +56,9 @@ public class FileMetaServiceImpl extends BaseServiceImpl<FileMetaMapper, FileMet
 
     @Autowired
     private FileMetaParamMapper fileMetaParamMapper;
+
+    @Autowired
+    private FileMetaMapper fileMetaMapper;
 
     @Override
     public PageResult<FileMetaDto> pageDto(FileMetaQueryParam fileMetaQueryParam) {
@@ -102,6 +109,20 @@ public class FileMetaServiceImpl extends BaseServiceImpl<FileMetaMapper, FileMet
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public boolean delete(List<String> ids) {
+        // 根据ids查询文件名称
+        List<String> fileNames = fileMetaMapper.getFileNameByIds(ids);
+        // 根据ids删除记录
+        this.removeByIds(ids);
+        fileNames = fileNames.stream().map(m -> OSSConstant.FILE_DIRECTORY + m).collect(Collectors.toList());
+        log.info("要删除OSS的keys =》 {}", fileNames);
+        if (StringUtils.isEmpty(fileNames)) return false;
+        // 根据文件名称删除OSS
+        OSSUtil.delete(fileNames);
+        return true;
     }
 
     @Override

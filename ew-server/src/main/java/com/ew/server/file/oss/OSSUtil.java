@@ -2,13 +2,11 @@ package com.ew.server.file.oss;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
-import com.aliyun.oss.model.OSSObject;
-import com.aliyun.oss.model.ObjectMetadata;
-import com.aliyun.oss.model.PutObjectRequest;
-import com.aliyun.oss.model.PutObjectResult;
+import com.aliyun.oss.model.*;
 import com.ew.server.constants.OSSConstant;
 
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * @author lzf
@@ -73,4 +71,15 @@ public class OSSUtil {
         ossClient.shutdown();
         return object;
     }
+
+    /**
+     * 批量删除文件，删除后无法恢复，谨慎调用！
+     * @param fileNames 文件的路径和名称，如：test/show.txt。如果要删除目录，目录必须为空。
+     */
+    public static void delete(List<String> fileNames) {
+        OSS ossClient = getOSSClient();
+        ossClient.deleteObjects(new DeleteObjectsRequest(OSSConstant.BUCKET_NAME).withKeys(fileNames));
+        ossClient.shutdown();
+    }
+
 }

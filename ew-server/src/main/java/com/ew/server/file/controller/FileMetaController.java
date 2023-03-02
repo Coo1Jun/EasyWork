@@ -8,6 +8,7 @@ import cn.edu.hzu.common.enums.CommonErrorEnum;
 import cn.edu.hzu.common.exception.CommonException;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import io.swagger.annotations.*;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.ew.server.file.dto.FileMetaQueryParam;
 import com.ew.server.file.dto.FileMetaAddParam;
@@ -127,6 +128,20 @@ public class FileMetaController {
             return RestResponse.failed();
         }
         return RestResponse.ok(dto);
+    }
+
+    /**
+     *
+     * 删除文件
+     *
+     * @author LiZhengFan
+     * @since 2023-03-02
+     *
+     */
+    @ApiOperation(value = "删除文件")
+    @DeleteMapping("/delete/{ids}")
+    public RestResponse<Boolean> deleteFile(@PathVariable("ids") @NotEmpty String[] ids){
+        return RestResponse.ok(fileMetaService.delete(Arrays.asList(ids)));
     }
 
 }
