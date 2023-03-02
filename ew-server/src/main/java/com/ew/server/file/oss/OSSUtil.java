@@ -61,18 +61,6 @@ public class OSSUtil {
     }
 
     /**
-     * 获取文件信息对象
-     * @param fileName 文件的路径和名称，如：test/show.txt
-     * @return
-     */
-    public static OSSObject getOSSObject(String fileName) {
-        OSS ossClient = getOSSClient();
-        OSSObject object = ossClient.getObject(OSSConstant.BUCKET_NAME, fileName);
-        ossClient.shutdown();
-        return object;
-    }
-
-    /**
      * 批量删除文件，删除后无法恢复，谨慎调用！
      * @param fileNames 文件的路径和名称，如：test/show.txt。如果要删除目录，目录必须为空。
      */

@@ -7,6 +7,7 @@ import cn.edu.hzu.common.api.utils.ExcelUtils;
 import cn.edu.hzu.common.enums.CommonErrorEnum;
 import cn.edu.hzu.common.exception.CommonException;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.ew.server.constants.OSSConstant;
 import io.swagger.annotations.*;
 import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,11 +124,25 @@ public class FileMetaController {
     @ApiOperation(value = "上传文件")
     @PostMapping("/upload")
     public RestResponse<FileMetaDto> uploadFile(@RequestParam("file") MultipartFile file){
-        FileMetaDto dto = fileMetaService.upload(file);
+        FileMetaDto dto = fileMetaService.upload(file, OSSConstant.FILE_DIRECTORY);
         if (dto == null) {
             return RestResponse.failed();
         }
         return RestResponse.ok(dto);
+    }
+
+    /**
+     *
+     * 下载文件
+     *
+     * @author LiZhengFan
+     * @since 2023-03-02
+     *
+     */
+    @ApiOperation(value = "上传文件")
+    @GetMapping("/download/{id}")
+    public void downloadFile(@PathVariable("id") @NotEmpty String id, HttpServletResponse response){
+        fileMetaService.download(id, response, OSSConstant.FILE_DIRECTORY);
     }
 
     /**
@@ -141,7 +156,7 @@ public class FileMetaController {
     @ApiOperation(value = "删除文件")
     @DeleteMapping("/delete/{ids}")
     public RestResponse<Boolean> deleteFile(@PathVariable("ids") @NotEmpty String[] ids){
-        return RestResponse.ok(fileMetaService.delete(Arrays.asList(ids)));
+        return RestResponse.ok(fileMetaService.delete(Arrays.asList(ids), OSSConstant.FILE_DIRECTORY));
     }
 
 }

@@ -10,6 +10,7 @@ import com.ew.server.file.dto.FileMetaDto;
 import cn.edu.hzu.common.api.PageResult;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -82,11 +83,18 @@ public interface IFileMetaService extends IBaseService<FileMeta> {
      * 上传文件内容到OSS和保存文件元信息到DB
      * @param file
      */
-    FileMetaDto upload(MultipartFile file);
+    FileMetaDto upload(MultipartFile file, String directory);
 
     /**
      * 批量删除文件
      * @param ids
      */
-    boolean delete(List<String> ids);
+    boolean delete(List<String> ids, String directory);
+
+    /**
+     * 下载文件
+     * @param id 文件id
+     * @param response
+     */
+    void download(String id, HttpServletResponse response, String directory);
 }
