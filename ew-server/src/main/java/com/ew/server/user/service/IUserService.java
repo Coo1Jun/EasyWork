@@ -1,12 +1,9 @@
 package com.ew.server.user.service;
 
 import cn.edu.hzu.common.api.RestResponse;
+import com.ew.server.user.dto.*;
 import com.ew.server.user.entity.User;
 import cn.edu.hzu.common.service.IBaseService;
-import com.ew.server.user.dto.UserQueryParam;
-import com.ew.server.user.dto.UserAddParam;
-import com.ew.server.user.dto.UserEditParam;
-import com.ew.server.user.dto.UserDto;
 import cn.edu.hzu.common.api.PageResult;
 import java.util.List;
 
@@ -77,4 +74,18 @@ public interface IUserService extends IBaseService<User> {
     boolean updateByParam(UserEditParam userEditParam);
 
     RestResponse<UserDto> findUser(String loginName, String password);
+
+    /**
+     * 用户注册
+     * @param userRegisterDto 注册实体
+     * @return
+     */
+    boolean register(UserRegisterDto userRegisterDto);
+
+    /**
+     * 发送验证码
+     * @param registerMail
+     * @return
+     */
+    boolean sendVerifyCode(RegisterMail registerMail);
 }

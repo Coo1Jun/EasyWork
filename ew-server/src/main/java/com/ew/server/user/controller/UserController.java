@@ -7,13 +7,11 @@ import cn.edu.hzu.common.api.utils.ExcelUtils;
 import cn.edu.hzu.common.enums.CommonErrorEnum;
 import cn.edu.hzu.common.exception.CommonException;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.ew.server.user.dto.*;
 import com.ew.server.user.service.IUserService;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.ew.server.user.dto.UserQueryParam;
-import com.ew.server.user.dto.UserAddParam;
-import com.ew.server.user.dto.UserEditParam;
-import com.ew.server.user.dto.UserDto;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -145,6 +143,28 @@ public class UserController {
             throw new CommonException(CommonErrorEnum.IMPORT_DATA_EMPTY);
         }
         return RestResponse.ok(userService.saveDtoBatch(rows));
+    }
+
+    /**
+     * 用户注册
+     * @param userRegisterDto
+     * @return
+     */
+    @ApiOperation(value = "用户注册")
+    @PostMapping("/register")
+    public RestResponse<Boolean> register(@RequestBody UserRegisterDto userRegisterDto) {
+        return RestResponse.ok(userService.register(userRegisterDto));
+    }
+
+    /**
+     * 发送邮箱验证码
+     * @param registerMail
+     * @return
+     */
+    @ApiOperation(value = "用户注册发送送验证码")
+    @GetMapping("/register/sendVerifyCode")
+    public RestResponse<Boolean> sendVerifyCode(@RequestBody RegisterMail registerMail) {
+        return RestResponse.ok(userService.sendVerifyCode(registerMail));
     }
 
 }

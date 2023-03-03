@@ -37,7 +37,7 @@ public class User extends BaseEntity {
     private String realName;
 
     /**
-     * 英文名称（唯一）
+     * 英文名称
      */
     @TableField("eng_name")
     private String engName;
@@ -61,7 +61,7 @@ public class User extends BaseEntity {
     private String email;
 
     /**
-     * 手机（唯一）
+     * 手机
      */
     @TableField("phone")
     private String phone;

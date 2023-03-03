@@ -45,4 +45,9 @@ public class Constant {
      */
     public static final String SSO_EXCLUDED_PATHS = "SSO_EXCLUDED_PATHS";
     // ========================== sso-server end ===================
+
+    /**
+     * 项目名称
+     */
+    public static final String PROJECT_NAME = "Easy Work";
 }
