@@ -163,7 +163,7 @@ public class UserController {
      */
     @ApiOperation(value = "用户注册发送送验证码")
     @GetMapping("/register/sendVerifyCode")
-    public RestResponse<Boolean> sendVerifyCode(@RequestBody RegisterMail registerMail) {
+    public RestResponse<Boolean> sendVerifyCode(RegisterMail registerMail) {
         return RestResponse.ok(userService.sendVerifyCode(registerMail));
     }
 

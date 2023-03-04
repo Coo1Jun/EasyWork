@@ -1,7 +1,7 @@
 server:
   port: 8020
   servlet:
-    context-path: /ew-server
+    context-path: /api/ew-server
 
 spring:
   datasource:

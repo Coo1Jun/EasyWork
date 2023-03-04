@@ -26,7 +26,7 @@ public class WebController {
     @Autowired
     private IUserService userService;
 
-    @GetMapping({"/", "/login"})
+    @GetMapping({"/", "/getCurrentUser"})
     @ResponseBody
     public RestResponse index(HttpServletRequest request, HttpServletResponse response) {
 
@@ -52,7 +52,7 @@ public class WebController {
         boolean ifRem = "on".equals(loginInfo.getIfRemember());
 
         // valid login
-        RestResponse<UserDto> result = userService.findUser(loginInfo.getLoginName(), loginInfo.getPassword());
+        RestResponse<UserDto> result = userService.findUser(loginInfo.getUsername(), loginInfo.getPassword());
 
         if (result.getCode() != ResultCode.SUCCESS.getCode()) {
             return RestResponse.failed(result.getMsg());
@@ -82,7 +82,7 @@ public class WebController {
         // 3、login, store storeKey + cookie sessionId
         String cookieValue = SsoWebLoginHelper.login(response, sessionId, ssoUser, ifRem);
 
-        return RestResponse.ok(Constant.SSO_SESSIONID + "=" + cookieValue, "登录成功");
+        return RestResponse.ok(cookieValue, "登录成功");
     }
 
     /**
