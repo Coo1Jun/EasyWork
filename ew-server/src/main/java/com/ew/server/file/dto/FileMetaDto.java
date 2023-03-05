@@ -28,6 +28,12 @@ public class FileMetaDto{
 
     private String location;
 
+    private Long fileSize;
+
+    private String fileName;
+
+    private String description;
+
     /** 创建人ID */
     private String createId;
 

@@ -90,11 +90,14 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         LambdaQueryWrapper<User> wrapper = Wrappers.<User>lambdaQuery();
         wrapper.eq(User::getEmail, loginName);
         User user = this.getOne(wrapper);
-        if (user != null && password.equals(JasyptEncryptorUtils.decode(user.getPassword()))) {
+        if (user == null) {
+            return RestResponse.failed("邮箱不存在！");
+        }
+        if (password.equals(JasyptEncryptorUtils.decode(user.getPassword()))) {
             UserDto userDto = userParamMapper.entity2Dto(user);
             return RestResponse.ok(userDto);
         }
-        return RestResponse.failed("用户名不存在或密码错误！");
+        return RestResponse.failed("密码错误！");
     }
 
     @Override

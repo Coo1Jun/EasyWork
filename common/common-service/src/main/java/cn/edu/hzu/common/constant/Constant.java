@@ -50,4 +50,9 @@ public class Constant {
      * 项目名称
      */
     public static final String PROJECT_NAME = "Easy Work";
+
+    /**
+     * 默认用户头像链接
+     */
+    public static final String DEFAULT_USER_PORTRAIT = "https://easywork23.oss-cn-shenzhen.aliyuncs.com/attachment/default_user.png";
 }
