@@ -17,20 +17,6 @@ spring:
     username: easywork23@163.com
     # 密码是在开启smtp/pop3时自动生成的
     password: SUSTRPCRXGAHYOQG
-#  freemarker:
-#    charset: UTF-8
-#    request-context-attribute: request
-#    settings:
-#      number_format: 0.##########
-#    suffix: .ftl
-#    templateLoaderPath: classpath:/templates/
-  mvc:
-    static-path-pattern: /static/**
-    pathmatch:
-      matching-strategy: ant_path_matcher
-  web:
-    resources:
-      static-locations: classpath:/static/
 sso:
   redis:
     address: redis://127.0.0.1:6379
@@ -40,7 +26,7 @@ sso:
   logout:
     path: /logout
   # SSO Server认证中心地址
-  server: http://127.0.0.1:8080/ew-server
+  server: http://127.0.0.1:8020/ew-server
   #  路径排除Path，允许设置多个，且支持Ant表达式。用于排除SSO客户端不需要过滤的路径
   excluded:
     paths: /doLogin,/login,/user/register/*
@@ -57,3 +43,5 @@ aliyun:
       keyid: LTAI5tSEjsfbE1pdCGgibCC7 # 秘钥值
       keysecret: 2fX2KNQfGiE73FofyvH7blplzXPart # 秘钥偏移量
       bucketname: easywork23 # bucket的名字
+knife4j:
+  enable: true
