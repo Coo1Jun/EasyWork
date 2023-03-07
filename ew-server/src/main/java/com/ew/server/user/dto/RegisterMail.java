@@ -1,5 +1,7 @@
 package com.ew.server.user.dto;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -8,6 +10,8 @@ import lombok.Data;
  * @description 注册邮箱实体
  */
 @Data
+@ApiModel("注册邮箱实体")
 public class RegisterMail {
+    @ApiModelProperty("注册的邮箱")
     private String email;
 }

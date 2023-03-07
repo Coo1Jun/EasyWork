@@ -20,5 +20,6 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "FileMeta查询", description = "查询参数")
 public class FileMetaQueryParam extends PageParam {
+    @ApiModelProperty("文件原始名称")
     private String originalFilename;
 }

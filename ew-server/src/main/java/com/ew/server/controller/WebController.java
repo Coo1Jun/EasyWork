@@ -12,6 +12,8 @@ import com.ew.server.user.service.IUserService;
 import com.sso.core.login.SsoWebLoginHelper;
 import com.sso.core.store.SsoLoginStore;
 import com.sso.core.store.SsoSessionIdHelper;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
  * sso server (for web)
  */
 @Controller
+@Api("登录服务接口")
 public class WebController {
 
     @Autowired
@@ -33,7 +36,8 @@ public class WebController {
     @Autowired
     private IFileMetaService fileMetaService;
 
-    @GetMapping({"/", "/getCurrentUser"})
+    @ApiOperation("获取当前登录用户信息")
+    @GetMapping( "/getCurrentUser")
     @ResponseBody
     public RestResponse index(HttpServletRequest request, HttpServletResponse response) {
 
@@ -57,6 +61,7 @@ public class WebController {
      *
      * @return
      */
+    @ApiOperation("登录接口")
     @PostMapping("/doLogin")
     @ResponseBody
     public RestResponse doLogin(@RequestBody LoginInfo loginInfo, HttpServletResponse response) {
@@ -103,6 +108,7 @@ public class WebController {
      * @param request
      * @return
      */
+    @ApiOperation("退出登录")
     @GetMapping(Constant.SSO_LOGOUT)
     @ResponseBody
     public RestResponse logout(HttpServletRequest request, HttpServletResponse response) {

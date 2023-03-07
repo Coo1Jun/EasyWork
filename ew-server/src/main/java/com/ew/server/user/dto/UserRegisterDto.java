@@ -1,6 +1,7 @@
 package com.ew.server.user.dto;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -17,20 +18,24 @@ public class UserRegisterDto {
     /**
      * 密码
      */
+    @ApiModelProperty("密码")
     private String password;
 
     /**
      * 邮箱（唯一）
      */
+    @ApiModelProperty("邮箱（唯一）")
     private String email;
 
     /**
      * 真实名字
      */
+    @ApiModelProperty("真实名字")
     private String realName;
 
     /**
      * 邮箱验证码
      */
+    @ApiModelProperty("邮箱验证码")
     private String code;
 }

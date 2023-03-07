@@ -24,23 +24,31 @@ public class FileMetaDto{
     @ApiModelProperty(value = "主键ID")
     private String id;
 
+    @ApiModelProperty("文件原始名称")
     private String originalFilename;
 
+    @ApiModelProperty("文件的访问路径")
     private String location;
 
+    @ApiModelProperty("文件大小，单位：字节")
     private Long fileSize;
 
+    @ApiModelProperty("文件在OSS对象存储中的名称")
     private String fileName;
 
+    @ApiModelProperty("文件描述")
     private String description;
 
     /** 创建人ID */
+    @ApiModelProperty("创建人id")
     private String createId;
 
     /** 创建人 */
+    @ApiModelProperty("创建人")
     private String createBy;
 
     /** 创建时间 */
+    @ApiModelProperty("创建时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone ="GMT+8" )
     private Date createTime;
 
