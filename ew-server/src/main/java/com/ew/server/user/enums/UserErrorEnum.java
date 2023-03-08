@@ -23,6 +23,10 @@ public enum UserErrorEnum implements CustomResultCode {
      * 验证码不正确
      */
     VERIFY_CODE_ERROR(10005,"验证码不正确", null),
+    /**
+     * 找不到用户
+     */
+    USER_EMPTY(10006, "用户不存在", null),
     ;
     private int code;
     private String msg;

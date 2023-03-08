@@ -161,9 +161,19 @@ public class UserController {
      * @return
      */
     @ApiOperation(value = "用户发送验证码")
-    @GetMapping("/register/sendVerifyCode")
+    @GetMapping("/email/sendVerifyCode")
     public RestResponse<Boolean> sendVerifyCode(VerifyEmail registerMail) {
         return RestResponse.ok(userService.sendVerifyCode(registerMail));
     }
 
+    /**
+     * 用户找回密码
+     * @param userRegisterDto
+     * @return
+     */
+    @ApiOperation(value = "用户找回密码")
+    @PostMapping("/change/password")
+    public RestResponse<Boolean> forgot(@RequestBody UserRegisterDto userRegisterDto) {
+        return RestResponse.ok(userService.forgot(userRegisterDto));
+    }
 }

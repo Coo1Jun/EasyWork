@@ -137,6 +137,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         user.setRealName(dto.getRealName());
         user.setRole(UserRole.USER);
         user.setUserVersion(UUID.randomUUID().toString().replaceAll("-", ""));
+        log.info("用户完成注册 ===> {}", user);
         return this.save(user);
     }
 
@@ -160,6 +161,44 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         }
         // 再将验证码保存至redis，key为邮箱，保存5分钟
         JedisUtil.setStringValue(verifyEmail.getEmail(), code, 300);
+        log.info("邮箱 ===> [{}]，验证码 ===> [{}]", verifyEmail.getEmail(), code);
+        return true;
+    }
+
+    @Override
+    public boolean forgot(UserRegisterDto dto) {
+        // 参数非空校验
+        if (StringUtils.isEmpty(dto.getPassword())) {
+            throw CommonException.builder().resultCode(UserErrorEnum.PASSWORD_EMPTY).build();
+        }
+        if (StringUtils.isEmpty(dto.getEmail())) {
+            throw CommonException.builder().resultCode(EmailErrorEnum.EMAIL_EMPTY).build();
+        }
+        if (StringUtils.isEmpty(dto.getCode())) {
+            throw CommonException.builder().resultCode(UserErrorEnum.VERIFY_CODE_EMPTY).build();
+        }
+        // 验证邮箱格式是否正确
+        checkEmail(dto.getEmail());
+        // 判断邮箱是否被注册
+        Integer count = this.getBaseMapper()
+                .selectCount(Wrappers.<User>lambdaQuery().eq(User::getEmail, dto.getEmail()));
+        // 如果邮箱没有被注册，则不能找回密码
+        if (!(count > 0)) {
+            throw CommonException.builder().resultCode(UserErrorEnum.USER_EMPTY).build();
+        }
+        // 判断验证码是否正确
+        String codeInRedis = JedisUtil.getStringValue(dto.getEmail());
+        if (!dto.getCode().equals(codeInRedis)) {
+            throw CommonException.builder().resultCode(UserErrorEnum.VERIFY_CODE_ERROR).build();
+        }
+        // 验证成功，删除验证码
+        JedisUtil.del(dto.getEmail());
+        // 找回密码
+        this.getBaseMapper().update(null, Wrappers.<User>lambdaUpdate()
+                .set(User::getPassword, JasyptEncryptorUtils.encode(dto.getPassword()))
+                .set(User::getUserVersion, UUID.randomUUID().toString().replaceAll("-", ""))
+                .eq(User::getEmail, dto.getEmail()));
+        log.info("用户邮箱 ===> [{}]，成功更新密码", dto.getEmail());
         return true;
     }
 

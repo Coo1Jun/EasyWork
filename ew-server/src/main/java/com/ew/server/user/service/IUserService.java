@@ -88,4 +88,11 @@ public interface IUserService extends IBaseService<User> {
      * @return
      */
     boolean sendVerifyCode(VerifyEmail registerMail);
+
+    /**
+     * 用户找回密码
+     * @param userRegisterDto 实体
+     * @return
+     */
+    boolean forgot(UserRegisterDto userRegisterDto);
 }
