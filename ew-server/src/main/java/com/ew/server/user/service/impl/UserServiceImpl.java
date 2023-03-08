@@ -141,25 +141,25 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
     }
 
     @Override
-    public boolean sendVerifyCode(RegisterMail registerMail) {
+    public boolean sendVerifyCode(VerifyEmail verifyEmail) {
         // 参数非空校验
-        if (StringUtils.isEmpty(registerMail.getEmail())) {
+        if (StringUtils.isEmpty(verifyEmail.getEmail())) {
             throw CommonException.builder().resultCode(EmailErrorEnum.EMAIL_EMPTY).build();
         }
         // 验证邮箱格式是否正确
-        checkEmail(registerMail.getEmail());
+        checkEmail(verifyEmail.getEmail());
         // 生成验证码
         String code = EmailUtil.generateCode();
         // 先发送邮件，如果邮件发送过程中出现错误，验证码也不会保存
         Context context = new Context();
         context.setVariable("code", code);
         try {
-            mailService.sendMail(registerMail.getEmail(), Constant.PROJECT_NAME, EmailTemplates.REGISTER, context);
+            mailService.sendMail(verifyEmail.getEmail(), Constant.PROJECT_NAME, verifyEmail.getType(), context);
         } catch (MessagingException e) {
             throw CommonException.builder().resultCode(EmailErrorEnum.EMAIL_SEND_ERROR).build();
         }
         // 再将验证码保存至redis，key为邮箱，保存5分钟
-        JedisUtil.setStringValue(registerMail.getEmail(), code, 300);
+        JedisUtil.setStringValue(verifyEmail.getEmail(), code, 300);
         return true;
     }
 

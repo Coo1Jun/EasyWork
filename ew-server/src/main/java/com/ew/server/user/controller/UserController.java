@@ -9,7 +9,6 @@ import cn.edu.hzu.common.exception.CommonException;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.ew.server.user.dto.*;
 import com.ew.server.user.service.IUserService;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -161,9 +160,9 @@ public class UserController {
      * @param registerMail
      * @return
      */
-    @ApiOperation(value = "用户注册发送送验证码")
+    @ApiOperation(value = "用户发送验证码")
     @GetMapping("/register/sendVerifyCode")
-    public RestResponse<Boolean> sendVerifyCode(RegisterMail registerMail) {
+    public RestResponse<Boolean> sendVerifyCode(VerifyEmail registerMail) {
         return RestResponse.ok(userService.sendVerifyCode(registerMail));
     }
 

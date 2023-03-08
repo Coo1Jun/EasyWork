@@ -13,4 +13,8 @@ public class EmailTemplates {
      * 注册模板
      */
     public static final String REGISTER = "register";
+    /**
+     * 找回密码模板
+     */
+    public static final String FORGOT = "forgot";
 }

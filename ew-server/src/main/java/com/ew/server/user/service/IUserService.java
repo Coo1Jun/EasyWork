@@ -87,5 +87,5 @@ public interface IUserService extends IBaseService<User> {
      * @param registerMail
      * @return
      */
-    boolean sendVerifyCode(RegisterMail registerMail);
+    boolean sendVerifyCode(VerifyEmail registerMail);
 }

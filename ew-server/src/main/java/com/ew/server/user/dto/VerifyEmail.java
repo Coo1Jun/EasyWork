@@ -7,11 +7,14 @@ import lombok.Data;
 /**
  * @author lzf
  * @create 2023/03/03
- * @description 注册邮箱实体
+ * @description 邮箱实体
  */
 @Data
-@ApiModel("注册邮箱实体")
-public class RegisterMail {
-    @ApiModelProperty("注册的邮箱")
+@ApiModel("发送验证码的邮箱实体")
+public class VerifyEmail {
+    @ApiModelProperty("邮箱")
     private String email;
+
+    @ApiModelProperty("类型")
+    private String type;
 }
