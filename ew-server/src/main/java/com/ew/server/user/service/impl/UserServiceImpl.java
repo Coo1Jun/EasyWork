@@ -5,6 +5,7 @@ import cn.edu.hzu.common.api.RestResponse;
 import cn.edu.hzu.common.api.utils.StringUtils;
 import cn.edu.hzu.common.constant.Constant;
 import cn.edu.hzu.common.entity.BaseEntity;
+import cn.edu.hzu.common.entity.SsoUser;
 import cn.edu.hzu.common.exception.CommonException;
 import cn.edu.hzu.common.service.impl.BaseServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
@@ -20,6 +21,7 @@ import com.ew.server.user.entity.User;
 import com.ew.server.user.enums.UserErrorEnum;
 import com.ew.server.user.mapper.UserMapper;
 import com.ew.server.user.service.IUserService;
+import com.sso.core.store.SsoLoginStore;
 import com.sso.core.util.JasyptEncryptorUtils;
 import com.sso.core.util.JedisUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -75,7 +77,8 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
     @Transactional(rollbackFor={Exception.class, Error.class})
     public boolean updateByParam(UserEditParam userEditParam) {
         User user = userParamMapper.editParam2Entity(userEditParam);
-        // Assert.notNull(ResultCode.PARAM_VALID_ERROR,user);
+        // 更新redis的值
+        updateSsoUserFromRedis(userEditParam);
         return updateById(user);
     }
 
@@ -196,7 +199,6 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         // 找回密码
         this.getBaseMapper().update(null, Wrappers.<User>lambdaUpdate()
                 .set(User::getPassword, JasyptEncryptorUtils.encode(dto.getPassword()))
-                .set(User::getUserVersion, UUID.randomUUID().toString().replaceAll("-", ""))
                 .eq(User::getEmail, dto.getEmail()));
         log.info("用户邮箱 ===> [{}]，成功更新密码", dto.getEmail());
         return true;
@@ -234,6 +236,46 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
                     .resultCode(EmailErrorEnum.EMAIL_PATTERN_ERROR
                             .setParams(new Object[]{email}))
                     .build();
+        }
+    }
+
+    /**
+     * 从redis更新ssoUser
+     * @param user
+     */
+    private void updateSsoUserFromRedis(UserEditParam user) {
+        String redisKey = Constant.SSO_SESSIONID.concat("#").concat(user.getId());
+        SsoUser ssoUserFromRedis = null;
+        Object objectValue = JedisUtil.getObjectValue(redisKey);
+        long second = JedisUtil.ttlObjectKey(redisKey);
+        log.info("key:{} 剩余时间：{}s", redisKey, second);
+        if (second == -1) {
+            second = SsoLoginStore.getRedisExpireMinute() * 60;
+        }
+        if (objectValue != null) {
+            ssoUserFromRedis = (SsoUser) objectValue;
+        }
+        if (ssoUserFromRedis != null) {
+            SsoUser newSsoUser = new SsoUser();
+            newSsoUser.setUserid(user.getId());
+            newSsoUser.setVersion(ssoUserFromRedis.getVersion());
+            newSsoUser.setExpireMinute(ssoUserFromRedis.getExpireMinute());
+            newSsoUser.setFreshTime(ssoUserFromRedis.getFreshTime());
+
+            newSsoUser.setBirthDate(user.getBirthDate() == null ? ssoUserFromRedis.getBirthDate() : user.getBirthDate());
+            newSsoUser.setCreateTime(ssoUserFromRedis.getCreateTime());
+            newSsoUser.setDescription(user.getDescription() == null ? ssoUserFromRedis.getDescription() : user.getDescription());
+            newSsoUser.setEmail(user.getEmail() == null ? ssoUserFromRedis.getEmail() : user.getEmail());
+            newSsoUser.setPhone(user.getPhone() == null ? ssoUserFromRedis.getPhone() : user.getPhone());
+            newSsoUser.setEngName(user.getEngName() == null ? ssoUserFromRedis.getEngName() : user.getEngName());
+            newSsoUser.setRealName(user.getRealName() == null ? ssoUserFromRedis.getRealName() : user.getRealName());
+            newSsoUser.setNickname(user.getNickname() == null ? ssoUserFromRedis.getNickname() : user.getNickname());
+            newSsoUser.setRole(user.getRole() == null ? ssoUserFromRedis.getRole() : user.getRole());
+            newSsoUser.setSex(user.getSex() == null ? ssoUserFromRedis.getSex() : user.getSex());
+            newSsoUser.setPortrait(user.getPortrait() == null ? ssoUserFromRedis.getPortrait() : user.getPortrait());
+
+            JedisUtil.setObjectValue(redisKey, newSsoUser, (int)second);
+            log.info("redis里的ssoUser已更新 ===》 {}", newSsoUser);
         }
     }
 }

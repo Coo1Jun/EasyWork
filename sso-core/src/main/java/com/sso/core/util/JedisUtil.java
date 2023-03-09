@@ -220,6 +220,49 @@ public class JedisUtil {
     }
 
     /**
+     * Set String
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    public static String setStringValue(String key, String value) {
+        String result = null;
+        ShardedJedis client = getInstance();
+        try {
+            result = client.set(key, value);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        } finally {
+            if (client != null) {
+                client.close();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Set Object
+     *
+     * @param key
+     * @param obj
+     */
+    public static String setObjectValue(String key, Object obj) {
+        String result = null;
+        ShardedJedis client = getInstance();
+        try {
+            result = client.set(key.getBytes(), serialize(obj));
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        } finally {
+            if (client != null) {
+                client.close();
+            }
+        }
+        return result;
+    }
+
+    /**
      * Get String
      *
      * @param key
@@ -366,6 +409,46 @@ public class JedisUtil {
         ShardedJedis client = getInstance();
         try {
             result = client.expireAt(key, unixTime);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        } finally {
+            if (client != null) {
+                client.close();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 查看过期时间，单位：s
+     * @param key
+     * @return
+     */
+    public static long ttlObjectKey(String key) {
+        Long result = null;
+        ShardedJedis client = getInstance();
+        try {
+            result = client.ttl(key.getBytes());
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        } finally {
+            if (client != null) {
+                client.close();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 查看过期时间，单位：s
+     * @param key
+     * @return
+     */
+    public static long ttlStringKey(String key) {
+        Long result = null;
+        ShardedJedis client = getInstance();
+        try {
+            result = client.ttl(key);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         } finally {
