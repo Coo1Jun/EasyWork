@@ -97,7 +97,7 @@ public class FileMetaController {
      * @since 2023-03-02
      *
      */
-    @ApiOperation(value = "上传文件")
+    @ApiOperation(value = "下载文件")
     @GetMapping("/download/{id}")
     public void downloadFile(@PathVariable("id") @NotEmpty String id, HttpServletResponse response){
         fileMetaService.download(id, response, OSSConstant.FILE_DIRECTORY);

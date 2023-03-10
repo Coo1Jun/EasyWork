@@ -76,6 +76,10 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
     @Override
     @Transactional(rollbackFor={Exception.class, Error.class})
     public boolean updateByParam(UserEditParam userEditParam) {
+        if (userEditParam.getSex() != null) {
+            String sex = userEditParam.getSex();
+            userEditParam.setSex(("0".equals(sex) || "1".equals(sex)) ? sex : null);
+        }
         User user = userParamMapper.editParam2Entity(userEditParam);
         // 更新redis的值
         updateSsoUserFromRedis(userEditParam);
