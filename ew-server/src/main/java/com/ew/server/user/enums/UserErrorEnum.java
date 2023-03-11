@@ -27,6 +27,14 @@ public enum UserErrorEnum implements CustomResultCode {
      * 找不到用户
      */
     USER_EMPTY(10006, "用户不存在", null),
+    /**
+     * 密码不正确
+     */
+    PASSWORD_WRONG(10007, "密码不正确", null),
+    /**
+     * 密码必须包含字母和数字，且不少于8位
+     */
+    PASSWORD_RULE_WRONG(10008, "密码必须包含字母和数字，且不少于8位", null),
     ;
     private int code;
     private String msg;

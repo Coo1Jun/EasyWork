@@ -3,6 +3,7 @@ package com.ew.server.user.service.impl;
 import cn.edu.hzu.common.api.PageResult;
 import cn.edu.hzu.common.api.RestResponse;
 import cn.edu.hzu.common.api.utils.StringUtils;
+import cn.edu.hzu.common.api.utils.UserUtils;
 import cn.edu.hzu.common.constant.Constant;
 import cn.edu.hzu.common.entity.BaseEntity;
 import cn.edu.hzu.common.entity.SsoUser;
@@ -12,7 +13,6 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ew.server.constants.UserRole;
-import com.ew.server.email.EmailTemplates;
 import com.ew.server.email.enums.EmailErrorEnum;
 import com.ew.server.email.service.MailService;
 import com.ew.server.email.utils.EmailUtil;
@@ -82,7 +82,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         }
         User user = userParamMapper.editParam2Entity(userEditParam);
         // 更新redis的值
-        updateSsoUserFromRedis(userEditParam);
+        updateSsoUserFromRedis(user);
         return updateById(user);
     }
 
@@ -121,6 +121,10 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         }
         if (StringUtils.isEmpty(dto.getCode())) {
             throw CommonException.builder().resultCode(UserErrorEnum.VERIFY_CODE_EMPTY).build();
+        }
+        // 密码必须包含字母和数字，且不少于8位
+        if (!Constant.PASSWORD_PATTERN.matcher(dto.getPassword()).matches()) {
+            throw CommonException.builder().resultCode(UserErrorEnum.PASSWORD_RULE_WRONG).build();
         }
         // 验证邮箱格式是否正确
         checkEmail(dto.getEmail());
@@ -209,6 +213,70 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
     }
 
     @Override
+    public boolean changePwd(ChangePwdDto changePwdDto) {
+        // 判空
+        if (StringUtils.isEmpty(changePwdDto.getNewPassword()) || StringUtils.isEmpty(changePwdDto.getOldPassword())) {
+            throw CommonException.builder().resultCode(UserErrorEnum.PASSWORD_EMPTY).build();
+        }
+        // 根据id取出用户旧密码
+        User user = this.getById(changePwdDto.getId());
+        // 旧密码不相等
+        if (!JasyptEncryptorUtils.decode(user.getPassword()).equals(changePwdDto.getOldPassword())) {
+            throw CommonException.builder().resultCode(UserErrorEnum.PASSWORD_WRONG).build();
+        }
+        // 密码必须包含字母和数字，且不少于8位
+        if (!Constant.PASSWORD_PATTERN.matcher(changePwdDto.getNewPassword()).matches()) {
+            throw CommonException.builder().resultCode(UserErrorEnum.PASSWORD_RULE_WRONG).build();
+        }
+        // 修改密码
+        this.getBaseMapper().update(null, Wrappers.<User>lambdaUpdate()
+                .set(User::getPassword, JasyptEncryptorUtils.encode(changePwdDto.getNewPassword()))
+                .eq(User::getId, changePwdDto.getId()));
+        log.info("用户id ===> [{}]，成功更新密码", changePwdDto.getId());
+        return true;
+    }
+
+    @Override
+    public boolean changeEmail(UserRegisterDto dto) {
+        // 获取当前用户
+        SsoUser currentUser = UserUtils.getCurrentUser();
+        // 参数非空校验
+        if (StringUtils.isEmpty(dto.getEmail())) {
+            throw CommonException.builder().resultCode(EmailErrorEnum.EMAIL_EMPTY).build();
+        }
+        if (StringUtils.isEmpty(dto.getCode())) {
+            throw CommonException.builder().resultCode(UserErrorEnum.VERIFY_CODE_EMPTY).build();
+        }
+        // 验证新邮箱格式是否正确
+        checkEmail(dto.getEmail());
+        // 判断新邮箱是否被注册
+        Integer count = this.getBaseMapper()
+                .selectCount(Wrappers.<User>lambdaQuery().eq(User::getEmail, dto.getEmail()));
+        // 如果新邮箱已经被注册，则不能被更换
+        if (count > 0) {
+            throw CommonException.builder().resultCode(UserErrorEnum.EMAIL_REGISTERED).build();
+        }
+        // 判断验证码是否正确
+        String codeInRedis = JedisUtil.getStringValue(dto.getEmail());
+        if (!dto.getCode().equals(codeInRedis)) {
+            throw CommonException.builder().resultCode(UserErrorEnum.VERIFY_CODE_ERROR).build();
+        }
+        // 验证成功，删除验证码
+        JedisUtil.del(dto.getEmail());
+        // 修改邮箱
+        this.getBaseMapper().update(null, Wrappers.<User>lambdaUpdate()
+                .set(User::getEmail, dto.getEmail())
+                .eq(User::getId, currentUser.getUserid()));
+        log.info("用户id ===> [{}]，成功更新邮箱 ===> [{}]", currentUser.getUserid(), dto.getEmail());
+        // 修改redis
+        User user = new User();
+        user.setEmail(dto.getEmail());
+        user.setId(currentUser.getUserid());
+        updateSsoUserFromRedis(user);
+        return true;
+    }
+
+    @Override
     public UserDto getDtoById(String id) {
         return userParamMapper.entity2Dto(this.getById(id));
     }
@@ -247,7 +315,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
      * 从redis更新ssoUser
      * @param user
      */
-    private void updateSsoUserFromRedis(UserEditParam user) {
+    private void updateSsoUserFromRedis(User user) {
         String redisKey = Constant.SSO_SESSIONID.concat("#").concat(user.getId());
         SsoUser ssoUserFromRedis = null;
         Object objectValue = JedisUtil.getObjectValue(redisKey);

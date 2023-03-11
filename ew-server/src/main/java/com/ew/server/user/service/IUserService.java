@@ -95,4 +95,18 @@ public interface IUserService extends IBaseService<User> {
      * @return
      */
     boolean forgot(UserRegisterDto userRegisterDto);
+
+    /**
+     * 用户修改密码
+     * @param changePwdDto
+     * @return
+     */
+    boolean changePwd(ChangePwdDto changePwdDto);
+
+    /**
+     * 用户修改邮箱
+     * @param userRegisterDto
+     * @return
+     */
+    boolean changeEmail(UserRegisterDto userRegisterDto);
 }

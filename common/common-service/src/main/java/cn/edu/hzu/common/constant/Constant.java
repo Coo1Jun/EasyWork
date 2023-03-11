@@ -1,5 +1,7 @@
 package cn.edu.hzu.common.constant;
 
+import java.util.regex.Pattern;
+
 /**
  * @author lzf
  * @createTime 2022/09/03
@@ -55,4 +57,14 @@ public class Constant {
      * 默认用户头像链接
      */
     public static final String DEFAULT_USER_PORTRAIT = "https://easywork23.oss-cn-shenzhen.aliyuncs.com/attachment/el_default_user.png";
+
+    /**
+     * 密码正则表达式：密码必须包含数字和字母，且不少于8位
+     */
+    public static final String PASSWORD_REG = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
+
+    /**
+     * 密码正则Pattern对象
+     */
+    public static final Pattern PASSWORD_PATTERN = Pattern.compile(PASSWORD_REG);
 }

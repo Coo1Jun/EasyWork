@@ -172,8 +172,30 @@ public class UserController {
      * @return
      */
     @ApiOperation(value = "用户找回密码")
-    @PostMapping("/change/password")
+    @PutMapping("/change/forgot")
     public RestResponse<Boolean> forgot(@RequestBody UserRegisterDto userRegisterDto) {
         return RestResponse.ok(userService.forgot(userRegisterDto));
+    }
+
+    /**
+     * 用户修改密码
+     * @param changePwdDto
+     * @return
+     */
+    @ApiOperation(value = "用户修改密码")
+    @PutMapping("/edit/password")
+    public RestResponse<Boolean> changePwd(@RequestBody ChangePwdDto changePwdDto) {
+        return RestResponse.ok(userService.changePwd(changePwdDto));
+    }
+
+    /**
+     * 用户修改邮箱
+     * @param userRegisterDto
+     * @return
+     */
+    @ApiOperation(value = "用户修改邮箱")
+    @PutMapping("/edit/email")
+    public RestResponse<Boolean> changeEmail(@RequestBody UserRegisterDto userRegisterDto) {
+        return RestResponse.ok(userService.changeEmail(userRegisterDto));
     }
 }
