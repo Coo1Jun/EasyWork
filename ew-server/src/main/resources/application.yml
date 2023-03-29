@@ -17,6 +17,12 @@ spring:
     username: easywork23@163.com
     # 密码是在开启smtp/pop3时自动生成的
     password: SUSTRPCRXGAHYOQG
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 1024MB     #单个文件最大限制
+      max-request-size: 2048MB  #多个文件最大限制
+
 sso:
   redis:
     address: redis://127.0.0.1:6379
