@@ -32,8 +32,8 @@ public class Group extends BaseEntity {
     /**
      * 项目组描述
      */
-    @TableField("desc")
-    private String desc;
+    @TableField("description")
+    private String description;
 
     /**
      * 删除标识

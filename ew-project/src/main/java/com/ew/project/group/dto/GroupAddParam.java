@@ -29,5 +29,5 @@ public class GroupAddParam {
      * 项目组描述
      */
     @ApiModelProperty(value = "项目组描述")
-    private String desc;
+    private String description;
 }

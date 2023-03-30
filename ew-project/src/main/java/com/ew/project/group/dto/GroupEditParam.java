@@ -33,7 +33,7 @@ public class GroupEditParam {
      * 项目组描述
      */
     @ApiModelProperty(value = "项目组描述")
-    private String desc;
+    private String description;
 
 
     @ApiModelProperty(value = "版本号")

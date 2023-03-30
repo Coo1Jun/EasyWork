@@ -45,7 +45,7 @@ import java.util.List;
  */
 @Slf4j
 @Service
-@Transactional(readOnly = true,rollbackFor={Exception.class, Error.class})
+@Transactional(rollbackFor={Exception.class, Error.class})
 public class GroupServiceImpl extends BaseServiceImpl<GroupMapper, Group> implements IGroupService {
 
     @Autowired
@@ -124,6 +124,10 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupMapper, Group> implem
             if (!result) {
                 throw CommonException.builder().resultCode(GroupErrorEnum.NO_PERMISSION).build();
             }
+            // 删除对照关系表
+            userMtmGroupService.remove(Wrappers.<UserMtmGroup>lambdaQuery()
+                    .eq(UserMtmGroup::getUserId, curUser.getUserid())
+                    .eq(UserMtmGroup::getGroupId, id));
         }
         return true;
     }
