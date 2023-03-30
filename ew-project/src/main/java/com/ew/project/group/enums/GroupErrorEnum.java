@@ -8,7 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum GroupErrorEnum implements CustomResultCode {
     GROUP_NAME_IS_EMPTY(10001, "项目组名称不能为空", null),
-    GROUP_NAME_EXIST(10002, "项目组名称【{}】已经创建，不能重复创建", null),
+    GROUP_NAME_EXIST(10002, "项目组名称【{}】已经存在，不能重复", null),
     NO_PERMISSION(10003, "无权限操作", null),
     ;
 

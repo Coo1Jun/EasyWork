@@ -107,6 +107,17 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupMapper, Group> implem
         if (!groupFromDB.getCreateId().equals(UserUtils.getCurrentUser().getUserid())) {
             throw CommonException.builder().resultCode(GroupErrorEnum.NO_PERMISSION).build();
         }
+        // 获取当前用户
+        SsoUser currentUser = UserUtils.getCurrentUser();
+        // 校验唯一性
+        int count = this.count(Wrappers.<Group>lambdaQuery()
+                .eq(Group::getCreateId, currentUser.getUserid())
+                .eq(Group::getName, groupEditParam.getName()));
+        if (count > 0) {
+            // 当前用户已经创建过相同名字的项目组
+            throw CommonException.builder()
+                    .resultCode(GroupErrorEnum.GROUP_NAME_EXIST.setParams(new Object[]{groupEditParam.getName()})).build();
+        }
         Group group = groupParamMapper.editParam2Entity(groupEditParam);
 
         return updateById(group);
