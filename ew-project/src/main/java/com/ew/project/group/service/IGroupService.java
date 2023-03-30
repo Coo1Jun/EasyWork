@@ -33,7 +33,7 @@ public interface IGroupService extends IBaseService<Group> {
 
     /**
      *
-     * 查询所有，返回Dto
+     * 查询用户自己创建的所有，返回Dto
      *
      * @param groupQueryParam 查询参数
      * @return GroupDto 查询返回列表实体
@@ -41,6 +41,17 @@ public interface IGroupService extends IBaseService<Group> {
      *
      */
     PageResult<GroupDto> getList(GroupQueryParam groupQueryParam);
+
+    /**
+     *
+     * 查询用户自己加入的所有，不包括自己创建的，返回Dto
+     *
+     * @param groupQueryParam 查询参数
+     * @return GroupDto 查询返回列表实体
+     * @since 2023-03-30
+     *
+     */
+    PageResult<GroupDto> getJoinedList(GroupQueryParam groupQueryParam);
 
     /**
      *

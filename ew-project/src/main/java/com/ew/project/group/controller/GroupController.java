@@ -56,16 +56,30 @@ public class GroupController {
 
     /**
      *
-     * 获取项目组信息列表
+     * 获取用户创建的项目组信息列表
      *
      * @author LiZhengFan
      * @since 2023-03-30
      *
      */
-    @ApiOperation("获取项目组信息列表")
-    @GetMapping("/all")
+    @ApiOperation("获取用户创建的项目组信息列表")
+    @GetMapping("/created")
     public RestResponse<PageResult<GroupDto>> list(@Valid GroupQueryParam groupQueryParam){
         return RestResponse.ok(groupService.getList(groupQueryParam));
+    }
+
+    /**
+     *
+     * 获取用户加入的的项目组信息列表，不包括自己创建的
+     *
+     * @author LiZhengFan
+     * @since 2023-03-30
+     *
+     */
+    @ApiOperation("获取用户加入的的项目组信息列表，不包括自己创建的")
+    @GetMapping("/joined")
+    public RestResponse<PageResult<GroupDto>> joined(@Valid GroupQueryParam groupQueryParam){
+        return RestResponse.ok(groupService.getJoinedList(groupQueryParam));
     }
 
     /**
