@@ -112,7 +112,8 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupMapper, Group> implem
         // 校验唯一性
         int count = this.count(Wrappers.<Group>lambdaQuery()
                 .eq(Group::getCreateId, currentUser.getUserid())
-                .eq(Group::getName, groupEditParam.getName()));
+                .eq(Group::getName, groupEditParam.getName())
+                .ne(Group::getId, groupEditParam.getId())); // 更新时，除去自己本身，在进行校验
         if (count > 0) {
             // 当前用户已经创建过相同名字的项目组
             throw CommonException.builder()
