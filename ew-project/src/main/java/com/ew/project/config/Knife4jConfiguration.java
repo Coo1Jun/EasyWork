@@ -27,10 +27,10 @@ public class Knife4jConfiguration {
                 .apiInfo(apiInfo())
                 .enable(true)
                 //分组名称
-                .groupName("ew-server")
+                .groupName("ew-project")
                 .select()
                 //这里指定Controller扫描包路径
-                .apis(RequestHandlerSelectors.basePackage("com.ew.server"))
+                .apis(RequestHandlerSelectors.basePackage("com.ew.project"))
                 .paths(PathSelectors.any())
                 .build();
         return docket;
