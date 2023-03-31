@@ -81,6 +81,8 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupMapper, Group> implem
         if (joinedList != null) {
             ArrayList<GroupDto> result = new ArrayList<>();
             for (Group group : joinedList) {
+                // 用户createdId查询用户基本信息，更新CreatedBy
+                group.setCreateBy(serverClientService.getUserDtoById(group.getCreateId()).getRealName());
                 result.add(groupParamMapper.entity2Dto(group));
             }
             return PageResult.<GroupDto>builder().records(result).total(result.size()).build();
