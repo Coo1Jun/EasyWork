@@ -28,6 +28,10 @@ public class AopLogConfig {
      */
     final String ssoServerExecution = "execution(public * com.ew.server..controller.*.*(..))";
     final String ewProjectExecution = "execution(public * com.ew.project..controller.*.*(..))";
+    /**
+     * ew-server 的client接口，用于服务调用
+     */
+    final String ewServerClientExecution = "execution(public * com.ew.server.client..*.*(..))";
     final String test = "execution(public * com.ew.server..service.*.*(..))";
 
     private static long startTime;
@@ -36,7 +40,9 @@ public class AopLogConfig {
      * 切点路径：Controller层的所有方法
      */
 //    @Pointcut(value = ssoServerExecution + "||" + test) // 多个execution用逻辑运算符
-    @Pointcut(value = ssoServerExecution + "||" + ewProjectExecution) // 使用变量传参，缺点就是idea的插件不能生效，在切入的方法左边看不到小图标，但不影响使用
+    @Pointcut(value = ssoServerExecution
+            + "||" + ewProjectExecution
+            + "||" + ewServerClientExecution) // 使用变量传参，缺点就是idea的插件不能生效，在切入的方法左边看不到小图标，但不影响使用
     public void methodPath() {
     }
 
