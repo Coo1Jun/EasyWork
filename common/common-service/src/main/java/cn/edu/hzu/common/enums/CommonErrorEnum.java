@@ -48,6 +48,11 @@ public enum CommonErrorEnum implements CustomResultCode {
      * 对象不能为空，但是为空
      */
     OBJ_IS_NULL(12002, "对象不能为空！", null),
+    // ==================================== 服务调用错误码
+    /**
+     * 服务间调用失败
+     */
+    COMMON_CLIENT_SERVICE_ERROR(13001, "服务[{}]调用失败: {}", null),
     ;
 
     private final int code;

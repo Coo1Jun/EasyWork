@@ -1,5 +1,7 @@
 package com.ew.project.group.service.impl;
 
+import cn.edu.hzu.client.dto.UserDto;
+import cn.edu.hzu.client.server.service.IServerClientService;
 import cn.edu.hzu.common.api.PageResult;
 import cn.edu.hzu.common.api.utils.StringUtils;
 import cn.edu.hzu.common.api.utils.UserUtils;
@@ -46,6 +48,8 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupMapper, Group> implem
     private IUserMtmGroupService userMtmGroupService;
     @Autowired
     private GroupMapper groupMapper;
+    @Autowired
+    private IServerClientService serverClientService;
 
     @Override
     public PageResult<GroupDto> pageDto(GroupQueryParam groupQueryParam) {
@@ -63,6 +67,11 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupMapper, Group> implem
         wrapper.eq(Group::getCreateId, UserUtils.getCurrentUser().getUserid());
         wrapper.orderByDesc(Group::getUpdateTime, Group::getCreateTime);
         PageResult<GroupDto> result = groupParamMapper.pageEntity2Dto(page(groupQueryParam, wrapper));
+        // 用户createdId查询用户基本信息，更新CreatedBy
+        for (GroupDto groupDto : result.getRecords()) {
+            UserDto userDto = serverClientService.getUserDtoById(groupDto.getCreateId());
+            groupDto.setCreateBy(userDto.getRealName());
+        }
         return Optional.ofNullable(result).orElse(new PageResult<>());
     }
 
