@@ -16,7 +16,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient("ew-server")
 @Component
 public interface ServerFeignClient {
-
+    /**
+     *  Spring Cloud OpenFeign 内部通过反射机制自动将响应结果转换成了 Feign 接口方法中的返回类型。
+     *  即 这里的'UserDto'与ew-server中/api/ew-server/client/user/{id}接口的返回值类型'UserDto'是不用的两个类
+     */
     @GetMapping("/api/ew-server/client/user/{id}")
     RestResponse<UserDto> getUserDtoById(@PathVariable String id);
 }
