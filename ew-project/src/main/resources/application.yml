@@ -22,6 +22,14 @@ spring:
       enabled: true
       max-file-size: 1024MB     #单个文件最大限制
       max-request-size: 2048MB  #多个文件最大限制
+  # 应用名称
+  application:
+    name: ew-project
+  cloud:
+    nacos:
+      discovery:
+        # 配置Nacos注册中心地址
+        server-addr: localhost:8848
 
 sso:
   redis:

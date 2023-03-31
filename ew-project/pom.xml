@@ -66,7 +66,7 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>3.5.1</version>
+            <version>3.4.1</version>
         </dependency>
 
         <!-- lombok -->
@@ -110,7 +110,48 @@
             <artifactId>aliyun-sdk-oss</artifactId>
             <version>3.15.1</version>
         </dependency>
+        <!-- alibaba-nacos-配置中心 -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        </dependency>
+        <!-- alibaba-nacos-注册中心 -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
     </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring Boot 依赖版本控制 -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>2.7.2</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <!-- 其他依赖 -->
+
+            <!-- 这里引入最新的SpringCloud依赖 -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>2021.0.1</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- 这里引入SpringCloudAlibaba依赖，2021.0.1.0版本支持SpringBoot2.6.X -->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>2021.0.1.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
