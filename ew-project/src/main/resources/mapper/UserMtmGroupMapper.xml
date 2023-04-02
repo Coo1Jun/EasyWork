@@ -7,10 +7,30 @@
     <select id="getMemberList" resultType="com.ew.project.group.dto.UserMtmGroupDto">
         SELECT a.*, t_user.real_name AS name, t_user.email
         FROM t_user_mtm_group a
-                 JOIN t_user ON a.user_id = t_user.id
+        JOIN t_user ON a.user_id = t_user.id
         WHERE a.group_id = #{query.groupId}
-          AND a.delete_flag = 0
+        <if test="query.name != null and query.name != ''">
+            AND t_user.real_name LIKE CONCAT('%', #{query.name}, '%')
+        </if>
+        <if test="query.email != null and query.email != ''">
+            AND t_user.email LIKE CONCAT('%', #{query.email}, '%')
+        </if>
+        AND a.delete_flag = 0
         ORDER BY a.role ASC
         LIMIT #{query.offset}, #{query.limit}
+    </select>
+
+    <select id="memberListCount" resultType="Integer">
+        SELECT COUNT(*)
+        FROM t_user_mtm_group a
+        JOIN t_user ON a.user_id = t_user.id
+        WHERE a.group_id = #{query.groupId}
+        <if test="query.name != null and query.name != ''">
+            AND t_user.real_name LIKE CONCAT('%', #{query.name}, '%')
+        </if>
+        <if test="query.email != null and query.email != ''">
+            AND t_user.email LIKE CONCAT('%', #{query.email}, '%')
+        </if>
+        AND a.delete_flag = 0
     </select>
 </mapper>

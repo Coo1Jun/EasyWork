@@ -59,7 +59,9 @@ public class UserMtmGroupServiceImpl extends BaseServiceImpl<UserMtmGroupMapper,
         for (UserMtmGroupDto dto : memberList) {
             dto.setRole(MemberRoleEnum.getTitle(dto.getRole()));
         }
-        return PageResult.<UserMtmGroupDto>builder().records(memberList).total(memberList.size()).build();
+        // 查询总数
+        int total = userMtmGroupMapper.memberListCount(queryParam);
+        return PageResult.<UserMtmGroupDto>builder().records(memberList).total(total).build();
     }
 
     @SuppressWarnings("unchecked")
@@ -92,9 +94,9 @@ public class UserMtmGroupServiceImpl extends BaseServiceImpl<UserMtmGroupMapper,
         return saveBatch(userMtmGroupParamMapper.dtoList2Entity(rows));
     }
 
-    private Wrapper<UserMtmGroup> getPageSearchWrapper(UserMtmGroupQueryParam userMtmGroupQueryParam) {
+    private Wrapper<UserMtmGroup> getPageSearchWrapper(UserMtmGroupQueryParam queryParam) {
         LambdaQueryWrapper<UserMtmGroup> wrapper = Wrappers.<UserMtmGroup>lambdaQuery();
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            if(BaseEntity.class.isAssignableFrom(UserMtmGroup.class)){
+        if(BaseEntity.class.isAssignableFrom(UserMtmGroup.class)){
             wrapper.orderByDesc(UserMtmGroup::getUpdateTime,UserMtmGroup::getCreateTime);
         }
         return wrapper;

@@ -28,6 +28,18 @@ public class UserMtmGroupQueryParam extends PageParam {
     private String groupId;
 
     /**
+     * 用户名称
+     */
+    @ApiModelProperty("用户名称")
+    private String name;
+
+    /**
+     * 用户邮箱
+     */
+    @ApiModelProperty("用户邮箱")
+    private String email;
+
+    /**
      * 分页查询的偏移量
      */
     @ApiModelProperty("分页查询的偏移量")
