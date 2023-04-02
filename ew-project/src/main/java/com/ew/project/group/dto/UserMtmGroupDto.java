@@ -24,6 +24,20 @@ public class UserMtmGroupDto{
     @ApiModelProperty(value = "主键ID")
     private String id;
 
+    @ApiModelProperty(value = "用户id")
+    private String userId;
+
+    @ApiModelProperty(value = "项目组id")
+    private String groupId;
+
+    @ApiModelProperty(value = "角色")
+    private String role;
+
+    @ApiModelProperty(value = "用户名称")
+    private String name;
+
+    @ApiModelProperty(value = "用户邮箱")
+    private String email;
 
 
     /** 创建人ID */

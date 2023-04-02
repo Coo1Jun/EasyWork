@@ -21,4 +21,15 @@ import java.util.Date;
 @ApiModel(value = "UserMtmGroup查询", description = "查询参数")
 public class UserMtmGroupQueryParam extends PageParam {
 
+    /**
+     * 项目组id
+     */
+    @ApiModelProperty("项目组id")
+    private String groupId;
+
+    /**
+     * 分页查询的偏移量
+     */
+    @ApiModelProperty("分页查询的偏移量")
+    private Integer offset;
 }

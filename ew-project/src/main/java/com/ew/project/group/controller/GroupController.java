@@ -7,12 +7,10 @@ import cn.edu.hzu.common.api.utils.ExcelUtils;
 import cn.edu.hzu.common.enums.CommonErrorEnum;
 import cn.edu.hzu.common.exception.CommonException;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.ew.project.group.dto.*;
+import com.ew.project.group.service.IUserMtmGroupService;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.ew.project.group.dto.GroupQueryParam;
-import com.ew.project.group.dto.GroupAddParam;
-import com.ew.project.group.dto.GroupEditParam;
-import com.ew.project.group.dto.GroupDto;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -39,6 +37,8 @@ public class GroupController {
 
     @Autowired
     private IGroupService groupService;
+    @Autowired
+    private IUserMtmGroupService userMtmGroupService;
 
     /**
      *
@@ -52,6 +52,20 @@ public class GroupController {
     @GetMapping("/list")
     public RestResponse<PageResult<GroupDto>> pageList(@Valid GroupQueryParam groupQueryParam){
         return RestResponse.ok(groupService.pageDto(groupQueryParam));
+    }
+
+    /**
+     *
+     * 分页获取项目组用户信息列表
+     *
+     * @author LiZhengFan
+     * @since 2023-04-02
+     *
+     */
+    @ApiOperation("分页获取项目组用户信息列表")
+    @GetMapping("/member/list")
+    public RestResponse<PageResult<UserMtmGroupDto>> pageMemberList(@Valid UserMtmGroupQueryParam groupQueryParam){
+        return RestResponse.ok(userMtmGroupService.memberList(groupQueryParam));
     }
 
     /**

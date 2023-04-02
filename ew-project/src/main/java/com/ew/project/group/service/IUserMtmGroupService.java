@@ -1,11 +1,8 @@
 package com.ew.project.group.service;
 
+import com.ew.project.group.dto.*;
 import com.ew.project.group.entity.UserMtmGroup;
 import cn.edu.hzu.common.service.IBaseService;
-import com.ew.project.group.dto.UserMtmGroupQueryParam;
-import com.ew.project.group.dto.UserMtmGroupAddParam;
-import com.ew.project.group.dto.UserMtmGroupEditParam;
-import com.ew.project.group.dto.UserMtmGroupDto;
 import cn.edu.hzu.common.api.PageResult;
 import java.util.List;
 
@@ -30,6 +27,17 @@ public interface IUserMtmGroupService extends IBaseService<UserMtmGroup> {
      *
      */
     PageResult<UserMtmGroupDto> pageDto(UserMtmGroupQueryParam userMtmGroupQueryParam);
+
+    /**
+     *
+     * 分页查询，返回用户信息列表
+     *
+     * @param groupQueryParam 查询参数
+     * @return GroupDto 查询返回列表实体
+     * @since 2023-03-30
+     *
+     */
+    PageResult<UserMtmGroupDto> memberList(UserMtmGroupQueryParam groupQueryParam);
 
     /**
      *

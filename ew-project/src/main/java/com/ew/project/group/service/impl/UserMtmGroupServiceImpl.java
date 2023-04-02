@@ -1,14 +1,13 @@
 package com.ew.project.group.service.impl;
 
+import cn.edu.hzu.common.api.utils.StringUtils;
+import com.ew.project.group.dto.*;
+import com.ew.project.group.entity.Group;
 import com.ew.project.group.entity.UserMtmGroup;
+import com.ew.project.group.enums.MemberRoleEnum;
 import com.ew.project.group.mapper.UserMtmGroupMapper;
 import com.ew.project.group.service.IUserMtmGroupService;
 import cn.edu.hzu.common.service.impl.BaseServiceImpl;
-import com.ew.project.group.dto.UserMtmGroupQueryParam;
-import com.ew.project.group.dto.UserMtmGroupAddParam;
-import com.ew.project.group.dto.UserMtmGroupEditParam;
-import com.ew.project.group.dto.UserMtmGroupParamMapper;
-import com.ew.project.group.dto.UserMtmGroupDto;
 import cn.edu.hzu.common.entity.BaseEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,12 +40,26 @@ public class UserMtmGroupServiceImpl extends BaseServiceImpl<UserMtmGroupMapper,
     @Autowired
     private UserMtmGroupParamMapper userMtmGroupParamMapper;
 
+    @Autowired
+    private UserMtmGroupMapper userMtmGroupMapper;
+
     @Override
     public PageResult<UserMtmGroupDto> pageDto(UserMtmGroupQueryParam userMtmGroupQueryParam) {
         Wrapper<UserMtmGroup> wrapper = getPageSearchWrapper(userMtmGroupQueryParam);
         PageResult<UserMtmGroupDto> result = userMtmGroupParamMapper.pageEntity2Dto(page(userMtmGroupQueryParam, wrapper));
 
         return Optional.ofNullable(result).orElse(new PageResult<>());
+    }
+
+    @Override
+    public PageResult<UserMtmGroupDto> memberList(UserMtmGroupQueryParam queryParam) {
+        queryParam.setOffset((queryParam.getPageNo() - 1) * queryParam.getLimit());
+        List<UserMtmGroupDto> memberList = userMtmGroupMapper.getMemberList(queryParam);
+        if (memberList == null) return null;
+        for (UserMtmGroupDto dto : memberList) {
+            dto.setRole(MemberRoleEnum.getTitle(dto.getRole()));
+        }
+        return PageResult.<UserMtmGroupDto>builder().records(memberList).total(memberList.size()).build();
     }
 
     @SuppressWarnings("unchecked")

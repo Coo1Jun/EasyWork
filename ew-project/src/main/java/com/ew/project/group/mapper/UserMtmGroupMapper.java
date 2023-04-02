@@ -1,7 +1,12 @@
 package com.ew.project.group.mapper;
 
+import com.ew.project.group.dto.UserMtmGroupDto;
+import com.ew.project.group.dto.UserMtmGroupQueryParam;
 import com.ew.project.group.entity.UserMtmGroup;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +18,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface UserMtmGroupMapper extends BaseMapper<UserMtmGroup> {
 
+    List<UserMtmGroupDto> getMemberList(@Param("query") UserMtmGroupQueryParam queryParam);
 }

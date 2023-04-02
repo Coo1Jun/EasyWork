@@ -36,6 +36,12 @@ public class UserMtmGroup extends BaseEntity {
     private String groupId;
 
     /**
+     * 角色
+     */
+    @TableField("role")
+    private String role;
+
+    /**
      * 删除标识
      */
     @TableField(value = "delete_flag", fill = FieldFill.INSERT)

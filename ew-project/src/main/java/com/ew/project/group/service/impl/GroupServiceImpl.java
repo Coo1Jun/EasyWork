@@ -16,6 +16,7 @@ import com.ew.project.group.dto.*;
 import com.ew.project.group.entity.Group;
 import com.ew.project.group.entity.UserMtmGroup;
 import com.ew.project.group.enums.GroupErrorEnum;
+import com.ew.project.group.enums.MemberRoleEnum;
 import com.ew.project.group.mapper.GroupMapper;
 import com.ew.project.group.service.IGroupService;
 import com.ew.project.group.service.IUserMtmGroupService;
@@ -116,6 +117,7 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupMapper, Group> implem
         UserMtmGroup userMtmGroup = new UserMtmGroup();
         userMtmGroup.setUserId(currentUser.getUserid());
         userMtmGroup.setGroupId(group.getId());
+        userMtmGroup.setRole(MemberRoleEnum.ADMIN.getCode());
         userMtmGroupService.save(userMtmGroup);
         return true;
     }
