@@ -24,7 +24,26 @@ public class UserMtmProjectDto{
     @ApiModelProperty(value = "主键ID")
     private String id;
 
+    @ApiModelProperty(value = "用户id")
+    private String userId;
 
+    @ApiModelProperty(value = "项目id")
+    private String projectId;
+
+    @ApiModelProperty(value = "项目名称")
+    private String projectName;
+
+    @ApiModelProperty(value = "项目标识")
+    private String projectTab;
+
+    @ApiModelProperty(value = "项目描述")
+    private String projectDesc;
+
+    @ApiModelProperty(value = "项目组id")
+    private String groupId;
+
+    @ApiModelProperty(value = "项目组名称")
+    private String groupName;
 
     /** 创建人ID */
     private String createId;

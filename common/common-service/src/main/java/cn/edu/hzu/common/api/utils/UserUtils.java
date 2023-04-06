@@ -16,7 +16,7 @@ public class UserUtils {
 
     private static final SsoUser baseUser = new SsoUser();
 
-    public static SsoUser getBaseUser() {
+    private static SsoUser getBaseUser() {
         baseUser.setRealName("ew_root");
         baseUser.setEngName("ew_root");
         baseUser.setUserid("ew_root_id");

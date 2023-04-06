@@ -29,7 +29,7 @@
         id, user_id, project_id, version, create_id, update_id, delete_flag
     </sql>
 
-    <select id="getTabsByIds" parameterType="string" resultType="string">
+    <select id="getTabsById" parameterType="string" resultType="string">
         SELECT tab
         FROM t_user_mtm_project a
                  JOIN t_project ON a.project_id = t_project.id
@@ -38,4 +38,48 @@
           AND t_project.delete_flag = 0
     </select>
 
+    <select id="getProjectList" resultType="com.ew.project.project.dto.UserMtmProjectDto">
+        SELECT a.id,
+               a.user_id,
+               a.project_id,
+               b.group_id,
+               (SELECT name FROM t_group WHERE id = b.group_id AND delete_flag = 0 LIMIT 1) AS group_name,
+               b.name,
+               b.tab,
+               b.description,
+               b.create_id,
+               (SELECT real_name FROM t_user WHERE id = b.create_id AND delete_flag = 0 LIMIT 1) AS create_by,
+               b.create_time,
+               b.update_id,
+               (SELECT real_name FROM t_user WHERE id = b.update_id AND delete_flag = 0 LIMIT 1) AS update_by,
+               b.update_time
+        FROM
+            t_user_mtm_project a
+            JOIN t_project b
+        ON a.project_id = b.id
+        WHERE a.delete_flag = 0 AND b.delete_flag = 0 AND a.user_id = #{user_id}
+        <if test="query.name != null and query.name != ''">
+            AND t_user.real_name LIKE CONCAT('%', #{query.name}, '%')
+        </if>
+        <if test="query.tab != null and query.tab != ''">
+            AND t_user.real_name LIKE CONCAT('%', #{query.tab}, '%')
+        </if>
+        ORDER BY b.update_time DESC
+        LIMIT #{query.offset}, #{query.limit}
+    </select>
+
+    <select id="projectListCount" resultType="integer">
+        SELECT COUNT(*)
+        FROM
+        t_user_mtm_project a
+        JOIN t_project b
+        ON a.project_id = b.id
+        WHERE a.delete_flag = 0 AND b.delete_flag = 0 AND a.user_id = #{user_id}
+        <if test="query.name != null and query.name != ''">
+            AND t_user.real_name LIKE CONCAT('%', #{query.name}, '%')
+        </if>
+        <if test="query.tab != null and query.tab != ''">
+            AND t_user.real_name LIKE CONCAT('%', #{query.tab}, '%')
+        </if>
+    </select>
 </mapper>

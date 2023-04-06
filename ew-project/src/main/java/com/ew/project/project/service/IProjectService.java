@@ -1,11 +1,8 @@
 package com.ew.project.project.service;
 
+import com.ew.project.project.dto.*;
 import com.ew.project.project.entity.Project;
 import cn.edu.hzu.common.service.IBaseService;
-import com.ew.project.project.dto.ProjectQueryParam;
-import com.ew.project.project.dto.ProjectAddParam;
-import com.ew.project.project.dto.ProjectEditParam;
-import com.ew.project.project.dto.ProjectDto;
 import cn.edu.hzu.common.api.PageResult;
 import java.util.List;
 
@@ -29,7 +26,7 @@ public interface IProjectService extends IBaseService<Project> {
      * @since 2023-04-02
      *
      */
-    PageResult<ProjectDto> pageDto(ProjectQueryParam projectQueryParam);
+    PageResult<UserMtmProjectDto> pageDto(ProjectQueryParam projectQueryParam);
 
     /**
      *

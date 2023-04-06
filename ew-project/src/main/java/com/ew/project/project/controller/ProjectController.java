@@ -7,12 +7,9 @@ import cn.edu.hzu.common.api.utils.ExcelUtils;
 import cn.edu.hzu.common.enums.CommonErrorEnum;
 import cn.edu.hzu.common.exception.CommonException;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.ew.project.project.dto.*;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.ew.project.project.dto.ProjectQueryParam;
-import com.ew.project.project.dto.ProjectAddParam;
-import com.ew.project.project.dto.ProjectEditParam;
-import com.ew.project.project.dto.ProjectDto;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -50,7 +47,7 @@ public class ProjectController {
      */
     @ApiOperation("分页获取项目信息列表")
     @GetMapping("/list")
-    public RestResponse<PageResult<ProjectDto>> pageList(@Valid ProjectQueryParam projectQueryParam){
+    public RestResponse<PageResult<UserMtmProjectDto>> pageList(@Valid ProjectQueryParam projectQueryParam){
         return RestResponse.ok(projectService.pageDto(projectQueryParam));
     }
 
@@ -121,8 +118,8 @@ public class ProjectController {
     @ApiOperation(value = "导出项目信息列表")
     @GetMapping("/export")
     public void excelExport(@Valid ProjectQueryParam projectQueryParam, HttpServletResponse response){
-        PageResult<ProjectDto> pageResult  = projectService.pageDto(projectQueryParam);
-        ExcelUtils<ProjectDto> util = new ExcelUtils<>(ProjectDto.class);
+        PageResult<UserMtmProjectDto> pageResult  = projectService.pageDto(projectQueryParam);
+        ExcelUtils<UserMtmProjectDto> util = new ExcelUtils<>(UserMtmProjectDto.class);
 
         util.exportExcelAndDownload(pageResult.getRecords(), "项目信息", response);
     }

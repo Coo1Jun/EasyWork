@@ -21,4 +21,16 @@ import java.util.Date;
 @ApiModel(value = "UserMtmProject查询", description = "查询参数")
 public class UserMtmProjectQueryParam extends PageParam {
 
+    @ApiModelProperty("项目名称")
+    private String name;
+
+    @ApiModelProperty("项目标识")
+    private String tab;
+
+    /**
+     * 分页查询的偏移量
+     */
+    @ApiModelProperty("分页查询的偏移量")
+    private Integer offset;
+
 }
