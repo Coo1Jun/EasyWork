@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ew.project.project.mapper.UserMtmProjectMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ew.project.project.entity.UserMtmProject">
+        <id column="id" property="id"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="remark" property="remark"/>
+        <result column="user_id" property="userId"/>
+        <result column="project_id" property="projectId"/>
+        <result column="version" property="version"/>
+        <result column="create_id" property="createId"/>
+        <result column="update_id" property="updateId"/>
+        <result column="delete_flag" property="deleteFlag"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_by
+        ,
+        create_time,
+        update_by,
+        update_time,
+        remark,
+        id, user_id, project_id, version, create_id, update_id, delete_flag
+    </sql>
+
+    <select id="getTabsByIds" parameterType="string" resultType="string">
+        SELECT tab
+        FROM t_user_mtm_project a
+                 JOIN t_project ON a.project_id = t_project.id
+        WHERE t_project.create_id = #{user_id}
+          AND a.delete_flag = 0
+          AND t_project.delete_flag = 0
+    </select>
+
+</mapper>
