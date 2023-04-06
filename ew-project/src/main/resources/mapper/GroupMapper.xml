@@ -15,4 +15,13 @@
                        AND delete_flag = 0)
           AND delete_flag = 0
     </select>
+
+    <select id="getGroupList" resultType="com.ew.project.group.dto.GroupDto">
+        SELECT t_group.*
+        FROM t_group
+                 JOIN t_user_mtm_group a ON a.group_id = t_group.id
+        WHERE a.user_id = #{user_id}
+          AND a.delete_flag = 0
+          AND t_group.delete_flag = 0
+    </select>
 </mapper>

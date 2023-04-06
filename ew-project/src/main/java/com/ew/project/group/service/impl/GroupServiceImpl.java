@@ -54,10 +54,11 @@ public class GroupServiceImpl extends BaseServiceImpl<GroupMapper, Group> implem
 
     @Override
     public PageResult<GroupDto> pageDto(GroupQueryParam groupQueryParam) {
-        Wrapper<Group> wrapper = getPageSearchWrapper(groupQueryParam);
-        PageResult<GroupDto> result = groupParamMapper.pageEntity2Dto(page(groupQueryParam, wrapper));
-
-        return Optional.ofNullable(result).orElse(new PageResult<>());
+        List<GroupDto> joinedList = groupMapper.getGroupList(UserUtils.getCurrentUser().getUserid());
+        if (joinedList != null) {
+            return PageResult.<GroupDto>builder().records(joinedList).total(joinedList.size()).build();
+        }
+        return null;
     }
 
     @Override
