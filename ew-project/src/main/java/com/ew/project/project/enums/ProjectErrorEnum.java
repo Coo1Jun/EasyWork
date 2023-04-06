@@ -11,7 +11,11 @@ public enum ProjectErrorEnum implements CustomResultCode {
     /**
      * 参数为空
      */
-    PARAMETER_EMPTY(10001, "{}不能为空", null)
+    PARAMETER_EMPTY(10001, "{}不能为空", null),
+    /**
+     * 项目标识已经被使用
+     */
+    PROJECT_TAB_EXIST(10002, "该标识已被使用，请改用其他标识", null),
     ;
 
     private int code;

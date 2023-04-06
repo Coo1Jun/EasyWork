@@ -16,6 +16,7 @@ import com.ew.project.project.dto.ProjectEditParam;
 import com.ew.project.project.dto.ProjectParamMapper;
 import com.ew.project.project.dto.ProjectDto;
 import cn.edu.hzu.common.entity.BaseEntity;
+import com.ew.project.project.service.IUserMtmProjectService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,8 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectMapper, Project> 
 
     @Autowired
     private ProjectParamMapper projectParamMapper;
+    @Autowired
+    private IUserMtmProjectService userMtmProjectService;
 
     @Override
     public PageResult<ProjectDto> pageDto(ProjectQueryParam projectQueryParam) {
@@ -82,6 +85,14 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectMapper, Project> 
         // 获取当前用户
         SsoUser curUser = UserUtils.getCurrentUser();
         // 校验项目标识唯一性
+        List<String> tabs = userMtmProjectService.getTabById(curUser.getUserid());
+        if (StringUtils.isNotEmpty(tabs)) {
+            if (tabs.contains(addParam.getTab())) {
+                throw CommonException.builder()
+                        .resultCode(ProjectErrorEnum.PROJECT_TAB_EXIST)
+                        .build();
+            }
+        }
         Project project = projectParamMapper.addParam2Entity(addParam);
         return save(project);
     }
