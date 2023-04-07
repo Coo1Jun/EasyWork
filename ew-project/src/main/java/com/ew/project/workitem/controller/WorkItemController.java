@@ -66,6 +66,18 @@ public class WorkItemController {
     }
 
     /**
+     * 新增计划集信息
+     *
+     * @author LiZhengFan
+     * @since 2023-04-07
+     */
+    @ApiOperation("新增计划集信息")
+    @PostMapping("/plans")
+    public RestResponse<Boolean> addPlans(@RequestBody @Valid WorkItemAddParam workItemAddParam) {
+        return RestResponse.ok(workItemService.savePlans(workItemAddParam));
+    }
+
+    /**
      * 修改工作项基本信息
      *
      * @author LiZhengFan

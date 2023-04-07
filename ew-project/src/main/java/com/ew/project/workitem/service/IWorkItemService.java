@@ -39,6 +39,15 @@ public interface IWorkItemService extends IBaseService<WorkItem> {
     boolean saveByParam(WorkItemAddParam workItemAddParam);
 
     /**
+     * 新增计划集
+     *
+     * @param workItemAddParam 新增入参实体类
+     * @return true - 操作成功 false -操作失败
+     * @since 2023-04-07
+     */
+    boolean savePlans(WorkItemAddParam workItemAddParam);
+
+    /**
      * 根据id查询，转dto
      *
      * @param id 工作项基本信息id

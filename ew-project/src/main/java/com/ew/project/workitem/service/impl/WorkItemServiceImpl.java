@@ -120,6 +120,36 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
         return true;
     }
 
+    @Override
+    @Transactional(rollbackFor = {Exception.class, Error.class})
+    public boolean savePlans(WorkItemAddParam addParam) {
+        String param = "";
+        if (StringUtils.isEmpty(addParam.getTitle())) {
+            param = "标题";
+        } else if (StringUtils.isEmpty(addParam.getProjectId())) {
+            param = "所属项目";
+        }
+        if (!"".equals(param)) {
+            throw CommonException.builder()
+                    .resultCode(WorkItemErrorEnum.PARAMETER_EMPTY.setParams(new Object[]{param}))
+                    .build();
+        }
+        // 标题唯一性
+        int count = this.count(Wrappers.<WorkItem>lambdaQuery()
+                .eq(WorkItem::getProjectId, addParam.getProjectId())
+                .eq(WorkItem::getTitle, addParam.getTitle()));
+        if (count > 0) {
+            throw CommonException.builder()
+                    .resultCode(WorkItemErrorEnum.PLANS_TITLE_EXIST.setParams(new Object[]{addParam.getTitle()}))
+                    .build();
+        }
+        WorkItem workItem = new WorkItem();
+        workItem.setTitle(addParam.getTitle());
+        workItem.setProjectId(addParam.getProjectId());
+        workItem.setWorkType(WorkItemConstant.PLANS);
+        return save(workItem);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     @Transactional(rollbackFor = {Exception.class, Error.class})
