@@ -30,6 +30,15 @@ public interface IWorkItemService extends IBaseService<WorkItem> {
     PageResult<WorkItemDto> pageDto(WorkItemQueryParam workItemQueryParam);
 
     /**
+     * 根据项目id获取当前项目的所有计划集
+     *
+     * @param workItemQueryParam 查询参数
+     * @return WorkItemDto 查询返回列表实体
+     * @since 2023-04-07
+     */
+    List<WorkItemDto> getPlans(WorkItemQueryParam workItemQueryParam);
+
+    /**
      * 新增
      *
      * @param workItemAddParam 新增入参实体类

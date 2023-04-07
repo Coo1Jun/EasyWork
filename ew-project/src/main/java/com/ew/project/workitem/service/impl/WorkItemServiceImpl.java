@@ -60,6 +60,19 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
         return Optional.ofNullable(result).orElse(new PageResult<>());
     }
 
+    @Override
+    public List<WorkItemDto> getPlans(WorkItemQueryParam workItemQueryParam) {
+        if (StringUtils.isEmpty(workItemQueryParam.getProjectId())) {
+            throw CommonException.builder()
+                    .resultCode(WorkItemErrorEnum.PARAMETER_EMPTY.setParams(new Object[]{"所属项目"}))
+                    .build();
+        }
+        List<WorkItem> list = this.list(Wrappers.<WorkItem>lambdaQuery()
+                .eq(WorkItem::getProjectId, workItemQueryParam.getProjectId())
+                .eq(WorkItem::getWorkType, WorkItemConstant.PLANS));
+        return workItemParamMapper.workItemListToWorkItemDtoList(list);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     @Transactional(rollbackFor = {Exception.class, Error.class})

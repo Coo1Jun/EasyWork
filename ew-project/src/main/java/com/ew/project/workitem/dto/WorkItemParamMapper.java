@@ -64,4 +64,6 @@ public interface WorkItemParamMapper {
      */
     List<WorkItem> dtoList2Entity(List<WorkItemDto> rows);
 
+    List<WorkItemDto> workItemListToWorkItemDtoList(List<WorkItem> rows);
+
 }

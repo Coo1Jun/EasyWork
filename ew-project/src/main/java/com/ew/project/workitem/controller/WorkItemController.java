@@ -54,6 +54,18 @@ public class WorkItemController {
     }
 
     /**
+     * 根据项目id获取当前项目的所有计划集
+     *
+     * @author LiZhengFan
+     * @since 2023-04-07
+     */
+    @ApiOperation("根据项目id获取当前项目的所有计划集")
+    @GetMapping("/plans/list")
+    public RestResponse<List<WorkItemDto>> plansList(@Valid WorkItemQueryParam workItemQueryParam) {
+        return RestResponse.ok(workItemService.getPlans(workItemQueryParam));
+    }
+
+    /**
      * 新增工作项基本信息
      *
      * @author LiZhengFan
@@ -126,23 +138,6 @@ public class WorkItemController {
         ExcelUtils<WorkItemDto> util = new ExcelUtils<>(WorkItemDto.class);
 
         util.exportExcelAndDownload(pageResult.getRecords(), "工作项基本信息", response);
-    }
-
-    /**
-     * Excel导入工作项基本信息
-     *
-     * @author LiZhengFan
-     * @since 2023-04-07
-     */
-    @ApiOperation(value = "Excel导入工作项基本信息")
-    @PostMapping("/import")
-    public RestResponse<Boolean> excelImport(@RequestParam("file") MultipartFile file) {
-        ExcelUtils<WorkItemDto> util = new ExcelUtils<>(WorkItemDto.class);
-        List<WorkItemDto> rows = util.importExcel(file);
-        if (CollectionUtils.isEmpty(rows)) {
-            throw new CommonException(CommonErrorEnum.IMPORT_DATA_EMPTY);
-        }
-        return RestResponse.ok(workItemService.saveDtoBatch(rows));
     }
 
 }

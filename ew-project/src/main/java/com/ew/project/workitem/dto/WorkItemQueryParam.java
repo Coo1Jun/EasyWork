@@ -20,5 +20,6 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "WorkItem查询", description = "查询参数")
 public class WorkItemQueryParam extends PageParam {
-
+    @ApiModelProperty("项目id")
+    private String projectId;
 }
