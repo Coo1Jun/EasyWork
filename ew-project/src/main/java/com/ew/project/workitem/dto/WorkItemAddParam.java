@@ -1,6 +1,7 @@
 package com.ew.project.workitem.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -68,12 +69,14 @@ public class WorkItemAddParam {
      * 任务开始时间
      */
     @ApiModelProperty("任务开始时间")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone ="GMT+8" )
     private Date startTime;
 
     /**
      * 任务结束时间
      */
     @ApiModelProperty("任务结束时间")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone ="GMT+8" )
     private Date endTime;
 
     /**

@@ -1,7 +1,14 @@
 package com.ew.project.workitem.service.impl;
 
+import cn.edu.hzu.common.api.utils.StringUtils;
+import cn.edu.hzu.common.exception.CommonException;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.ew.project.workitem.constants.WorkItemConstant;
 import com.ew.project.workitem.entity.WorkItem;
+import com.ew.project.workitem.entity.WorkItemOtmFile;
+import com.ew.project.workitem.enums.WorkItemErrorEnum;
 import com.ew.project.workitem.mapper.WorkItemMapper;
+import com.ew.project.workitem.service.IWorkItemOtmFileService;
 import com.ew.project.workitem.service.IWorkItemService;
 import cn.edu.hzu.common.service.impl.BaseServiceImpl;
 import com.ew.project.workitem.dto.WorkItemQueryParam;
@@ -19,6 +26,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import cn.edu.hzu.common.api.PageResult;
 import cn.edu.hzu.common.api.ResultCode;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +49,8 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
 
     @Autowired
     private WorkItemParamMapper workItemParamMapper;
+    @Autowired
+    private IWorkItemOtmFileService workItemOtmFileService;
 
     @Override
     public PageResult<WorkItemDto> pageDto(WorkItemQueryParam workItemQueryParam) {
@@ -53,10 +63,61 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
     @SuppressWarnings("unchecked")
     @Override
     @Transactional(rollbackFor = {Exception.class, Error.class})
-    public boolean saveByParam(WorkItemAddParam workItemAddParam) {
-        WorkItem workItem = workItemParamMapper.addParam2Entity(workItemAddParam);
-        // Assert.notNull(ResultCode.PARAM_VALID_ERROR,workItem);
-        return save(workItem);
+    public boolean saveByParam(WorkItemAddParam addParam) {
+        // 校验参数
+        String param = "";
+        if (StringUtils.isEmpty(addParam.getTitle())) {
+            param = "标题";
+        } else if (StringUtils.isEmpty(addParam.getProjectId())) {
+            param = "所属项目";
+        } else if (StringUtils.isEmpty(addParam.getWorkType())) {
+            param = "工作项类型";
+        } else if (addParam.getStartTime() == null || addParam.getEndTime() == null) {
+            param = "完成时间";
+        }
+        // 根据工作项类型判定父工作项，如果不是Epic，则需要判断父工作项是否为空
+        if (!WorkItemConstant.EPIC.equals(addParam.getWorkType())
+                && StringUtils.isEmpty(addParam.getParentWorkItemId())) {
+            param = "父工作项";
+        }
+        if (!"".equals(param)) {
+            throw CommonException.builder()
+                    .resultCode(WorkItemErrorEnum.PARAMETER_EMPTY.setParams(new Object[]{param}))
+                    .build();
+        }
+        WorkItem workItem = workItemParamMapper.addParam2Entity(addParam);
+        // 如果优先级为空，默认优先级为1
+        if (workItem.getPriority() == null || workItem.getPriority() < 0) {
+            workItem.setPriority(1); // 默认优先级
+        } else if (workItem.getPriority() > 5) {
+            workItem.setPriority(5); // 最高为5
+        }
+        // 风险等级
+        if (workItem.getRisk() == null || workItem.getRisk() < 0) {
+            workItem.setRisk(0); // 默认风险等级
+        } else if (workItem.getRisk() > 3) {
+            workItem.setRisk(3); // 最高风险等级为3
+        }
+        // 赋值编号，如果不是Epic，则想要赋值编号
+        if (!WorkItemConstant.EPIC.equals(workItem.getWorkType())) {
+            // 查询数据库，获得当前项目的最高值
+            Integer maxNumber = this.getBaseMapper().getMaxNumber(workItem.getProjectId());
+            workItem.setNumber(maxNumber == null ? 0 : maxNumber + 1);
+        }
+        boolean result = save(workItem);
+        if (!result) return false;
+        // 保存文件列表
+        if (CollectionUtils.isNotEmpty(addParam.getFileList())) {
+            List<WorkItemOtmFile> fileList = new ArrayList<>();
+            for (String fileId : addParam.getFileList()) {
+                WorkItemOtmFile workItemOtmFile = new WorkItemOtmFile();
+                workItemOtmFile.setFileId(fileId);
+                workItemOtmFile.setWorkItemId(workItem.getId());
+                fileList.add(workItemOtmFile);
+            }
+            workItemOtmFileService.saveBatch(fileList);
+        }
+        return true;
     }
 
     @SuppressWarnings("unchecked")

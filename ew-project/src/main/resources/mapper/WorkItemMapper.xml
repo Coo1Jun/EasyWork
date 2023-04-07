@@ -4,30 +4,29 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.ew.project.workitem.entity.WorkItem">
-        <id column="id" property="id" />
-        <result column="create_by" property="createBy" />
-        <result column="create_time" property="createTime" />
-        <result column="update_by" property="updateBy" />
-        <result column="update_time" property="updateTime" />
-        <result column="remark" property="remark" />
-        <result column="number" property="number" />
-        <result column="title" property="title" />
-        <result column="description" property="description" />
-        <result column="project_id" property="projectId" />
-        <result column="plans_id" property="plansId" />
-        <result column="work_type" property="workType" />
-        <result column="principal_id" property="principalId" />
-        <result column="start_time" property="startTime" />
-        <result column="end_time" property="endTime" />
-        <result column="priority" property="priority" />
-        <result column="risk" property="risk" />
-        <result column="severity" property="severity" />
-        <result column="file_list_id" property="fileListId" />
-        <result column="status" property="status" />
-        <result column="version" property="version" />
-        <result column="create_id" property="createId" />
-        <result column="update_id" property="updateId" />
-        <result column="delete_flag" property="deleteFlag" />
+        <id column="id" property="id"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="remark" property="remark"/>
+        <result column="number" property="number"/>
+        <result column="title" property="title"/>
+        <result column="description" property="description"/>
+        <result column="project_id" property="projectId"/>
+        <result column="plans_id" property="plansId"/>
+        <result column="work_type" property="workType"/>
+        <result column="principal_id" property="principalId"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="priority" property="priority"/>
+        <result column="risk" property="risk"/>
+        <result column="severity" property="severity"/>
+        <result column="status" property="status"/>
+        <result column="version" property="version"/>
+        <result column="create_id" property="createId"/>
+        <result column="update_id" property="updateId"/>
+        <result column="delete_flag" property="deleteFlag"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
@@ -40,4 +39,10 @@
         id, number, title, description, project_id, plans_id, work_type, principal_id, start_time, end_time, priority, risk, severity, file_list_id, status, version, create_id, update_id, delete_flag
     </sql>
 
+    <select id="getMaxNumber" resultType="integer">
+        SELECT MAX(`number`)
+        FROM t_work_item
+        WHERE project_id = #{project_id}
+          AND delete_flag = 0
+    </select>
 </mapper>
