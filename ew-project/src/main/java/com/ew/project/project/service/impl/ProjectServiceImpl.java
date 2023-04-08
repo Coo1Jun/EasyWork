@@ -118,8 +118,9 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectMapper, Project> 
     }
 
     @Override
-    public ProjectDto getDtoById(String id) {
-        return projectParamMapper.entity2Dto(this.getById(id));
+    public UserMtmProjectDto getDtoById(String id) {
+        if (StringUtils.isEmpty(id)) return null;
+        return userMtmProjectMapper.getProDtoById(UserUtils.getCurrentUser().getUserid(), id);
     }
 
     @SuppressWarnings("unchecked")

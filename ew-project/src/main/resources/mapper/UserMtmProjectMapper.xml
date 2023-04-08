@@ -82,4 +82,30 @@
             AND b.tab LIKE CONCAT('%', #{query.tab}, '%')
         </if>
     </select>
+
+    <select id="getProDtoById" resultType="com.ew.project.project.dto.UserMtmProjectDto">
+        SELECT a.id,
+               a.user_id,
+               a.project_id,
+               b.group_id,
+               (SELECT name FROM t_group WHERE id = b.group_id AND delete_flag = 0 LIMIT 1) AS group_name,
+               b.name AS project_name,
+               b.tab AS project_tab,
+               b.description AS project_desc,
+               b.create_id,
+               (SELECT real_name FROM t_user WHERE id = b.create_id AND delete_flag = 0 LIMIT 1) AS create_by,
+               b.create_time,
+               b.update_id,
+               (SELECT real_name FROM t_user WHERE id = b.update_id AND delete_flag = 0 LIMIT 1) AS update_by,
+               b.update_time
+        FROM
+        t_user_mtm_project a
+        JOIN t_project b
+        ON a.project_id = b.id
+        WHERE a.delete_flag = 0
+            AND b.delete_flag = 0
+            AND a.user_id = #{user_id}
+            AND a.project_id = #{project_id}
+        LIMIT 1
+    </select>
 </mapper>

@@ -48,7 +48,7 @@ public interface IProjectService extends IBaseService<Project> {
      * @since 2023-04-02
      *
      */
-    ProjectDto getDtoById(String id);
+    UserMtmProjectDto getDtoById(String id);
 
     /**
      *

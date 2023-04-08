@@ -103,7 +103,7 @@ public class ProjectController {
      */
     @ApiOperation(value = "根据id获取项目信息")
     @GetMapping(value = "/{id}")
-    public RestResponse<ProjectDto> get(@PathVariable String id) {
+    public RestResponse<UserMtmProjectDto> get(@PathVariable String id) {
         return RestResponse.ok(projectService.getDtoById(id));
     }
 
