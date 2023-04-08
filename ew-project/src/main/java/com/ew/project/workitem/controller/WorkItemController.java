@@ -4,10 +4,7 @@ package com.ew.project.workitem.controller;
 import cn.edu.hzu.common.api.PageResult;
 import cn.edu.hzu.common.api.RestResponse;
 import cn.edu.hzu.common.api.utils.ExcelUtils;
-import com.ew.project.workitem.dto.WorkItemAddParam;
-import com.ew.project.workitem.dto.WorkItemDto;
-import com.ew.project.workitem.dto.WorkItemEditParam;
-import com.ew.project.workitem.dto.WorkItemQueryParam;
+import com.ew.project.workitem.dto.*;
 import com.ew.project.workitem.service.IWorkItemService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -72,6 +69,18 @@ public class WorkItemController {
     @GetMapping("/plans/list")
     public RestResponse<List<WorkItemDto>> plansList(@Valid WorkItemQueryParam workItemQueryParam) {
         return RestResponse.ok(workItemService.getPlans(workItemQueryParam));
+    }
+
+    /**
+     * 根据项目id和EpicId获取参与项目工作的用户基本信息
+     *
+     * @author LiZhengFan
+     * @since 2023-04-07
+     */
+    @ApiOperation("根据项目id和EpicId获取参与项目工作的用户基本信息")
+    @GetMapping("/user/list")
+    public RestResponse<List<WorkItemUserDto>> workItemUserList(@Valid WorkItemQueryParam workItemQueryParam) {
+        return RestResponse.ok(workItemService.workItemUserList(workItemQueryParam));
     }
 
     /**

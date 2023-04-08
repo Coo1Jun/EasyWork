@@ -24,10 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -98,6 +95,40 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
             // 赋值Feature工作项
             if (WorkItemConstant.FEATURE.equals(dto.getWorkType())) {
                 result.add(dto);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<WorkItemUserDto> workItemUserList(WorkItemQueryParam workItemQueryParam) {
+        // 查询参与项目工作的所有用户，并且过滤掉没有负责人的数据，根据用户id分组，key:用户id
+        Map<String, List<WorkItem>> userMap = this.list(Wrappers.<WorkItem>lambdaQuery()
+                .eq(WorkItem::getProjectId, workItemQueryParam.getProjectId())
+                .eq(WorkItem::getEpicId, workItemQueryParam.getEpicId())
+                .ne(WorkItem::getWorkType, WorkItemConstant.PLANS)
+                .ne(WorkItem::getWorkType, WorkItemConstant.EPIC)
+                .isNotNull(WorkItem::getPrincipalId)).stream().collect(Collectors.groupingBy(WorkItem::getPrincipalId));
+        List<WorkItemUserDto> result = new ArrayList<>();
+        for (String id : userMap.keySet()) {
+            if (StringUtils.isNotEmpty(id)) {
+                WorkItemUserDto WorkItemUserDto = new WorkItemUserDto();
+                List<WorkItem> workItems = userMap.get(id);
+                UserDto userDtoById = serverClientService.getUserDtoById(id);
+                WorkItemUserDto.setId(id);
+                WorkItemUserDto.setTaskCount(workItems.size());
+                WorkItemUserDto.setUsername(userDtoById.getRealName());
+                WorkItemUserDto.setPortrait(userDtoById.getPortrait());
+                // 计算已经完成的任务数量
+                Set<String> statusSet = WorkItemConstant.TASK_COMPLETION_FLAG;
+                int count = 0;
+                for (WorkItem workItem : workItems) {
+                    if (statusSet.contains(workItem.getStatus())) {
+                        count++;
+                    }
+                }
+                WorkItemUserDto.setCompletedTasks(count);
+                result.add(WorkItemUserDto);
             }
         }
         return result;

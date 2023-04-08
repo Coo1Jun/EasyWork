@@ -1,11 +1,8 @@
 package com.ew.project.workitem.service;
 
+import com.ew.project.workitem.dto.*;
 import com.ew.project.workitem.entity.WorkItem;
 import cn.edu.hzu.common.service.IBaseService;
-import com.ew.project.workitem.dto.WorkItemQueryParam;
-import com.ew.project.workitem.dto.WorkItemAddParam;
-import com.ew.project.workitem.dto.WorkItemEditParam;
-import com.ew.project.workitem.dto.WorkItemDto;
 import cn.edu.hzu.common.api.PageResult;
 
 import java.util.List;
@@ -47,6 +44,15 @@ public interface IWorkItemService extends IBaseService<WorkItem> {
      * @since 2023-04-08
      */
     List<WorkItemDto> workItemTreeData(WorkItemQueryParam workItemQueryParam);
+
+    /**
+     * 根据项目id和EpicId，获取参与项目工作的用户基本信息
+     *
+     * @param workItemQueryParam 查询参数
+     * @return 参与项目工作的用户基本信息
+     * @since 2023-04-08
+     */
+    List<WorkItemUserDto> workItemUserList(WorkItemQueryParam workItemQueryParam);
 
     /**
      * 根据项目id获取当前项目的所有计划集

@@ -1,5 +1,9 @@
 package com.ew.project.workitem.constants;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author lzf
  * @create 2023/04/07
@@ -18,4 +22,8 @@ public class WorkItemConstant {
     public static final String TASK = "Task";
     public static final String BUG = "Bug";
     // 工作项类型 end =================================
+    /**
+     * 规定任务完成的状态
+     */
+    public static final Set<String> TASK_COMPLETION_FLAG = new HashSet<>(Arrays.asList("已完成", "关闭", "已取消", "未复现"));
 }
