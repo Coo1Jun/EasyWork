@@ -51,6 +51,18 @@ public class WorkItemController {
     }
 
     /**
+     * 根据项目id和EpicId，获取工作项基本信息列表的tree树形数据
+     *
+     * @author LiZhengFan
+     * @since 2023-04-08
+     */
+    @ApiOperation("根据项目id和EpicId，获取工作项基本信息列表的tree树形数据")
+    @GetMapping("/tree")
+    public RestResponse<List<WorkItemDto>> workItemTree(@Valid WorkItemQueryParam workItemQueryParam) {
+        return RestResponse.ok(workItemService.workItemTreeData(workItemQueryParam));
+    }
+
+    /**
      * 根据项目id获取当前项目的所有计划集
      *
      * @author LiZhengFan

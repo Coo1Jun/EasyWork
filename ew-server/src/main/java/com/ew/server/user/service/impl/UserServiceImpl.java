@@ -17,6 +17,8 @@ import com.ew.server.constants.UserRole;
 import com.ew.server.email.enums.EmailErrorEnum;
 import com.ew.server.email.service.MailService;
 import com.ew.server.email.utils.EmailUtil;
+import com.ew.server.file.dto.FileMetaDto;
+import com.ew.server.file.service.IFileMetaService;
 import com.ew.server.user.dto.*;
 import com.ew.server.user.entity.User;
 import com.ew.server.user.enums.UserErrorEnum;
@@ -56,6 +58,9 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
     private UserParamMapper userParamMapper;
     @Autowired
     MailService mailService;
+
+    @Autowired
+    private IFileMetaService fileMetaService;
 
     @Override
     public PageResult<UserDto> pageDto(UserQueryParam userQueryParam) {
@@ -280,7 +285,13 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
 
     @Override
     public UserDto getDtoById(String id) {
-        return userParamMapper.entity2Dto(this.getById(id));
+        UserDto userDto = userParamMapper.entity2Dto(this.getById(id));
+        FileMetaDto file = fileMetaService.getDtoById(userDto.getPortrait());
+        userDto.setPortrait(Constant.DEFAULT_USER_PORTRAIT);
+        if (file != null) {
+            userDto.setPortrait(file.getLocation());
+        }
+        return userDto;
     }
 
     @SuppressWarnings("unchecked")

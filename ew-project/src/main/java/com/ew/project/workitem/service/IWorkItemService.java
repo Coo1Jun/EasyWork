@@ -40,6 +40,15 @@ public interface IWorkItemService extends IBaseService<WorkItem> {
     Map<String, List<WorkItemDto>> workItemList(WorkItemQueryParam workItemQueryParam);
 
     /**
+     * 根据项目id和EpicId，获取工作项基本信息列表的tree树形数据
+     *
+     * @param workItemQueryParam 查询参数
+     * @return Tree树形数据
+     * @since 2023-04-08
+     */
+    List<WorkItemDto> workItemTreeData(WorkItemQueryParam workItemQueryParam);
+
+    /**
      * 根据项目id获取当前项目的所有计划集
      *
      * @param workItemQueryParam 查询参数

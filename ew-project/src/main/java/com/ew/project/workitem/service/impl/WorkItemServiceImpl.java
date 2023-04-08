@@ -1,5 +1,7 @@
 package com.ew.project.workitem.service.impl;
 
+import cn.edu.hzu.client.dto.UserDto;
+import cn.edu.hzu.client.server.service.IServerClientService;
 import cn.edu.hzu.common.api.PageResult;
 import cn.edu.hzu.common.api.utils.StringUtils;
 import cn.edu.hzu.common.entity.BaseEntity;
@@ -47,6 +49,9 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
     @Autowired
     private IWorkItemOtmFileService workItemOtmFileService;
 
+    @Autowired
+    private IServerClientService serverClientService;
+
     @Override
     public PageResult<WorkItemDto> pageDto(WorkItemQueryParam workItemQueryParam) {
         Wrapper<WorkItem> wrapper = getPageSearchWrapper(workItemQueryParam);
@@ -63,6 +68,39 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
                         .ne(WorkItem::getWorkType, WorkItemConstant.PLANS)
                         .ne(WorkItem::getWorkType, WorkItemConstant.EPIC)))
                 .stream().collect(Collectors.groupingBy(WorkItemDto::getWorkType));
+    }
+
+    @Override
+    public List<WorkItemDto> workItemTreeData(WorkItemQueryParam workItemQueryParam) {
+        // 根据项目id和EpicId查出所有Feature\Story\Task\Bug
+        List<WorkItemDto> data = workItemParamMapper.workItemListToWorkItemDtoList(this.list(Wrappers.<WorkItem>lambdaQuery()
+                .eq(WorkItem::getProjectId, workItemQueryParam.getProjectId())
+                .eq(WorkItem::getEpicId, workItemQueryParam.getEpicId())
+                .ne(WorkItem::getWorkType, WorkItemConstant.PLANS)
+                .ne(WorkItem::getWorkType, WorkItemConstant.EPIC)));
+        // 根据父工作项的id分组，key：父工作项的id
+        Map<String, List<WorkItemDto>> map = data.stream().collect(Collectors.groupingBy(WorkItemDto::getParentWorkItemId));
+        List<WorkItemDto> result = new ArrayList<>();
+        for (WorkItemDto dto : data) {
+            // 赋值孩子工作项
+            dto.setChildren(map.get(dto.getId()));
+            // 赋值负责人信息
+            if (StringUtils.isEmpty(dto.getPrincipalId())) {
+                dto.setPrincipal(new UserDto());
+            } else {
+                UserDto user = serverClientService.getUserDtoById(dto.getPrincipalId());
+                if (user == null) {
+                    dto.setPrincipal(new UserDto());
+                } else {
+                    dto.setPrincipal(user);
+                }
+            }
+            // 赋值Feature工作项
+            if (WorkItemConstant.FEATURE.equals(dto.getWorkType())) {
+                result.add(dto);
+            }
+        }
+        return result;
     }
 
     @Override

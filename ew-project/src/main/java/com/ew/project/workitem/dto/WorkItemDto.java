@@ -1,5 +1,6 @@
 package com.ew.project.workitem.dto;
 
+import cn.edu.hzu.client.dto.UserDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -42,6 +43,9 @@ public class WorkItemDto {
      */
     @ApiModelProperty("负责人id")
     private String principalId;
+
+    @ApiModelProperty("负责人信息")
+    private UserDto principal;
 
     /**
      * 工作项描述
