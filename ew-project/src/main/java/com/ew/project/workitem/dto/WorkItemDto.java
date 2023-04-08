@@ -97,6 +97,18 @@ public class WorkItemDto {
     private Date endTime;
 
     /**
+     * 剩余时间，单位：天，因为需要小数点后1位，则定义为String
+     */
+    @ApiModelProperty("剩余时间，单位：天")
+    private String remainingTime;
+
+    /**
+     * 估算工时，单位：天，整数
+     */
+    @ApiModelProperty("估算工时，单位：天")
+    private Integer manHour;
+
+    /**
      * 优先级（整数：0~5）
      */
     @ApiModelProperty("优先级")
