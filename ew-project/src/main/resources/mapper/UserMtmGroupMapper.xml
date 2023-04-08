@@ -33,4 +33,13 @@
         </if>
         AND a.delete_flag = 0
     </select>
+
+    <select id="getMemberListByGroupId" resultType="com.ew.project.group.dto.UserMtmGroupDto">
+        SELECT a.*, t_user.real_name AS name, t_user.email
+        FROM t_user_mtm_group a
+        JOIN t_user ON a.user_id = t_user.id
+        WHERE a.group_id = #{group_id}
+        AND a.delete_flag = 0
+        ORDER BY a.role ASC
+    </select>
 </mapper>

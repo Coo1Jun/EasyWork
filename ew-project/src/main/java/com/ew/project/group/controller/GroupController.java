@@ -70,6 +70,20 @@ public class GroupController {
 
     /**
      *
+     * 根据项目组id获取项目组用户信息列表
+     *
+     * @author LiZhengFan
+     * @since 2023-04-08
+     *
+     */
+    @ApiOperation("根据项目组id获取项目组用户信息列表")
+    @GetMapping("/member/list/{id}")
+    public RestResponse<List<UserMtmGroupDto>> pageMemberListByGroupId(@PathVariable("id") String groupId){
+        return RestResponse.ok(userMtmGroupService.memberList(groupId));
+    }
+
+    /**
+     *
      * 获取用户创建的项目组信息列表
      *
      * @author LiZhengFan

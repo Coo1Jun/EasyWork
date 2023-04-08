@@ -41,6 +41,17 @@ public interface IUserMtmGroupService extends IBaseService<UserMtmGroup> {
 
     /**
      *
+     * 返回用户信息列表
+     *
+     * @param groupId 项目组id
+     * @return GroupDto 查询返回列表实体
+     * @since 2023-04-8
+     *
+     */
+    List<UserMtmGroupDto> memberList(String groupId);
+
+    /**
+     *
      * 新增
      *
      * @param userMtmGroupAddParam 新增入参实体类

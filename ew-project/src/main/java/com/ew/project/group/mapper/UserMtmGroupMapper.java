@@ -19,7 +19,7 @@ import java.util.List;
 public interface UserMtmGroupMapper extends BaseMapper<UserMtmGroup> {
 
     /**
-     * 获取项目组用户信息列表
+     * 分页获取项目组用户信息列表
      * @param queryParam 查询信息
      * @return
      */
@@ -31,4 +31,11 @@ public interface UserMtmGroupMapper extends BaseMapper<UserMtmGroup> {
      * @return 总数
      */
     Integer memberListCount(@Param("query") UserMtmGroupQueryParam queryParam);
+
+    /**
+     * 获取项目组用户信息列表
+     * @param groupId 项目组id
+     * @return
+     */
+    List<UserMtmGroupDto> getMemberListByGroupId(@Param("group_id") String groupId);
 }

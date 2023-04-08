@@ -64,6 +64,16 @@ public class UserMtmGroupServiceImpl extends BaseServiceImpl<UserMtmGroupMapper,
         return PageResult.<UserMtmGroupDto>builder().records(memberList).total(total).build();
     }
 
+    @Override
+    public List<UserMtmGroupDto> memberList(String groupId) {
+        List<UserMtmGroupDto> result = userMtmGroupMapper.getMemberListByGroupId(groupId);
+        if (result == null) return null;
+        for (UserMtmGroupDto dto : result) {
+            dto.setRole(MemberRoleEnum.getTitle(dto.getRole()));
+        }
+        return result;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     @Transactional(rollbackFor={Exception.class, Error.class})
