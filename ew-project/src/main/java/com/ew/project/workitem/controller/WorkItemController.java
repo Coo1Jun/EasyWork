@@ -84,6 +84,18 @@ public class WorkItemController {
     }
 
     /**
+     * 根据项目id和EpicId，计算工作项统计信息
+     *
+     * @author LiZhengFan
+     * @since 2023-04-07
+     */
+    @ApiOperation("根据项目id和EpicId，计算工作项统计信息")
+    @GetMapping("/statistics")
+    public RestResponse<WorkItemDataDto> workItemStatistics(@Valid WorkItemQueryParam workItemQueryParam) {
+        return RestResponse.ok(workItemService.workItemStatistics(workItemQueryParam));
+    }
+
+    /**
      * 新增工作项基本信息
      *
      * @author LiZhengFan

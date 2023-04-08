@@ -7,6 +7,7 @@ import cn.edu.hzu.common.api.utils.StringUtils;
 import cn.edu.hzu.common.entity.BaseEntity;
 import cn.edu.hzu.common.exception.CommonException;
 import cn.edu.hzu.common.service.impl.BaseServiceImpl;
+import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -132,6 +134,74 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
             }
         }
         return result;
+    }
+
+    @Override
+    public WorkItemDataDto workItemStatistics(WorkItemQueryParam workItemQueryParam) {
+        List<WorkItem> resultList = this.list(Wrappers.<WorkItem>lambdaQuery()
+                .eq(WorkItem::getProjectId, workItemQueryParam.getProjectId())
+                .eq(WorkItem::getEpicId, workItemQueryParam.getEpicId())
+                .ne(WorkItem::getWorkType, WorkItemConstant.PLANS)
+                .ne(WorkItem::getWorkType, WorkItemConstant.EPIC));
+        int userCount = this.list(Wrappers.<WorkItem>lambdaQuery()
+                .eq(WorkItem::getProjectId, workItemQueryParam.getProjectId())
+                .eq(WorkItem::getEpicId, workItemQueryParam.getEpicId())
+                .ne(WorkItem::getWorkType, WorkItemConstant.PLANS)
+                .ne(WorkItem::getWorkType, WorkItemConstant.EPIC)
+                .ne(WorkItem::getPrincipalId, "")
+                .isNotNull(WorkItem::getPrincipalId)) // 查出对应的记录
+                .stream().collect(Collectors.groupingBy(WorkItem::getPrincipalId)) // 根据用户id分组
+                .keySet().size(); // 得到有多少个用户
+        WorkItemDataDto result = new WorkItemDataDto();
+        // 用户数量
+        result.setUserCount(userCount);
+        // 卡片总数
+        result.setAllTaskCount(resultList.size());
+        // 人均卡片
+        result.setAverageTasks(NumberUtil.roundStr((double) resultList.size() / (double) userCount, 1));
+        Set<String> statusSet = WorkItemConstant.TASK_COMPLETION_FLAG;
+        int completed = 0;
+        int delay = 0;
+        Date now = new Date();
+        for (WorkItem workItem : resultList) {
+            if (statusSet.contains(workItem.getStatus())) {
+                completed++;
+            }
+            if (workItem.getEndTime().compareTo(now) < 0) {
+                delay++;
+            }
+        }
+        // 已经完成的卡片
+        result.setAllCompletedTasks(completed);
+        // 剩余卡片
+        result.setRemainingTasks(resultList.size() - completed);
+        // 延期卡片
+        result.setDelayedTasks(delay);
+        // 剩余时间，单位：天
+        WorkItem epicWorkItem = this.getOne(Wrappers.<WorkItem>lambdaQuery()
+                .eq(WorkItem::getId, workItemQueryParam.getEpicId()));
+        long endTime = epicWorkItem.getEndTime().getTime();
+        long nowTime = now.getTime();
+        if (endTime <= nowTime) {
+            result.setRemainingTime("0");
+        } else {
+            result.setRemainingTime(NumberUtil.roundStr((double) (endTime - nowTime) / (24 * 60 * 60 * 1000), 1));
+            log.info("Epic剩余时间：{}ms", endTime - nowTime);
+        }
+        // 完成百分比
+        result.setPercentage((int) Math.ceil((double) completed / (double) resultList.size() * 100));
+        return result;
+    }
+
+    /**
+     * 格式化浮点数
+     * @param decimal
+     * @param format ".1"表示保留小数点后1位
+     * @return
+     */
+    private static String decimalToText(double decimal, String format) {
+        DecimalFormat decimalFormat = new DecimalFormat(format);
+        return decimalFormat.format(decimal);
     }
 
     @Override
