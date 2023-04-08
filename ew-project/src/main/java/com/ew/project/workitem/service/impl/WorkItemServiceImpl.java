@@ -1,37 +1,32 @@
 package com.ew.project.workitem.service.impl;
 
+import cn.edu.hzu.common.api.PageResult;
 import cn.edu.hzu.common.api.utils.StringUtils;
+import cn.edu.hzu.common.entity.BaseEntity;
 import cn.edu.hzu.common.exception.CommonException;
+import cn.edu.hzu.common.service.impl.BaseServiceImpl;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ew.project.workitem.constants.WorkItemConstant;
+import com.ew.project.workitem.dto.*;
 import com.ew.project.workitem.entity.WorkItem;
 import com.ew.project.workitem.entity.WorkItemOtmFile;
 import com.ew.project.workitem.enums.WorkItemErrorEnum;
 import com.ew.project.workitem.mapper.WorkItemMapper;
 import com.ew.project.workitem.service.IWorkItemOtmFileService;
 import com.ew.project.workitem.service.IWorkItemService;
-import cn.edu.hzu.common.service.impl.BaseServiceImpl;
-import com.ew.project.workitem.dto.WorkItemQueryParam;
-import com.ew.project.workitem.dto.WorkItemAddParam;
-import com.ew.project.workitem.dto.WorkItemEditParam;
-import com.ew.project.workitem.dto.WorkItemParamMapper;
-import com.ew.project.workitem.dto.WorkItemDto;
-import cn.edu.hzu.common.entity.BaseEntity;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import cn.edu.hzu.common.api.PageResult;
-import cn.edu.hzu.common.api.ResultCode;
-
-import java.util.ArrayList;
-import java.util.Optional;
-
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 /**
@@ -67,10 +62,21 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
                     .resultCode(WorkItemErrorEnum.PARAMETER_EMPTY.setParams(new Object[]{"所属项目"}))
                     .build();
         }
-        List<WorkItem> list = this.list(Wrappers.<WorkItem>lambdaQuery()
+        List<WorkItemDto> list = workItemParamMapper.workItemListToWorkItemDtoList(
+                this.list(Wrappers.<WorkItem>lambdaQuery()
                 .eq(WorkItem::getProjectId, workItemQueryParam.getProjectId())
-                .eq(WorkItem::getWorkType, WorkItemConstant.PLANS));
-        return workItemParamMapper.workItemListToWorkItemDtoList(list);
+                .eq(WorkItem::getWorkType, WorkItemConstant.PLANS)));
+        // 查出所有Epic
+        List<WorkItemDto> children = workItemParamMapper.workItemListToWorkItemDtoList(
+                this.list(Wrappers.<WorkItem>lambdaQuery()
+                .eq(WorkItem::getProjectId, workItemQueryParam.getProjectId())
+                .eq(WorkItem::getWorkType, WorkItemConstant.EPIC)));
+        // 将Epic根据父id分组
+        Map<String, List<WorkItemDto>> map = children.stream().collect(Collectors.groupingBy(WorkItemDto::getPlansId));
+        for (WorkItemDto dto : list) {
+            dto.setChildren(map.get(dto.getId()));
+        }
+        return list;
     }
 
     @SuppressWarnings("unchecked")
@@ -116,6 +122,8 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
             // 查询数据库，获得当前项目的最高值
             Integer maxNumber = this.getBaseMapper().getMaxNumber(workItem.getProjectId());
             workItem.setNumber(maxNumber == null ? 0 : maxNumber + 1);
+            // 初始流程状态：新建
+            workItem.setStatus("新建");
         }
         boolean result = save(workItem);
         if (!result) return false;

@@ -117,6 +117,12 @@ public class WorkItemDto {
     private List<String> fileList;
 
     /**
+     * 孩子工作项
+     */
+    @ApiModelProperty("孩子工作项")
+    private List<WorkItemDto> children;
+
+    /**
      * 创建人ID
      */
     private String createId;
