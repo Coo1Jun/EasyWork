@@ -56,6 +56,16 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
     }
 
     @Override
+    public Map<String, List<WorkItemDto>> workItemList(WorkItemQueryParam workItemQueryParam) {
+        return workItemParamMapper.workItemListToWorkItemDtoList(this.list(Wrappers.<WorkItem>lambdaQuery()
+                        .eq(WorkItem::getProjectId, workItemQueryParam.getProjectId())
+                        .eq(WorkItem::getEpicId, workItemQueryParam.getEpicId())
+                        .ne(WorkItem::getWorkType, WorkItemConstant.PLANS)
+                        .ne(WorkItem::getWorkType, WorkItemConstant.EPIC)))
+                .stream().collect(Collectors.groupingBy(WorkItemDto::getWorkType));
+    }
+
+    @Override
     public List<WorkItemDto> getPlans(WorkItemQueryParam workItemQueryParam) {
         if (StringUtils.isEmpty(workItemQueryParam.getProjectId())) {
             throw CommonException.builder()
@@ -106,7 +116,7 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
         }
         WorkItem workItem = workItemParamMapper.addParam2Entity(addParam);
         // 如果优先级为空，默认优先级为1
-        if (workItem.getPriority() == null || workItem.getPriority() < 0) {
+        if (workItem.getPriority() == null || workItem.getPriority() <= 0) {
             workItem.setPriority(1); // 默认优先级
         } else if (workItem.getPriority() > 5) {
             workItem.setPriority(5); // 最高为5
@@ -121,7 +131,7 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
         if (!WorkItemConstant.EPIC.equals(workItem.getWorkType())) {
             // 查询数据库，获得当前项目的最高值
             Integer maxNumber = this.getBaseMapper().getMaxNumber(workItem.getProjectId());
-            workItem.setNumber(maxNumber == null ? 0 : maxNumber + 1);
+            workItem.setNumber(maxNumber == null ? 1 : maxNumber + 1);
             // 初始流程状态：新建
             workItem.setStatus("新建");
         }

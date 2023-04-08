@@ -54,6 +54,12 @@ public class WorkItemAddParam {
     private String parentWorkItemId;
 
     /**
+     * EpicId
+     */
+    @ApiModelProperty("EpicId")
+    private String epicId;
+
+    /**
      * 工作项类型（Epic\Feature\Story\Task\Bug）	计划集类型：Plans
      */
     @ApiModelProperty("工作项类型")

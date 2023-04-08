@@ -22,4 +22,7 @@ import java.util.Date;
 public class WorkItemQueryParam extends PageParam {
     @ApiModelProperty("项目id")
     private String projectId;
+
+    @ApiModelProperty("EpicId")
+    private String EpicId;
 }

@@ -9,6 +9,7 @@ import com.ew.project.workitem.dto.WorkItemDto;
 import cn.edu.hzu.common.api.PageResult;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <pre>
@@ -28,6 +29,15 @@ public interface IWorkItemService extends IBaseService<WorkItem> {
      * @since 2023-04-07
      */
     PageResult<WorkItemDto> pageDto(WorkItemQueryParam workItemQueryParam);
+
+    /**
+     * 根据项目id和EpicId，获取工作项基本信息列表
+     *
+     * @param workItemQueryParam 查询参数
+     * @return key：工作项类型。value：工作项进本信息
+     * @since 2023-04-07
+     */
+    Map<String, List<WorkItemDto>> workItemList(WorkItemQueryParam workItemQueryParam);
 
     /**
      * 根据项目id获取当前项目的所有计划集

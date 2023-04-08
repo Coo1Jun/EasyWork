@@ -18,7 +18,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -37,15 +39,15 @@ public class WorkItemController {
     private IWorkItemService workItemService;
 
     /**
-     * 分页获取工作项基本信息列表
+     * 根据项目id和EpicId，获取工作项基本信息列表
      *
      * @author LiZhengFan
-     * @since 2023-04-07
+     * @since 2023-04-08
      */
-    @ApiOperation("分页获取工作项基本信息列表")
+    @ApiOperation("根据项目id和EpicId，获取工作项基本信息列表")
     @GetMapping("/list")
-    public RestResponse<PageResult<WorkItemDto>> pageList(@Valid WorkItemQueryParam workItemQueryParam) {
-        return RestResponse.ok(workItemService.pageDto(workItemQueryParam));
+    public RestResponse<Map<String, List<WorkItemDto>>> workItemList(@Valid WorkItemQueryParam workItemQueryParam) {
+        return RestResponse.ok(workItemService.workItemList(workItemQueryParam));
     }
 
     /**

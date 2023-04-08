@@ -60,6 +60,11 @@ public class WorkItem extends BaseEntity {
      */
     @TableField("parent_work_item_id")
     private String parentWorkItemId;
+    /**
+     * 父工作项id
+     */
+    @TableField("epic_id")
+    private String epicId;
 
     /**
      * 工作项类型（Epic\Feature\Story\Task\Bug）	计划集类型：Plans
