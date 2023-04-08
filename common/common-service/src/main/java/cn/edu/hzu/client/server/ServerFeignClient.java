@@ -7,6 +7,9 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 /**
  * @author lzf
@@ -22,4 +25,12 @@ public interface ServerFeignClient {
      */
     @GetMapping("/api/ew-server/client/user/{id}")
     RestResponse<UserDto> getUserDtoById(@PathVariable String id);
+
+    /**
+     * 根据用户id集合获取用户基本信息
+     * @param ids 用户id集合
+     * @return
+     */
+    @GetMapping("/api/ew-server/client/user/list")
+    RestResponse<List<UserDto>> getUserListByIds(@RequestParam("ids") List<String> ids);
 }

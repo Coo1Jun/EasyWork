@@ -11,6 +11,7 @@ import cn.edu.hzu.common.exception.CommonException;
 import cn.edu.hzu.common.service.impl.BaseServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ew.server.constants.UserRole;
 import com.ew.server.email.enums.EmailErrorEnum;
@@ -31,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 
 import javax.mail.MessagingException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -286,6 +288,20 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
     @Transactional(rollbackFor={Exception.class, Error.class})
     public boolean saveDtoBatch(List<UserDto> rows) {
         return saveBatch(userParamMapper.dtoList2Entity(rows));
+    }
+
+    @Override
+    public List<UserDto> getUserListByIds(List<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return null;
+        }
+        List<UserDto> result = new ArrayList<>();
+        for (String id : ids) {
+            if (StringUtils.isNotEmpty(id)) {
+                result.add(getDtoById(id));
+            }
+        }
+        return result;
     }
 
     private Wrapper<User> getPageSearchWrapper(UserQueryParam userQueryParam) {

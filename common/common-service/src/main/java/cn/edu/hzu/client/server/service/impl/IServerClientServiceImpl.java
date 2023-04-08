@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * @author lzf
  * @create 2023/03/31
@@ -25,6 +27,14 @@ public class IServerClientServiceImpl extends AbstractBaseServiceClient implemen
     public RestResponse<UserDto> getUserDtoByIdClient(boolean throwEx, String id) {
         execBefore(ProjectEnum.EW_SERVER, id);
         RestResponse<UserDto> result = serverFeignClient.getUserDtoById(id);
+        execAfter(throwEx, ProjectEnum.EW_SERVER, result);
+        return result;
+    }
+
+    @Override
+    public RestResponse<List<UserDto>> getUserListByIdsClient(boolean throwEx, List<String> ids) {
+        execBefore(ProjectEnum.EW_SERVER, ids);
+        RestResponse<List<UserDto>> result = serverFeignClient.getUserListByIds(ids);
         execAfter(throwEx, ProjectEnum.EW_SERVER, result);
         return result;
     }

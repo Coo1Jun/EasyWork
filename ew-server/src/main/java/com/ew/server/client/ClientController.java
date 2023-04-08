@@ -4,10 +4,9 @@ import cn.edu.hzu.common.api.RestResponse;
 import com.ew.server.user.dto.UserDto;
 import com.ew.server.user.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author lzf
@@ -34,5 +33,14 @@ public class ClientController {
     public RestResponse<UserDto> get(@PathVariable String id) {
         return RestResponse.ok(userService.getDtoById(id));
     }
+
+    /**
+     * 根据用户id集合，获取用户信息列表
+     */
+    @GetMapping(value = "/user/list")
+    public RestResponse<List<UserDto>> getUserList(@RequestParam("ids") List<String> ids) {
+        return RestResponse.ok(userService.getUserListByIds(ids));
+    }
+
     // user用户服务 end ============================================================
 }

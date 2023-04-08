@@ -64,6 +64,17 @@ public interface IUserService extends IBaseService<User> {
 
     /**
      *
+     * 根据用户id集合，获取用户信息列表
+     *
+     * @param ids 用户id集合
+     * @return true - 操作成功 false -操作失败
+     * @since 2023-02-13
+     *
+     */
+    List<UserDto> getUserListByIds(List<String> ids);
+
+    /**
+     *
      * 更新
      *
      * @param userEditParam 更新入参实体类
