@@ -81,6 +81,7 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
         Map<String, List<WorkItemDto>> map = data.stream().collect(Collectors.groupingBy(WorkItemDto::getParentWorkItemId));
         List<WorkItemDto> result = new ArrayList<>();
         long now = System.currentTimeMillis();
+        Set<String> statusSet = WorkItemConstant.TASK_COMPLETION_FLAG;
         for (WorkItemDto dto : data) {
             // 赋值孩子工作项
             dto.setChildren(map.get(dto.getId()));
@@ -104,6 +105,8 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
             }
             // 赋值工时
             dto.setManHour((int) (dto.getEndTime().getTime() - dto.getStartTime().getTime()) / (24 * 60 * 60 * 1000));
+            // 赋值结束状态
+            dto.setEndFlag(statusSet.contains(dto.getStatus()) ? 1 : 0);
             // 赋值Feature工作项
             if (WorkItemConstant.FEATURE.equals(dto.getWorkType())) {
                 result.add(dto);
@@ -180,9 +183,10 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
         for (WorkItem workItem : resultList) {
             if (statusSet.contains(workItem.getStatus())) {
                 completed++;
-            }
-            if (workItem.getEndTime().compareTo(now) < 0) {
-                delay++;
+            } else {
+                if (workItem.getEndTime().compareTo(now) < 0) {
+                    delay++;
+                }
             }
         }
         // 已经完成的卡片

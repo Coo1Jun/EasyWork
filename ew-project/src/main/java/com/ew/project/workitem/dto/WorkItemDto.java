@@ -139,6 +139,12 @@ public class WorkItemDto {
     private List<WorkItemDto> children;
 
     /**
+     * 卡片已经结束状态("已完成", "关闭", "已取消", "未复现"): 0未结束，1结束
+     */
+    @ApiModelProperty("卡片已经结束状态(已完成, 关闭, 已取消, 未复现): 0未结束，1结束")
+    private Integer endFlag;
+
+    /**
      * 创建人ID
      */
     private String createId;
