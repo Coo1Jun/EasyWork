@@ -1,6 +1,7 @@
 package cn.edu.hzu.client.server.service;
 
 
+import cn.edu.hzu.client.dto.FileMetaDto;
 import cn.edu.hzu.client.dto.UserDto;
 import cn.edu.hzu.common.api.RestResponse;
 
@@ -34,6 +35,20 @@ public interface IServerClientService {
     RestResponse<List<UserDto>> getUserListByIdsClient(boolean throwEx, List<String> ids);
     default List<UserDto> getUserListById(List<String> ids) {
         RestResponse<List<UserDto>> response = getUserListByIdsClient(true, ids);
+        return response.getData();
+    }
+
+    /**
+     * 根据文件id集合获取文件基本信息
+     * @param throwEx 是否抛出异常（当程序报错时）
+     * @param ids 文件id集合
+     * @return
+     * @author lzf
+     * @date: 2023/4/9 14:58
+     */
+    RestResponse<List<FileMetaDto>> getFileListByIdsClient(boolean throwEx, List<String> ids);
+    default List<FileMetaDto> getFileListById(List<String> ids) {
+        RestResponse<List<FileMetaDto>> response = getFileListByIdsClient(true, ids);
         return response.getData();
     }
 }

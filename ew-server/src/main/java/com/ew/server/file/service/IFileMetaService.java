@@ -97,4 +97,6 @@ public interface IFileMetaService extends IBaseService<FileMeta> {
      * @param response
      */
     void download(String id, HttpServletResponse response, String directory);
+
+    List<FileMetaDto> getFileList(List<String> ids);
 }

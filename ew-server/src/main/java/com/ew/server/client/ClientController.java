@@ -1,6 +1,8 @@
 package com.ew.server.client;
 
 import cn.edu.hzu.common.api.RestResponse;
+import com.ew.server.file.dto.FileMetaDto;
+import com.ew.server.file.service.IFileMetaService;
 import com.ew.server.user.dto.UserDto;
 import com.ew.server.user.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,8 @@ public class ClientController {
 
     @Autowired
     private IUserService userService;
+    @Autowired
+    private IFileMetaService fileMetaService;
 
     // user用户服务 start ==========================================================
     /**
@@ -43,4 +47,11 @@ public class ClientController {
     }
 
     // user用户服务 end ============================================================
+
+    // file文件服务 start ==================================================================
+    @GetMapping(value = "/file/list")
+    public RestResponse<List<FileMetaDto>> getFileList(@RequestParam("ids") List<String> ids) {
+        return RestResponse.ok(fileMetaService.getFileList(ids));
+    }
+    // file文件服务 end =====================================================================
 }

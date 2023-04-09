@@ -74,4 +74,15 @@ public interface  FileMetaParamMapper{
      */
     List<FileMeta> dtoList2Entity(List<FileMetaDto> rows);
 
+    /**
+     *
+     * entity集合转dto集合
+     *
+     * @param rows entity列表
+     * @return List<FileMetaDto> dto列表
+     * @date 2023-03-01
+     *
+     */
+    List<FileMetaDto> fileMetaListToFileMetaDtoList(List<FileMeta> rows);
+
 }

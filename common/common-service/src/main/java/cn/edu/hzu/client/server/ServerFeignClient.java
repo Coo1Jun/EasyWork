@@ -1,6 +1,7 @@
 package cn.edu.hzu.client.server;
 
 
+import cn.edu.hzu.client.dto.FileMetaDto;
 import cn.edu.hzu.client.dto.UserDto;
 import cn.edu.hzu.common.api.RestResponse;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -33,4 +34,12 @@ public interface ServerFeignClient {
      */
     @GetMapping("/api/ew-server/client/user/list")
     RestResponse<List<UserDto>> getUserListByIds(@RequestParam("ids") List<String> ids);
+
+    /**
+     * 根据文件id获取对应的文件列表信息
+     * @param ids 文件id集合
+     * @return
+     */
+    @GetMapping("/api/ew-server/client/file/list")
+    RestResponse<List<FileMetaDto>> getFileListByIds(@RequestParam("ids") List<String> ids);
 }

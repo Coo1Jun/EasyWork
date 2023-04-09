@@ -155,6 +155,12 @@ public class FileMetaServiceImpl extends BaseServiceImpl<FileMetaMapper, FileMet
     }
 
     @Override
+    public List<FileMetaDto> getFileList(List<String> ids) {
+        List<FileMeta> list = this.list(Wrappers.<FileMeta>lambdaQuery().in(FileMeta::getId, ids));
+        return fileMetaParamMapper.fileMetaListToFileMetaDtoList(list);
+    }
+
+    @Override
     public FileMetaDto getDtoById(String id) {
         return fileMetaParamMapper.entity2Dto(this.getById(id));
     }
