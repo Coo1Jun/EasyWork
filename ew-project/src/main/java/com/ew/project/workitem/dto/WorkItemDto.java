@@ -1,5 +1,6 @@
 package com.ew.project.workitem.dto;
 
+import cn.edu.hzu.client.dto.FileMetaDto;
 import cn.edu.hzu.client.dto.UserDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -130,7 +131,7 @@ public class WorkItemDto {
      * 文件列表
      */
     @ApiModelProperty("文件列表")
-    private List<String> fileList;
+    private List<FileMetaDto> fileList;
 
     /**
      * 孩子工作项

@@ -289,7 +289,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
         FileMetaDto file = fileMetaService.getDtoById(userDto.getPortrait());
         userDto.setPortrait(Constant.DEFAULT_USER_PORTRAIT);
         if (file != null) {
-            userDto.setPortrait(file.getLocation());
+            userDto.setPortrait(file.getUrl());
         }
         return userDto;
     }

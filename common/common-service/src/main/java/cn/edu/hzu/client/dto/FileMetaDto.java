@@ -25,10 +25,10 @@ public class FileMetaDto {
     private String id;
 
     @ApiModelProperty("文件原始名称")
-    private String originalFilename;
+    private String name;
 
     @ApiModelProperty("文件的访问路径")
-    private String location;
+    private String url;
 
     @ApiModelProperty("文件大小，单位：字节")
     private Long fileSize;

@@ -2,6 +2,9 @@ package com.ew.project.workitem.mapper;
 
 import com.ew.project.workitem.entity.WorkItemOtmFile;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface WorkItemOtmFileMapper extends BaseMapper<WorkItemOtmFile> {
 
+    List<String> getFileIdByWorkItemId(@Param("workItemId") String workItemId);
 }

@@ -50,7 +50,7 @@ public class WebController {
             FileMetaDto fileMetaDto = fileMetaService.getDtoById(ssoUser.getPortrait());
             ssoUser.setPortrait(Constant.DEFAULT_USER_PORTRAIT);
             if (fileMetaDto != null) {
-                ssoUser.setPortrait(fileMetaDto.getLocation());
+                ssoUser.setPortrait(fileMetaDto.getUrl());
             }
             return RestResponse.ok(ssoUser, "用户已登录");
         }

@@ -1,5 +1,6 @@
 package com.ew.project.workitem.service.impl;
 
+import cn.edu.hzu.client.dto.FileMetaDto;
 import cn.edu.hzu.client.dto.UserDto;
 import cn.edu.hzu.client.server.service.IServerClientService;
 import cn.edu.hzu.common.api.PageResult;
@@ -18,6 +19,7 @@ import com.ew.project.workitem.entity.WorkItem;
 import com.ew.project.workitem.entity.WorkItemOtmFile;
 import com.ew.project.workitem.enums.WorkItemErrorEnum;
 import com.ew.project.workitem.mapper.WorkItemMapper;
+import com.ew.project.workitem.mapper.WorkItemOtmFileMapper;
 import com.ew.project.workitem.service.IWorkItemOtmFileService;
 import com.ew.project.workitem.service.IWorkItemService;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +49,8 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
     private WorkItemParamMapper workItemParamMapper;
     @Autowired
     private IWorkItemOtmFileService workItemOtmFileService;
+    @Autowired
+    private WorkItemOtmFileMapper workItemOtmFileMapper;
 
     @Autowired
     private IServerClientService serverClientService;
@@ -110,6 +114,12 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
             // 赋值Feature工作项
             if (WorkItemConstant.FEATURE.equals(dto.getWorkType())) {
                 result.add(dto);
+            }
+            // 查出附件信息
+            List<String> fileIdList = workItemOtmFileMapper.getFileIdByWorkItemId(dto.getId());
+            if (CollectionUtils.isNotEmpty(fileIdList)) {
+                List<FileMetaDto> fileListById = serverClientService.getFileListById(fileIdList);
+                dto.setFileList(fileListById);
             }
         }
         return result;

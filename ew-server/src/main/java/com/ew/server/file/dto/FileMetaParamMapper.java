@@ -4,6 +4,9 @@ import cn.edu.hzu.common.api.PageResult;
 import cn.edu.hzu.common.entity.BaseEntity;
 import com.ew.server.file.entity.FileMeta;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
+
 import java.util.List;
 
 /**
@@ -49,6 +52,10 @@ public interface  FileMetaParamMapper{
      * @date 2023-03-01
      *
      */
+    @Mappings({
+            @Mapping(target = "name", source = "originalFilename"),
+            @Mapping(target = "url", source = "location")
+    })
     FileMetaDto entity2Dto(FileMeta fileMeta);
 
     /**

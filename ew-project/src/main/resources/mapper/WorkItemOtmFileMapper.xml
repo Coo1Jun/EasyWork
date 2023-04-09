@@ -27,5 +27,10 @@
         remark,
         id, work_item_id, file_id, version, create_id, update_id, delete_flag
     </sql>
+    <select id="getFileIdByWorkItemId" resultType="java.lang.String">
+        SELECT file_id
+        FROM t_work_item_otm_file
+        WHERE work_item_id = #{workItemId}
+    </select>
 
 </mapper>
