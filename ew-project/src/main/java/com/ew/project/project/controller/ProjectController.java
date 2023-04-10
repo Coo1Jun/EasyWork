@@ -47,7 +47,7 @@ public class ProjectController {
      */
     @ApiOperation("分页获取项目信息列表")
     @GetMapping("/list")
-    public RestResponse<PageResult<UserMtmProjectDto>> pageList(@Valid ProjectQueryParam projectQueryParam){
+    public RestResponse<PageResult<ProjectDto>> pageList(@Valid ProjectQueryParam projectQueryParam){
         return RestResponse.ok(projectService.pageDto(projectQueryParam));
     }
 
@@ -118,8 +118,8 @@ public class ProjectController {
     @ApiOperation(value = "导出项目信息列表")
     @GetMapping("/export")
     public void excelExport(@Valid ProjectQueryParam projectQueryParam, HttpServletResponse response){
-        PageResult<UserMtmProjectDto> pageResult  = projectService.pageDto(projectQueryParam);
-        ExcelUtils<UserMtmProjectDto> util = new ExcelUtils<>(UserMtmProjectDto.class);
+        PageResult<ProjectDto> pageResult  = projectService.pageDto(projectQueryParam);
+        ExcelUtils<ProjectDto> util = new ExcelUtils<>(ProjectDto.class);
 
         util.exportExcelAndDownload(pageResult.getRecords(), "项目信息", response);
     }

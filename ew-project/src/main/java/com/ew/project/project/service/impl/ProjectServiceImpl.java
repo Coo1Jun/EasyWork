@@ -54,12 +54,13 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectMapper, Project> 
     private UserMtmProjectMapper userMtmProjectMapper;
 
     @Override
-    public PageResult<UserMtmProjectDto> pageDto(ProjectQueryParam queryParam) {
+    public PageResult<ProjectDto> pageDto(ProjectQueryParam queryParam) {
         queryParam.setOffset((queryParam.getPageNo() - 1) * queryParam.getLimit());
-        List<UserMtmProjectDto> result = userMtmProjectMapper.getProjectList(UserUtils.getCurrentUser().getUserid(), queryParam);
+//        List<UserMtmProjectDto> result = userMtmProjectMapper.getProjectList(UserUtils.getCurrentUser().getUserid(), queryParam);
+        List<ProjectDto> result = this.baseMapper.getProjectList(UserUtils.getCurrentUser().getUserid(), queryParam);
         if (result == null) return null;
-        Integer total = userMtmProjectMapper.projectListCount(UserUtils.getCurrentUser().getUserid(), queryParam);
-        return PageResult.<UserMtmProjectDto>builder().records(result).total(total).build();
+        Integer total = this.baseMapper.projectListCount(UserUtils.getCurrentUser().getUserid(), queryParam);
+        return PageResult.<ProjectDto>builder().records(result).total(total).build();
     }
 
     @SuppressWarnings("unchecked")

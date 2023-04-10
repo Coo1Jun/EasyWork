@@ -4,30 +4,79 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.ew.project.project.entity.Project">
-        <id column="id" property="id" />
-        <result column="create_by" property="createBy" />
-        <result column="create_time" property="createTime" />
-        <result column="update_by" property="updateBy" />
-        <result column="update_time" property="updateTime" />
-        <result column="remark" property="remark" />
-        <result column="group_id" property="groupId" />
-        <result column="name" property="name" />
-        <result column="tab" property="tab" />
-        <result column="description" property="description" />
-        <result column="version" property="version" />
-        <result column="create_id" property="createId" />
-        <result column="update_id" property="updateId" />
-        <result column="delete_flag" property="deleteFlag" />
+        <id column="id" property="id"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="remark" property="remark"/>
+        <result column="group_id" property="groupId"/>
+        <result column="name" property="name"/>
+        <result column="tab" property="tab"/>
+        <result column="description" property="description"/>
+        <result column="version" property="version"/>
+        <result column="create_id" property="createId"/>
+        <result column="update_id" property="updateId"/>
+        <result column="delete_flag" property="deleteFlag"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        create_by,
+        create_by
+        ,
         create_time,
         update_by,
         update_time,
         remark,
         id, group_id, name, tab, description, version, create_id, update_id, delete_flag
     </sql>
+
+    <select id="getProjectList" resultType="com.ew.project.project.dto.ProjectDto">
+        SELECT
+            a.id,
+            a.id AS project_id,
+            a.group_id,
+            (SELECT name FROM t_group WHERE id = a.group_id AND delete_flag = 0 LIMIT 1) AS group_name,
+            a.name AS project_name,
+            a.tab AS project_tab,
+            a.description AS project_desc,
+            a.create_id,
+            (SELECT real_name FROM t_user WHERE id = a.create_id AND delete_flag = 0 LIMIT 1) AS create_by,
+            a.create_time,
+            a.update_id,
+            (SELECT real_name FROM t_user WHERE id = a.update_id AND delete_flag = 0 LIMIT 1) AS update_by,
+            a.update_time
+        FROM
+            t_project a
+        WHERE
+            a.delete_flag = 0
+        AND
+            group_id IN (SELECT group_id FROM t_user_mtm_group WHERE user_id =#{user_id} AND delete_flag = 0)
+        <if test="query.name != null and query.name != ''">
+            AND a.name LIKE CONCAT('%', #{query.name}, '%')
+        </if>
+        <if test="query.tab != null and query.tab != ''">
+            AND a.tab LIKE CONCAT('%', #{query.tab}, '%')
+        </if>
+        ORDER BY a.update_time DESC
+        LIMIT #{query.offset}, #{query.limit}
+    </select>
+
+    <select id="projectListCount" resultType="integer">
+        SELECT
+            COUNT(*)
+        FROM
+            t_project a
+        WHERE
+            a.delete_flag = 0
+        AND
+            group_id IN (SELECT group_id FROM t_user_mtm_group WHERE user_id =#{user_id} AND delete_flag = 0)
+        <if test="query.name != null and query.name != ''">
+            AND a.name LIKE CONCAT('%', #{query.name}, '%')
+        </if>
+        <if test="query.tab != null and query.tab != ''">
+            AND a.tab LIKE CONCAT('%', #{query.tab}, '%')
+        </if>
+    </select>
 
 </mapper>

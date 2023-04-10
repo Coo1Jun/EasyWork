@@ -26,7 +26,7 @@ public interface IProjectService extends IBaseService<Project> {
      * @since 2023-04-02
      *
      */
-    PageResult<UserMtmProjectDto> pageDto(ProjectQueryParam projectQueryParam);
+    PageResult<ProjectDto> pageDto(ProjectQueryParam projectQueryParam);
 
     /**
      *
