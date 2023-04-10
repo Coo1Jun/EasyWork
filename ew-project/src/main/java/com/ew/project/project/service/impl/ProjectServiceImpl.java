@@ -14,11 +14,9 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ew.project.project.constants.ProjectConstants;
 import com.ew.project.project.dto.*;
 import com.ew.project.project.entity.Project;
-import com.ew.project.project.entity.UserMtmProject;
 import com.ew.project.project.enums.ProjectErrorEnum;
 import com.ew.project.project.mapper.ProjectMapper;
 import com.ew.project.project.service.IProjectService;
-import com.ew.project.project.service.IUserMtmProjectService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,8 +40,6 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectMapper, Project> 
 
     @Autowired
     private ProjectParamMapper projectParamMapper;
-    @Autowired
-    private IUserMtmProjectService userMtmProjectService;
 
     @Override
     public PageResult<ProjectDto> pageDto(ProjectQueryParam queryParam) {
@@ -81,7 +77,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectMapper, Project> 
         // 获取当前用户
         SsoUser curUser = UserUtils.getCurrentUser();
         // 校验项目标识唯一性
-        List<String> tabs = userMtmProjectService.getTabById(curUser.getUserid());
+        List<String> tabs = this.baseMapper.getTabsById(curUser.getUserid());
         if (StringUtils.isNotEmpty(tabs)) {
             if (tabs.contains(addParam.getTab())) {
                 throw CommonException.builder()
@@ -91,14 +87,7 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectMapper, Project> 
         }
         Project project = projectParamMapper.addParam2Entity(addParam);
         log.info("添加项目信息=====》{}", JSONObject.toJSONString(project));
-        boolean result = save(project);
-        if (!result) return false;
-        // 保存用户-项目对照关系
-        UserMtmProject userMtmProject = new UserMtmProject();
-        userMtmProject.setProjectId(project.getId());
-        userMtmProject.setUserId(curUser.getUserid());
-        userMtmProjectService.save(userMtmProject);
-        return true;
+        return save(project);
     }
 
     @SuppressWarnings("unchecked")

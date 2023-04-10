@@ -2,7 +2,6 @@ package com.ew.project.project.mapper;
 
 import com.ew.project.project.dto.ProjectDto;
 import com.ew.project.project.dto.ProjectQueryParam;
-import com.ew.project.project.dto.UserMtmProjectDto;
 import com.ew.project.project.entity.Project;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
