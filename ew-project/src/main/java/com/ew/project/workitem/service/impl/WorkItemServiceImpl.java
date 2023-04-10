@@ -9,6 +9,7 @@ import cn.edu.hzu.common.entity.BaseEntity;
 import cn.edu.hzu.common.exception.CommonException;
 import cn.edu.hzu.common.service.impl.BaseServiceImpl;
 import cn.hutool.core.util.NumberUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
@@ -309,16 +310,7 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
         boolean result = save(workItem);
         if (!result) return false;
         // 保存文件列表
-        if (CollectionUtils.isNotEmpty(addParam.getFileList())) {
-            List<WorkItemOtmFile> fileList = new ArrayList<>();
-            for (String fileId : addParam.getFileList()) {
-                WorkItemOtmFile workItemOtmFile = new WorkItemOtmFile();
-                workItemOtmFile.setFileId(fileId);
-                workItemOtmFile.setWorkItemId(workItem.getId());
-                fileList.add(workItemOtmFile);
-            }
-            workItemOtmFileService.saveBatch(fileList);
-        }
+        saveFileList(workItem.getId(), addParam.getFileList());
         return true;
     }
 
@@ -355,10 +347,51 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
     @SuppressWarnings("unchecked")
     @Override
     @Transactional(rollbackFor = {Exception.class, Error.class})
-    public boolean updateByParam(WorkItemEditParam workItemEditParam) {
-        WorkItem workItem = workItemParamMapper.editParam2Entity(workItemEditParam);
-        // Assert.notNull(ResultCode.PARAM_VALID_ERROR,workItem);
-        return updateById(workItem);
+    public boolean updateByParam(WorkItemEditParam editParam) {
+        String param = "";
+        // 对不能为空的字段判空
+        // 修改标题
+        if (WorkItemConstant.EDIT_TITLE.equals(editParam.getEditType())) {
+            param = StringUtils.isEmpty(editParam.getTitle()) ? "标题" : "";
+        } else if (WorkItemConstant.EDIT_STATUS.equals(editParam.getEditType())) { // 修改状态
+            param = StringUtils.isEmpty(editParam.getStatus()) ? "流程状态" : "";
+        } else if (WorkItemConstant.EDIT_DATE.equals(editParam.getEditType())) { // 修改日期
+            if (editParam.getStartTime() == null || editParam.getEndTime() == null) {
+                param = "完成日期";
+            }
+        }
+        if (!"".equals(param)) {
+            throw CommonException.builder()
+                    .resultCode(WorkItemErrorEnum.PARAMETER_EMPTY.setParams(new Object[]{param}))
+                    .build();
+        }
+        WorkItem workItem = workItemParamMapper.editParam2Entity(editParam);
+        log.info("更新的实体===》{}", JSON.toJSONString(workItem));
+        boolean result = updateById(workItem);
+        if (!result) return false;
+        // 先删除原有的文件列表
+        workItemOtmFileService.remove(Wrappers.<WorkItemOtmFile>lambdaQuery().eq(WorkItemOtmFile::getWorkItemId, editParam.getId()));
+        // 保存文件列表
+        saveFileList(editParam.getId(), editParam.getFileList());
+        return true;
+    }
+
+    /**
+     * 保存文件列表
+     * @return
+     */
+    private boolean saveFileList(String workItemId, List<String> fileIdList) {
+        if (CollectionUtils.isNotEmpty(fileIdList)) {
+            List<WorkItemOtmFile> fileList = new ArrayList<>();
+            for (String fileId : fileIdList) {
+                WorkItemOtmFile workItemOtmFile = new WorkItemOtmFile();
+                workItemOtmFile.setFileId(fileId);
+                workItemOtmFile.setWorkItemId(workItemId);
+                fileList.add(workItemOtmFile);
+            }
+            return workItemOtmFileService.saveBatch(fileList);
+        }
+        return false;
     }
 
     @Override

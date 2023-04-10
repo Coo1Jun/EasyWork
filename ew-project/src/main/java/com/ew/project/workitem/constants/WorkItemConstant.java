@@ -26,4 +26,19 @@ public class WorkItemConstant {
      * 规定任务完成的状态
      */
     public static final Set<String> TASK_COMPLETION_FLAG = new HashSet<>(Arrays.asList("已完成", "关闭", "已取消", "未复现"));
+
+    // 修改类型 start ======================================================
+    /**
+     * 修改标题
+     */
+    public static final String EDIT_TITLE = "title";
+    /**
+     * 修改状态
+     */
+    public static final String EDIT_STATUS = "status";
+    /**
+     * 修改日期
+     */
+    public static final String EDIT_DATE = "date";
+    // 修改类型 end ======================================================
 }
