@@ -253,6 +253,14 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
                 this.list(Wrappers.<WorkItem>lambdaQuery()
                 .eq(WorkItem::getProjectId, workItemQueryParam.getProjectId())
                 .eq(WorkItem::getWorkType, WorkItemConstant.EPIC)));
+        for (WorkItemDto dto : children) {
+            // 查出附件信息
+            List<String> fileIdList = workItemOtmFileMapper.getFileIdByWorkItemId(dto.getId());
+            if (CollectionUtils.isNotEmpty(fileIdList)) {
+                List<FileMetaDto> fileListById = serverClientService.getFileListById(fileIdList);
+                dto.setFileList(fileListById);
+            }
+        }
         // 将Epic根据父id分组
         Map<String, List<WorkItemDto>> map = children.stream().collect(Collectors.groupingBy(WorkItemDto::getPlansId));
         for (WorkItemDto dto : list) {
