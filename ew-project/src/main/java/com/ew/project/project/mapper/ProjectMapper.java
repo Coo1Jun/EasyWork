@@ -28,4 +28,16 @@ public interface ProjectMapper extends BaseMapper<Project> {
     List<ProjectDto> getProjectList(@Param("user_id") String userId, @Param("query") ProjectQueryParam queryParam);
 
     Integer projectListCount(@Param("user_id") String userId, @Param("query") ProjectQueryParam queryParam);
+
+    /**
+     * 根据项目id获取项目信息
+     */
+    ProjectDto getProDtoById(@Param("user_id") String userId, @Param("project_id") String projectId);
+
+    /**
+     * 根据创建人的id，查询该用户创建的所有项目标识
+     * @param userId
+     * @return
+     */
+    List<String> getTabsById(@Param("user_id") String userId);
 }

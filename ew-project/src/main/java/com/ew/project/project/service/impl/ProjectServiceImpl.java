@@ -1,33 +1,27 @@
 package com.ew.project.project.service.impl;
 
+import cn.edu.hzu.common.api.PageResult;
 import cn.edu.hzu.common.api.utils.StringUtils;
 import cn.edu.hzu.common.api.utils.UserUtils;
+import cn.edu.hzu.common.entity.BaseEntity;
 import cn.edu.hzu.common.entity.SsoUser;
 import cn.edu.hzu.common.exception.CommonException;
+import cn.edu.hzu.common.service.impl.BaseServiceImpl;
 import com.alibaba.fastjson.JSONObject;
-import com.ew.project.group.dto.UserMtmGroupDto;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ew.project.project.constants.ProjectConstants;
 import com.ew.project.project.dto.*;
 import com.ew.project.project.entity.Project;
 import com.ew.project.project.entity.UserMtmProject;
 import com.ew.project.project.enums.ProjectErrorEnum;
 import com.ew.project.project.mapper.ProjectMapper;
-import com.ew.project.project.mapper.UserMtmProjectMapper;
 import com.ew.project.project.service.IProjectService;
-import cn.edu.hzu.common.service.impl.BaseServiceImpl;
-import cn.edu.hzu.common.entity.BaseEntity;
 import com.ew.project.project.service.IUserMtmProjectService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import cn.edu.hzu.common.api.PageResult;
-import cn.edu.hzu.common.api.ResultCode;
-
-import java.util.Optional;
-
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -50,8 +44,6 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectMapper, Project> 
     private ProjectParamMapper projectParamMapper;
     @Autowired
     private IUserMtmProjectService userMtmProjectService;
-    @Autowired
-    private UserMtmProjectMapper userMtmProjectMapper;
 
     @Override
     public PageResult<ProjectDto> pageDto(ProjectQueryParam queryParam) {
@@ -119,9 +111,9 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectMapper, Project> 
     }
 
     @Override
-    public UserMtmProjectDto getDtoById(String id) {
+    public ProjectDto getDtoById(String id) {
         if (StringUtils.isEmpty(id)) return null;
-        return userMtmProjectMapper.getProDtoById(UserUtils.getCurrentUser().getUserid(), id);
+        return this.baseMapper.getProDtoById(UserUtils.getCurrentUser().getUserid(), id);
     }
 
     @SuppressWarnings("unchecked")
