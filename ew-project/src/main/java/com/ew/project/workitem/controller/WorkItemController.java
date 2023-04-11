@@ -150,9 +150,9 @@ public class WorkItemController {
      * @since 2023-04-07
      */
     @ApiOperation(value = "根据id获取工作项基本信息")
-    @GetMapping(value = "/{id}")
-    public RestResponse<WorkItemDto> get(@PathVariable String id) {
-        return RestResponse.ok(workItemService.getDtoById(id));
+    @GetMapping(value = "/one")
+    public RestResponse<WorkItemDto> get(@Valid WorkItemQueryParam workItemQueryParam) {
+        return RestResponse.ok(workItemService.getDtoById(workItemQueryParam));
     }
 
     /**

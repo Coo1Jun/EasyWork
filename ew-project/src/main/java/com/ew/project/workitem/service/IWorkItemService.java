@@ -93,11 +93,11 @@ public interface IWorkItemService extends IBaseService<WorkItem> {
     /**
      * 根据id查询，转dto
      *
-     * @param id 工作项基本信息id
+     * @param workItemQueryParam 工作项基本信息id
      * @return WorkItemDto
      * @since 2023-04-07
      */
-    WorkItemDto getDtoById(String id);
+    WorkItemDto getDtoById(WorkItemQueryParam workItemQueryParam);
 
     /**
      * 批量新增

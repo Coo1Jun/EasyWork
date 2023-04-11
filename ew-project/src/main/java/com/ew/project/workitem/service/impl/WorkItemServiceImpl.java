@@ -403,8 +403,11 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
     }
 
     @Override
-    public WorkItemDto getDtoById(String id) {
-        return workItemParamMapper.entity2Dto(this.getById(id));
+    public WorkItemDto getDtoById(WorkItemQueryParam workItemQueryParam) {
+        WorkItem epic = this.getOne(Wrappers.<WorkItem>lambdaQuery()
+                .eq(StringUtils.isNotEmpty(workItemQueryParam.getProjectId()), WorkItem::getProjectId, workItemQueryParam.getProjectId())
+                .eq(WorkItem::getId, workItemQueryParam.getEpicId()));
+        return workItemParamMapper.entity2Dto(epic);
     }
 
     @SuppressWarnings("unchecked")
