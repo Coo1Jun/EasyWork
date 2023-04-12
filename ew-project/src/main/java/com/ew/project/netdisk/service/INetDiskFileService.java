@@ -92,4 +92,13 @@ public interface INetDiskFileService extends IBaseService<NetDiskFile> {
      */
     boolean renameFile(NetDiskFileEditParam netDiskFileEditParam);
 
+    /**
+     * 文件移动
+     *
+     * @param netDiskFileEditParam 更新入参实体类
+     * @return true - 操作成功 false -操作失败
+     * @since 2023-04-12
+     */
+    boolean moveFile(NetDiskFileEditParam netDiskFileEditParam);
+
 }

@@ -112,6 +112,24 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
     }
 
     @Override
+    public boolean moveFile(NetDiskFileEditParam editParam) {
+        if (StringUtils.isEmpty(editParam.getFilePath())) {
+            throw CommonException.builder().resultCode(CommonErrorEnum.PARAM_IS_EMPTY.setParams(new Object[]{"目标路径"})).build();
+        }
+        NetDiskFile file = this.getById(editParam.getId());
+        // 删除原有的
+        this.removeById(file.getId());
+        // 在对应的路径添加
+        NetDiskFileAddParam addParam = new NetDiskFileAddParam();
+        addParam.setFileName(file.getFileName());
+        addParam.setBelongType(file.getBelongType());
+        addParam.setBelongId(file.getBelongId());
+        addParam.setFilePath(editParam.getFilePath());
+        addParam.setFileId(file.getFileId());
+        return this.addNetDiskFile(addParam, file.getIsDir());
+    }
+
+    @Override
     public NetDiskFileDto getDtoById(String id) {
         return netDiskFileParamMapper.entity2Dto(this.getById(id));
     }
@@ -178,7 +196,7 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
      * @param addParam
      * @return
      */
-    private boolean addNetDiskFile(NetDiskFileAddParam addParam, boolean isDir) {
+    private boolean     addNetDiskFile(NetDiskFileAddParam addParam, boolean isDir) {
         // 判断所属类型
         if (isErrorBelongType(addParam.getBelongType())) {
             // 错误的所属类型，默认将其设置为个人
