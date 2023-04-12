@@ -226,13 +226,14 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
             }
             FileMetaDto fileMeta = fileList.get(0);
             String fileName = fileMeta.getName();
-            netDiskFile.setFileName(fileName); // 赋值文件名称
             // 赋值文件扩展名
             int idx = fileName.lastIndexOf('.');
             if (idx == -1) {
                 netDiskFile.setExtendName("");
+                netDiskFile.setFileName(fileName); // 赋值文件名称
             } else {
                 netDiskFile.setExtendName(fileName.substring(idx + 1));
+                netDiskFile.setFileName(fileName.substring(0, idx)); // 赋值文件名称
             }
         }
         // 设置类型是否为文件夹
