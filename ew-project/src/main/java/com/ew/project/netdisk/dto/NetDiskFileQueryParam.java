@@ -21,4 +21,15 @@ import java.util.Date;
 @ApiModel(value = "NetDiskFile查询", description = "查询参数")
 public class NetDiskFileQueryParam extends PageParam {
 
+    @ApiModelProperty("文件名称")
+    private String fileName;
+
+    @ApiModelProperty("文件路径")
+    private String filePath;
+
+    /**
+     * 分页查询的偏移量
+     */
+    @ApiModelProperty("分页查询的偏移量")
+    private Integer offset;
 }

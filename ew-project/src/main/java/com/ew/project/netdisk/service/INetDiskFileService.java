@@ -101,4 +101,21 @@ public interface INetDiskFileService extends IBaseService<NetDiskFile> {
      */
     boolean moveFile(NetDiskFileEditParam netDiskFileEditParam);
 
+    /**
+     * 分页查询，获取项目类型的文件夹
+     *
+     * @param netDiskFileQueryParam 查询参数
+     * @return NetDiskFileDto 查询返回列表实体
+     * @since 2023-04-12
+     */
+    PageResult<NetDiskFileDto> getProNetDisk(NetDiskFileQueryParam netDiskFileQueryParam);
+
+    /**
+     * 分页查询，获取个人文件夹
+     *
+     * @param netDiskFileQueryParam 查询参数
+     * @return NetDiskFileDto 查询返回列表实体
+     * @since 2023-04-12
+     */
+    PageResult<NetDiskFileDto> getPerNetDisk(NetDiskFileQueryParam netDiskFileQueryParam);
 }

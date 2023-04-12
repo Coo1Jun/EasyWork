@@ -3,6 +3,8 @@ package com.ew.project.netdisk.service.impl;
 import cn.edu.hzu.client.dto.FileMetaDto;
 import cn.edu.hzu.client.server.service.IServerClientService;
 import cn.edu.hzu.common.api.utils.StringUtils;
+import cn.edu.hzu.common.api.utils.UserUtils;
+import cn.edu.hzu.common.entity.SsoUser;
 import cn.edu.hzu.common.enums.CommonErrorEnum;
 import cn.edu.hzu.common.exception.CommonException;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
@@ -19,7 +21,6 @@ import com.ew.project.netdisk.dto.NetDiskFileEditParam;
 import com.ew.project.netdisk.dto.NetDiskFileParamMapper;
 import com.ew.project.netdisk.dto.NetDiskFileDto;
 import cn.edu.hzu.common.entity.BaseEntity;
-import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,6 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import cn.edu.hzu.common.api.PageResult;
-import cn.edu.hzu.common.api.ResultCode;
 
 import java.util.*;
 
@@ -44,7 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Slf4j
 @Service
-@Transactional(readOnly = true, rollbackFor = {Exception.class, Error.class})
+@Transactional(rollbackFor = {Exception.class, Error.class})
 public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, NetDiskFile> implements INetDiskFileService {
 
     @Autowired
@@ -79,16 +79,19 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class, Error.class})
     public boolean addDir(NetDiskFileAddParam addParam) {
         return addNetDiskFile(addParam, true);
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class, Error.class})
     public boolean uploadFile(NetDiskFileAddParam addParam) {
         return addNetDiskFile(addParam, false);
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class, Error.class})
     public boolean renameFile(NetDiskFileEditParam editParam) {
         // 判断文件名
         if (StringUtils.isEmpty(editParam.getFileName())) {
@@ -112,6 +115,7 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class, Error.class})
     public boolean moveFile(NetDiskFileEditParam editParam) {
         if (StringUtils.isEmpty(editParam.getFilePath())) {
             throw CommonException.builder().resultCode(CommonErrorEnum.PARAM_IS_EMPTY.setParams(new Object[]{"目标路径"})).build();
@@ -127,6 +131,23 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
         addParam.setFilePath(editParam.getFilePath());
         addParam.setFileId(file.getFileId());
         return this.addNetDiskFile(addParam, file.getIsDir() == 1);
+    }
+
+    @Override
+    public PageResult<NetDiskFileDto> getProNetDisk(NetDiskFileQueryParam queryParam) {
+        queryParam.setOffset((queryParam.getPageNo() - 1) * queryParam.getLimit());
+        SsoUser curUser = UserUtils.getCurrentUser();
+        List<NetDiskFileDto> fileList = this.baseMapper.getProNetDir(curUser.getUserid(), queryParam);
+        if (CollectionUtils.isEmpty(fileList)) return null;
+        // 查询文件对应的信息
+        Integer total = this.baseMapper.getProNetDirCount(curUser.getUserid(), queryParam);
+        return PageResult.<NetDiskFileDto>builder().records(fileList).total(total).build();
+    }
+
+    @Override
+    public PageResult<NetDiskFileDto> getPerNetDisk(NetDiskFileQueryParam queryParam) {
+        queryParam.setOffset((queryParam.getPageNo() - 1) * queryParam.getLimit());
+        return null;
     }
 
     @Override

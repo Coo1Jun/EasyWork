@@ -50,7 +50,7 @@ public class NetDiskFileController {
     @ApiOperation("分页获取网盘文件信息列表")
     @GetMapping("/list")
     public RestResponse<PageResult<NetDiskFileDto>> pageList(@Valid NetDiskFileQueryParam netDiskFileQueryParam) {
-        return RestResponse.ok(netDiskFileService.pageDto(netDiskFileQueryParam));
+        return RestResponse.ok(netDiskFileService.getProNetDisk(netDiskFileQueryParam));
     }
 
     /**
