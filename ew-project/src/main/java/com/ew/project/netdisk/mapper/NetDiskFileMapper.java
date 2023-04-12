@@ -19,11 +19,20 @@ import java.util.List;
 public interface NetDiskFileMapper extends BaseMapper<NetDiskFile> {
 
     /**
-     * 根据用户id获取项目类型的文件夹列表
+     * 根据用户id获取项目类型的文件列表
      * @param userId
      * @param queryParam
      * @return
      */
-    List<NetDiskFileDto> getProNetDir(@Param("user_id") String userId, @Param("query")NetDiskFileQueryParam queryParam);
-    Integer getProNetDirCount(@Param("user_id") String userId, @Param("query")NetDiskFileQueryParam queryParam);
+    List<NetDiskFileDto> getProNetFile(@Param("user_id") String userId, @Param("query")NetDiskFileQueryParam queryParam);
+    Integer getProNetFileCount(@Param("user_id") String userId, @Param("query")NetDiskFileQueryParam queryParam);
+
+    /**
+     * 根据用户id获取个人类型的文件列表
+     * @param userId
+     * @param queryParam
+     * @return
+     */
+    List<NetDiskFileDto> getPerNetFile(@Param("user_id") String userId, @Param("query")NetDiskFileQueryParam queryParam);
+    Integer getPerNetFileCount(@Param("user_id") String userId, @Param("query")NetDiskFileQueryParam queryParam);
 }

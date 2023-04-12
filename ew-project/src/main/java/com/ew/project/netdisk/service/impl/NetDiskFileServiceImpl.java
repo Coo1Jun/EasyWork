@@ -54,10 +54,32 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
 
     @Override
     public PageResult<NetDiskFileDto> pageDto(NetDiskFileQueryParam netDiskFileQueryParam) {
-        Wrapper<NetDiskFile> wrapper = getPageSearchWrapper(netDiskFileQueryParam);
-        PageResult<NetDiskFileDto> result = netDiskFileParamMapper.pageEntity2Dto(page(netDiskFileQueryParam, wrapper));
-
-        return Optional.ofNullable(result).orElse(new PageResult<>());
+        // 查询项目类型的文件
+        PageResult<NetDiskFileDto> proNetDisk = this.getProNetDisk(netDiskFileQueryParam);
+        if (proNetDisk == null) {
+            // 查出个人类型的文件
+            PageResult<NetDiskFileDto> perNetDisk = this.getPerNetDisk(netDiskFileQueryParam);
+            return Optional.ofNullable(perNetDisk).orElse(new PageResult<>());
+        } else {
+            // 查出个人类型的文件总数
+            Integer perTotal = this.baseMapper.getPerNetFileCount(UserUtils.getCurrentUser().getUserid(), netDiskFileQueryParam);
+            proNetDisk.setTotal(proNetDisk.getTotal() + perTotal); // 计算出总数
+            // 如果项目类型的文件数量不够，则继续查询个人类型的文件
+            if (proNetDisk.getRecords().size() < netDiskFileQueryParam.getLimit()) {
+                // 查出个人类型的文件
+                netDiskFileQueryParam.setLimit(netDiskFileQueryParam.getLimit() - proNetDisk.getRecords().size());
+                netDiskFileQueryParam.setPageNo(1);
+                PageResult<NetDiskFileDto> perNetDisk = this.getPerNetDisk(netDiskFileQueryParam);
+                if (perNetDisk != null) {
+                    // 两种类型的文件合并
+                    List<NetDiskFileDto> result = new ArrayList<>(proNetDisk.getRecords());
+                    result.addAll(perNetDisk.getRecords());
+                    proNetDisk.setRecords(result);
+                    return proNetDisk;
+                }
+            }
+        }
+        return Optional.ofNullable(proNetDisk).orElse(new PageResult<>());
     }
 
     @SuppressWarnings("unchecked")
@@ -137,7 +159,7 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
     public PageResult<NetDiskFileDto> getProNetDisk(NetDiskFileQueryParam queryParam) {
         queryParam.setOffset((queryParam.getPageNo() - 1) * queryParam.getLimit());
         SsoUser curUser = UserUtils.getCurrentUser();
-        List<NetDiskFileDto> fileList = this.baseMapper.getProNetDir(curUser.getUserid(), queryParam);
+        List<NetDiskFileDto> fileList = this.baseMapper.getProNetFile(curUser.getUserid(), queryParam);
         if (CollectionUtils.isEmpty(fileList)) return null;
         // 查询文件对应的信息
         for (NetDiskFileDto dto : fileList) {
@@ -146,20 +168,47 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
                 dto.setFileUrl(fileMeta.getUrl());
                 dto.setFileSize(fileMeta.getFileSize());
             }
+            if (dto.getFileNameNum() != null) {
+                dto.setFileName(dto.getFileName() + "(" + dto.getFileNameNum() + ")");
+            }
         }
-        Integer total = this.baseMapper.getProNetDirCount(curUser.getUserid(), queryParam);
+        Integer total = this.baseMapper.getProNetFileCount(curUser.getUserid(), queryParam);
         return PageResult.<NetDiskFileDto>builder().records(fileList).total(total).build();
     }
 
     @Override
     public PageResult<NetDiskFileDto> getPerNetDisk(NetDiskFileQueryParam queryParam) {
         queryParam.setOffset((queryParam.getPageNo() - 1) * queryParam.getLimit());
-        return null;
+        SsoUser curUser = UserUtils.getCurrentUser();
+        List<NetDiskFileDto> fileList = this.baseMapper.getPerNetFile(curUser.getUserid(), queryParam);
+        if (CollectionUtils.isEmpty(fileList)) return null;
+        // 查询文件对应的信息
+        for (NetDiskFileDto dto : fileList) {
+            if (StringUtils.isNotEmpty(dto.getFileId())) {
+                FileMetaDto fileMeta = serverClientService.getFileById(dto.getFileId());
+                dto.setFileUrl(fileMeta.getUrl());
+                dto.setFileSize(fileMeta.getFileSize());
+            }
+            if (dto.getFileNameNum() != null) {
+                dto.setFileName(dto.getFileName() + "(" + dto.getFileNameNum() + ")");
+            }
+        }
+        Integer total = this.baseMapper.getPerNetFileCount(curUser.getUserid(), queryParam);
+        return PageResult.<NetDiskFileDto>builder().records(fileList).total(total).build();
     }
 
     @Override
     public NetDiskFileDto getDtoById(String id) {
-        return netDiskFileParamMapper.entity2Dto(this.getById(id));
+        NetDiskFileDto dto = netDiskFileParamMapper.entity2Dto(this.getById(id));
+        if (StringUtils.isNotEmpty(dto.getFileId())) {
+            FileMetaDto fileMeta = serverClientService.getFileById(dto.getFileId());
+            dto.setFileUrl(fileMeta.getUrl());
+            dto.setFileSize(fileMeta.getFileSize());
+        }
+        if (dto.getFileNameNum() != null) {
+            dto.setFileName(dto.getFileName() + "(" + dto.getFileNameNum() + ")");
+        }
+        return dto;
     }
 
     @SuppressWarnings("unchecked")
@@ -186,9 +235,9 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
         if (type == null) return true;
         NetDiskTypeEnum[] values = NetDiskTypeEnum.values();
         for (NetDiskTypeEnum typeEnum : values) {
-            if (type == typeEnum.getCode()) return true;
+            if (type == typeEnum.getCode()) return false;
         }
-        return false;
+        return true;
     }
 
     /**
@@ -216,6 +265,7 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
             while (numSet.contains(num)) num++;
             netDiskFile.setFileNameNum(num);
         }
+        netDiskFile.setDeleted(0);
         return save(netDiskFile);
     }
 
@@ -224,7 +274,7 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
      * @param addParam
      * @return
      */
-    private boolean     addNetDiskFile(NetDiskFileAddParam addParam, boolean isDir) {
+    private boolean addNetDiskFile(NetDiskFileAddParam addParam, boolean isDir) {
         // 判断所属类型
         if (isErrorBelongType(addParam.getBelongType())) {
             // 错误的所属类型，默认将其设置为个人

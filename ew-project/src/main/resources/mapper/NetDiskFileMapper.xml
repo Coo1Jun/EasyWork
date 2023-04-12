@@ -37,7 +37,7 @@
         id, file_id, file_name, file_name_num, extend_name, file_path, is_dir, belong_type, belong_id, delete_time, deleted, version, create_id, update_id, delete_flag
     </sql>
 
-    <select id="getProNetDir" resultType="com.ew.project.netdisk.dto.NetDiskFileDto">
+    <select id="getProNetFile" resultType="com.ew.project.netdisk.dto.NetDiskFileDto">
         SELECT a.id,
                a.file_id,
                a.file_name,
@@ -70,7 +70,7 @@
         LIMIT #{query.offset}, #{query.limit}
     </select>
 
-    <select id="getProNetDirCount" resultType="integer">
+    <select id="getProNetFileCount" resultType="integer">
         SELECT COUNT(*)
         FROM
             t_net_disk_file a
@@ -79,6 +79,50 @@
             (SELECT id FROM t_project WHERE group_id
             IN (SELECT group_id FROM t_user_mtm_group WHERE user_id = #{user_id} AND delete_flag = 0)
             AND delete_flag = 0)
+        <if test="query.fileName != null and query.fileName != ''">
+            AND a.file_name LIKE CONCAT('%', #{query.fileName}, '%')
+        </if>
+        <if test="query.filePath != null and query.filePath != ''">
+            AND a.file_path = #{query.filePath}
+        </if>
+    </select>
+
+    <select id="getPerNetFile" resultType="com.ew.project.netdisk.dto.NetDiskFileDto">
+        SELECT a.id,
+               a.file_id,
+               a.file_name,
+               a.file_name_num,
+               a.extend_name,
+               a.file_path,
+               a.is_dir,
+               a.belong_type,
+               a.belong_id,
+               a.deleted,
+               a.delete_time,
+               a.create_id,
+               (SELECT real_name FROM t_user WHERE id = a.create_id AND delete_flag = 0 LIMIT 1) AS create_by,
+               a.create_time,
+               (SELECT real_name FROM t_user WHERE id = a.belong_id AND delete_flag = 0 LIMIT 1) AS belong_name
+        FROM
+            t_net_disk_file a
+        WHERE a.delete_flag = 0
+        AND a.belong_id = #{user_id}
+        <if test="query.fileName != null and query.fileName != ''">
+            AND a.file_name LIKE CONCAT('%', #{query.fileName}, '%')
+        </if>
+        <if test="query.filePath != null and query.filePath != ''">
+            AND a.file_path = #{query.filePath}
+        </if>
+        ORDER BY a.create_time ASC
+        LIMIT #{query.offset}, #{query.limit}
+    </select>
+
+    <select id="getPerNetFileCount" resultType="integer">
+        SELECT COUNT(*)
+        FROM
+            t_net_disk_file a
+        WHERE a.delete_flag = 0
+        AND a.belong_id = #{user_id}
         <if test="query.fileName != null and query.fileName != ''">
             AND a.file_name LIKE CONCAT('%', #{query.fileName}, '%')
         </if>

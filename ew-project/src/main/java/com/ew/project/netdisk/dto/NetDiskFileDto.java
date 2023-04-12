@@ -36,6 +36,9 @@ public class NetDiskFileDto {
     @ApiModelProperty("文件名称")
     private String fileName;
 
+    @ApiModelProperty("文件名称编号")
+    private Integer fileNameNum;
+
     @ApiModelProperty("文件路径")
     private String filePath;
 
