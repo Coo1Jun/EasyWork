@@ -54,32 +54,49 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
 
     @Override
     public PageResult<NetDiskFileDto> pageDto(NetDiskFileQueryParam netDiskFileQueryParam) {
-        // 查询项目类型的文件
-        PageResult<NetDiskFileDto> proNetDisk = this.getProNetDisk(netDiskFileQueryParam);
-        if (proNetDisk == null) {
+        String userid = UserUtils.getCurrentUser().getUserid();
+        // 查出项目类型的文件总数
+        Integer proTotal = this.baseMapper.getProNetFileCount(userid, netDiskFileQueryParam);
+        // 查出个人类型的文件总数
+        Integer perTotal = this.baseMapper.getPerNetFileCount(userid, netDiskFileQueryParam);
+        // 计算需要舍弃项目类型文件的前几条记录
+        int proOffset = (netDiskFileQueryParam.getPageNo() - 1) * netDiskFileQueryParam.getLimit();
+        PageResult<NetDiskFileDto> proNetDisk = null;
+        PageResult<NetDiskFileDto> perNetDisk = null;
+        if (proTotal <= proOffset) {
+            netDiskFileQueryParam.setOffset(proOffset - proTotal);
             // 查出个人类型的文件
-            PageResult<NetDiskFileDto> perNetDisk = this.getPerNetDisk(netDiskFileQueryParam);
+            perNetDisk = this.getPerNetDisk(netDiskFileQueryParam);
+        } else {
+            netDiskFileQueryParam.setOffset(proOffset);
+            // 查询项目类型的文件
+            proNetDisk = this.getProNetDisk(netDiskFileQueryParam);
+            // 如果项目类型的文件不够，则需要查询个人类型的
+            if (proNetDisk.getRecords().size() < netDiskFileQueryParam.getLimit()) {
+                // 计算需要舍弃个人类型文件的前几条记录
+                netDiskFileQueryParam.setOffset(0);
+                netDiskFileQueryParam.setPageNo(1);
+                netDiskFileQueryParam.setLimit(netDiskFileQueryParam.getLimit() - proNetDisk.getRecords().size());
+                // 查出个人类型的文件
+                perNetDisk = this.getPerNetDisk(netDiskFileQueryParam);
+            }
+
+        }
+        if (proNetDisk == null) {
+            if (perNetDisk != null) {
+                perNetDisk.setTotal(proTotal + perTotal);
+            }
             return Optional.ofNullable(perNetDisk).orElse(new PageResult<>());
         } else {
-            // 查出个人类型的文件总数
-            Integer perTotal = this.baseMapper.getPerNetFileCount(UserUtils.getCurrentUser().getUserid(), netDiskFileQueryParam);
-            proNetDisk.setTotal(proNetDisk.getTotal() + perTotal); // 计算出总数
-            // 如果项目类型的文件数量不够，则继续查询个人类型的文件
-            if (proNetDisk.getRecords().size() < netDiskFileQueryParam.getLimit()) {
-                // 查出个人类型的文件
-                netDiskFileQueryParam.setLimit(netDiskFileQueryParam.getLimit() - proNetDisk.getRecords().size());
-                netDiskFileQueryParam.setPageNo(1);
-                PageResult<NetDiskFileDto> perNetDisk = this.getPerNetDisk(netDiskFileQueryParam);
-                if (perNetDisk != null) {
-                    // 两种类型的文件合并
-                    List<NetDiskFileDto> result = new ArrayList<>(proNetDisk.getRecords());
-                    result.addAll(perNetDisk.getRecords());
-                    proNetDisk.setRecords(result);
-                    return proNetDisk;
-                }
+            // 两种类型的文件合并
+            List<NetDiskFileDto> result = new ArrayList<>(proNetDisk.getRecords());
+            if (perNetDisk != null) {
+                result.addAll(perNetDisk.getRecords());
             }
+            proNetDisk.setRecords(result);
+            proNetDisk.setTotal(proTotal + perTotal);
+            return proNetDisk;
         }
-        return Optional.ofNullable(proNetDisk).orElse(new PageResult<>());
     }
 
     @SuppressWarnings("unchecked")
@@ -157,7 +174,9 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
 
     @Override
     public PageResult<NetDiskFileDto> getProNetDisk(NetDiskFileQueryParam queryParam) {
-        queryParam.setOffset((queryParam.getPageNo() - 1) * queryParam.getLimit());
+        if (queryParam.getOffset() == null || queryParam.getOffset() == 0) {
+            queryParam.setOffset((queryParam.getPageNo() - 1) * queryParam.getLimit());
+        }
         SsoUser curUser = UserUtils.getCurrentUser();
         List<NetDiskFileDto> fileList = this.baseMapper.getProNetFile(curUser.getUserid(), queryParam);
         if (CollectionUtils.isEmpty(fileList)) return null;
@@ -178,7 +197,9 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
 
     @Override
     public PageResult<NetDiskFileDto> getPerNetDisk(NetDiskFileQueryParam queryParam) {
-        queryParam.setOffset((queryParam.getPageNo() - 1) * queryParam.getLimit());
+        if (queryParam.getOffset() == null || queryParam.getOffset() == 0) {
+            queryParam.setOffset((queryParam.getPageNo() - 1) * queryParam.getLimit());
+        }
         SsoUser curUser = UserUtils.getCurrentUser();
         List<NetDiskFileDto> fileList = this.baseMapper.getPerNetFile(curUser.getUserid(), queryParam);
         if (CollectionUtils.isEmpty(fileList)) return null;
