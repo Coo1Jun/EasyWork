@@ -59,7 +59,7 @@ public class NetDiskFile extends BaseEntity {
      * 是否为目录（0否 1是）
      */
     @TableField("is_dir")
-    private Boolean isDir;
+    private Integer isDir;
 
     /**
      * 所属类型（0项目 1个人）

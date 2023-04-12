@@ -126,7 +126,7 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
         addParam.setBelongId(file.getBelongId());
         addParam.setFilePath(editParam.getFilePath());
         addParam.setFileId(file.getFileId());
-        return this.addNetDiskFile(addParam, file.getIsDir());
+        return this.addNetDiskFile(addParam, file.getIsDir() == 1);
     }
 
     @Override
@@ -236,7 +236,7 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
             }
         }
         // 设置类型是否为文件夹
-        netDiskFile.setIsDir(isDir);
+        netDiskFile.setIsDir(isDir ? 1 : 0);
         return saveNetDiskFile(netDiskFile);
     }
 }
