@@ -140,6 +140,13 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
         List<NetDiskFileDto> fileList = this.baseMapper.getProNetDir(curUser.getUserid(), queryParam);
         if (CollectionUtils.isEmpty(fileList)) return null;
         // 查询文件对应的信息
+        for (NetDiskFileDto dto : fileList) {
+            if (StringUtils.isNotEmpty(dto.getFileId())) {
+                FileMetaDto fileMeta = serverClientService.getFileById(dto.getFileId());
+                dto.setFileUrl(fileMeta.getUrl());
+                dto.setFileSize(fileMeta.getFileSize());
+            }
+        }
         Integer total = this.baseMapper.getProNetDirCount(curUser.getUserid(), queryParam);
         return PageResult.<NetDiskFileDto>builder().records(fileList).total(total).build();
     }
