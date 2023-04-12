@@ -20,6 +20,15 @@ public enum CommonErrorEnum implements CustomResultCode {
     IMPORT_DATA_EMPTY(10000, "导入数据为空！", null),
 
     /**
+     * 参数为空
+     */
+    PARAM_IS_EMPTY(10001, "{}不能为空", null),
+    /**
+     * 参数已经存在
+     */
+    PARAM_IS_EXIST(10001, "【{}】已经存在", null),
+
+    /**
      * 没有大于0
      */
     NUM_NOT_GT_ZERO(11001, "数值应大于0！", null),
