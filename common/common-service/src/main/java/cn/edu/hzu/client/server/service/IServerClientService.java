@@ -41,13 +41,27 @@ public interface IServerClientService {
     /**
      * 根据文件id集合获取文件基本信息
      * @param throwEx 是否抛出异常（当程序报错时）
+     * @param id 文件id集合
+     * @return
+     * @author lzf
+     * @date: 2023/4/9 14:58
+     */
+    RestResponse<FileMetaDto> getFileByIdClient(boolean throwEx, String id);
+    default FileMetaDto getFileById(String id) {
+        RestResponse<FileMetaDto> response = getFileByIdClient(true, id);
+        return response.getData();
+    }
+
+    /**
+     * 根据文件id集合获取文件基本信息
+     * @param throwEx 是否抛出异常（当程序报错时）
      * @param ids 文件id集合
      * @return
      * @author lzf
      * @date: 2023/4/9 14:58
      */
     RestResponse<List<FileMetaDto>> getFileListByIdsClient(boolean throwEx, List<String> ids);
-    default List<FileMetaDto> getFileListById(List<String> ids) {
+    default List<FileMetaDto> getFileListByIds(List<String> ids) {
         RestResponse<List<FileMetaDto>> response = getFileListByIdsClient(true, ids);
         return response.getData();
     }

@@ -41,6 +41,14 @@ public class IServerClientServiceImpl extends AbstractBaseServiceClient implemen
     }
 
     @Override
+    public RestResponse<FileMetaDto> getFileByIdClient(boolean throwEx, String id) {
+        execBefore(ProjectEnum.EW_SERVER, id);
+        RestResponse<FileMetaDto> result = serverFeignClient.getFileById(id);
+        execAfter(throwEx, ProjectEnum.EW_SERVER, result);
+        return result;
+    }
+
+    @Override
     public RestResponse<List<FileMetaDto>> getFileListByIdsClient(boolean throwEx, List<String> ids) {
         execBefore(ProjectEnum.EW_SERVER, ids);
         RestResponse<List<FileMetaDto>> result = serverFeignClient.getFileListByIds(ids);

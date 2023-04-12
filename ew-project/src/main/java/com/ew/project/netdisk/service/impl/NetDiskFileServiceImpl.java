@@ -241,11 +241,10 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
             if (StringUtils.isEmpty(netDiskFile.getFileId())) {
                 throw CommonException.builder().resultCode(NetDiskErrorEnum.FILE_NOT_EXIST).build();
             }
-            List<FileMetaDto> fileList = serverClientService.getFileListById(Collections.singletonList(netDiskFile.getFileId()));
-            if (CollectionUtils.isEmpty(fileList)) {
+            FileMetaDto fileMeta = serverClientService.getFileById(netDiskFile.getFileId());
+            if (fileMeta == null) {
                 throw CommonException.builder().resultCode(NetDiskErrorEnum.FILE_NOT_EXIST).build();
             }
-            FileMetaDto fileMeta = fileList.get(0);
             String fileName = fileMeta.getName();
             // 赋值文件扩展名
             int idx = fileName.lastIndexOf('.');

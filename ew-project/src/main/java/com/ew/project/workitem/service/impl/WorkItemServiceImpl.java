@@ -119,7 +119,7 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
             // 查出附件信息
             List<String> fileIdList = workItemOtmFileMapper.getFileIdByWorkItemId(dto.getId());
             if (CollectionUtils.isNotEmpty(fileIdList)) {
-                List<FileMetaDto> fileListById = serverClientService.getFileListById(fileIdList);
+                List<FileMetaDto> fileListById = serverClientService.getFileListByIds(fileIdList);
                 dto.setFileList(fileListById);
             }
         }
@@ -257,7 +257,7 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
             // 查出附件信息
             List<String> fileIdList = workItemOtmFileMapper.getFileIdByWorkItemId(dto.getId());
             if (CollectionUtils.isNotEmpty(fileIdList)) {
-                List<FileMetaDto> fileListById = serverClientService.getFileListById(fileIdList);
+                List<FileMetaDto> fileListById = serverClientService.getFileListByIds(fileIdList);
                 dto.setFileList(fileListById);
             }
         }
