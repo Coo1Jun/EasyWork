@@ -36,8 +36,4 @@ public interface NetDiskFileMapper extends BaseMapper<NetDiskFile> {
     List<NetDiskFileDto> getPerNetFile(@Param("user_id") String userId, @Param("query")NetDiskFileQueryParam queryParam);
     Integer getPerNetFileCount(@Param("user_id") String userId, @Param("query")NetDiskFileQueryParam queryParam);
 
-    /**
-     * 根据filePath找文件夹信息
-     */
-    NetDiskFileDto getDirByFilePath(@Param("file_path") String filePath);
 }

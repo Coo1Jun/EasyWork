@@ -36,4 +36,7 @@ public class NetDiskFileAddParam {
 
     @ApiModelProperty("文件路径")
     private String filePath;
+
+    @ApiModelProperty("目录id")
+    private String dirId;
 }

@@ -149,7 +149,15 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
         if (count > 0) {
             throw CommonException.builder().resultCode(CommonErrorEnum.PARAM_IS_EXIST.setParams(new Object[]{editParam.getFileName()})).build();
         }
+        // 如果改名的是文件夹，则需要给该文件夹下的所有文件的filePath
+        if (file.getIsDir() == NetDiskTypeEnum.DIR.getCode()) {
+            String newFilePath = file.getFilePath() + "/" + editParam.getFileName();
+            this.update(Wrappers.<NetDiskFile>lambdaUpdate()
+                    .set(NetDiskFile::getFilePath, newFilePath)
+                    .eq(NetDiskFile::getDirId, file.getId()));
+        }
         file.setFileName(editParam.getFileName());
+        file.setFileNameNum(null);
         return updateById(file);
     }
 
@@ -274,6 +282,7 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
                 .eq(NetDiskFile::getIsDir, netDiskFile.getIsDir()) // 是否为文件夹
                 .eq(NetDiskFile::getFilePath, netDiskFile.getFilePath()) // 文件路径要相同
                 .eq(NetDiskFile::getFileName, netDiskFile.getFileName()) // 文件名相同
+                .eq(StringUtils.isNotEmpty(netDiskFile.getDirId()), NetDiskFile::getDirId, netDiskFile.getDirId())
                 .eq(NetDiskFile::getDeleted, 0));// 没有被删除
         if (CollectionUtils.isNotEmpty(list)) {
             // 不允许重名，抛出错误
@@ -303,11 +312,13 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
      * @return
      */
     private boolean addNetDiskFile(NetDiskFileAddParam addParam, boolean isDir, boolean allowSameName) {
-        // 判断所属类型
-        if (isErrorBelongType(addParam.getBelongType())) {
-            // 错误的所属类型，默认将其设置为个人
+        if (StringUtils.isEmpty(addParam.getDirId())) {
             addParam.setBelongType(NetDiskTypeEnum.PERSONAL.getCode());
             addParam.setBelongId(UserUtils.getCurrentUser().getUserid());
+        } else {
+            NetDiskFile dir = this.getById(addParam.getDirId());
+            addParam.setBelongId(dir.getBelongId());
+            addParam.setBelongType(dir.getBelongType());
         }
         // 判断文件路径
         if (StringUtils.isEmpty(addParam.getFilePath())) {
@@ -324,14 +335,6 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
         NetDiskFile netDiskFile = netDiskFileParamMapper.addParam2Entity(addParam);
         // 如果添加的是文件
         if (!isDir) {
-            if (NetDiskConstant.MAIN_DIR_PATH.equals(addParam.getFilePath())) {
-                netDiskFile.setBelongType(NetDiskTypeEnum.PERSONAL.getCode());
-                netDiskFile.setBelongId(UserUtils.getCurrentUser().getUserid());
-            } else {
-                NetDiskFileDto dir = this.baseMapper.getDirByFilePath(addParam.getFilePath());
-                netDiskFile.setBelongId(dir.getBelongId());
-                netDiskFile.setBelongType(dir.getBelongType());
-            }
             if (StringUtils.isEmpty(netDiskFile.getFileId())) {
                 throw CommonException.builder().resultCode(NetDiskErrorEnum.FILE_NOT_EXIST).build();
             }

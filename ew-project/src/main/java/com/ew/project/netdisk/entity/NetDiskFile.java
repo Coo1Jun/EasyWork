@@ -40,7 +40,7 @@ public class NetDiskFile extends BaseEntity {
     /**
      * 文件名编号（仅当文件出现重名时有值，如hello(1).png ）
      */
-    @TableField("file_name_num")
+    @TableField(value = "file_name_num", updateStrategy = FieldStrategy.IGNORED)
     private Integer fileNameNum;
 
     /**
@@ -60,6 +60,12 @@ public class NetDiskFile extends BaseEntity {
      */
     @TableField("is_dir")
     private Integer isDir;
+
+    /**
+     * 目录id
+     */
+    @TableField("dir_id")
+    private String dirId;
 
     /**
      * 所属类型（0项目 1个人）

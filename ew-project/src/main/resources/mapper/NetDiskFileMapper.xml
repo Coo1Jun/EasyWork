@@ -69,6 +69,9 @@
         <if test="query.filePath != null and query.filePath != ''">
             AND a.file_path = #{query.filePath}
         </if>
+        <if test="query.dirId != null and query.dirId != ''">
+            AND a.dir_id = #{query.dirId}
+        </if>
         ORDER BY a.create_time ASC
         LIMIT #{query.offset}, #{query.limit}
     </select>
@@ -87,6 +90,9 @@
         </if>
         <if test="query.filePath != null and query.filePath != ''">
             AND a.file_path = #{query.filePath}
+        </if>
+        <if test="query.dirId != null and query.dirId != ''">
+            AND a.dir_id = #{query.dirId}
         </if>
     </select>
 
@@ -119,6 +125,9 @@
         <if test="query.filePath != null and query.filePath != ''">
             AND a.file_path = #{query.filePath}
         </if>
+        <if test="query.dirId != null and query.dirId != ''">
+            AND a.dir_id = #{query.dirId}
+        </if>
         ORDER BY a.create_time ASC
         LIMIT #{query.offset}, #{query.limit}
     </select>
@@ -135,20 +144,9 @@
         <if test="query.filePath != null and query.filePath != ''">
             AND a.file_path = #{query.filePath}
         </if>
+        <if test="query.dirId != null and query.dirId != ''">
+            AND a.dir_id = #{query.dirId}
+        </if>
     </select>
-
-    <select id="getDirByFilePath" resultType="com.ew.project.netdisk.dto.NetDiskFileDto">
-        SELECT *
-        FROM
-            t_net_disk_file
-        WHERE delete_flag = 0
-        AND (
-            ( file_name_num IS NULL AND CONCAT( '/', file_name ) = #{file_path} )
-            OR
-            ( file_name_num IS NOT NULL AND CONCAT( '/', file_name, '(', file_name_num, ')' ) = #{file_path} )
-        )
-        LIMIT 1
-    </select>
-
 
 </mapper>

@@ -45,6 +45,9 @@ public class NetDiskFileDto {
     @ApiModelProperty("是否为文件夹")
     private Integer isDir;
 
+    @ApiModelProperty("目录id")
+    private String dirId;
+
     @ApiModelProperty("文件id")
     private String fileId;
 

@@ -34,6 +34,9 @@ public class NetDiskFileEditParam {
     @ApiModelProperty("是否为文件夹")
     private boolean isDir;
 
+    @ApiModelProperty("目录id")
+    private String dirId;
+
     @ApiModelProperty(value = "版本号")
     private Integer version;
 

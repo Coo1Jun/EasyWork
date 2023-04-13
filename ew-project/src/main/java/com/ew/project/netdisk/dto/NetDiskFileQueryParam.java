@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
 
@@ -26,6 +27,9 @@ public class NetDiskFileQueryParam extends PageParam {
 
     @ApiModelProperty("文件路径")
     private String filePath;
+
+    @ApiModelProperty("目录id")
+    private String dirId;
 
     /**
      * 分页查询的偏移量
