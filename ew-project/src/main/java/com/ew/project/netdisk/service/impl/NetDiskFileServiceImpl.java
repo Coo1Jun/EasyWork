@@ -324,6 +324,14 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
         NetDiskFile netDiskFile = netDiskFileParamMapper.addParam2Entity(addParam);
         // 如果添加的是文件
         if (!isDir) {
+            if (NetDiskConstant.MAIN_DIR_PATH.equals(addParam.getFilePath())) {
+                netDiskFile.setBelongType(NetDiskTypeEnum.PERSONAL.getCode());
+                netDiskFile.setBelongId(UserUtils.getCurrentUser().getUserid());
+            } else {
+                NetDiskFileDto dir = this.baseMapper.getDirByFilePath(addParam.getFilePath());
+                netDiskFile.setBelongId(dir.getBelongId());
+                netDiskFile.setBelongType(dir.getBelongType());
+            }
             if (StringUtils.isEmpty(netDiskFile.getFileId())) {
                 throw CommonException.builder().resultCode(NetDiskErrorEnum.FILE_NOT_EXIST).build();
             }

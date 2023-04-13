@@ -78,6 +78,18 @@ public class NetDiskFileController {
     }
 
     /**
+     * 上传文件
+     *
+     * @author LiZhengFan
+     * @since 2023-04-12
+     */
+    @ApiOperation("上传文件")
+    @PostMapping("/upload")
+    public RestResponse<Boolean> uploadFile(@RequestBody @Valid NetDiskFileAddParam netDiskFileAddParam) {
+        return RestResponse.ok(netDiskFileService.uploadFile(netDiskFileAddParam, true));
+    }
+
+    /**
      * 修改网盘文件信息
      *
      * @author LiZhengFan

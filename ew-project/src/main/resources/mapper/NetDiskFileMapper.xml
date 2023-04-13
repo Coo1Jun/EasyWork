@@ -137,5 +137,18 @@
         </if>
     </select>
 
+    <select id="getDirByFilePath" resultType="com.ew.project.netdisk.dto.NetDiskFileDto">
+        SELECT *
+        FROM
+            t_net_disk_file
+        WHERE delete_flag = 0
+        AND (
+            ( file_name_num IS NULL AND CONCAT( '/', file_name ) = #{file_path} )
+            OR
+            ( file_name_num IS NOT NULL AND CONCAT( '/', file_name, '(', file_name_num, ')' ) = #{file_path} )
+        )
+        LIMIT 1
+    </select>
+
 
 </mapper>
