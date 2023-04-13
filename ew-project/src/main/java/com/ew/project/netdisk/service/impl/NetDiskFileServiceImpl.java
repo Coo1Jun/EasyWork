@@ -86,7 +86,7 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
             if (perNetDisk != null) {
                 perNetDisk.setTotal(proTotal + perTotal);
             }
-            return Optional.ofNullable(perNetDisk).orElse(new PageResult<>());
+            return Optional.ofNullable(perNetDisk).orElse(new PageResult<>(new ArrayList<>(), 0));
         } else {
             // 两种类型的文件合并
             List<NetDiskFileDto> result = new ArrayList<>(proNetDisk.getRecords());
