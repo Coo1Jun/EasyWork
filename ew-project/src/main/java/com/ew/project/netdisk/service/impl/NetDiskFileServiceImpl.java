@@ -152,6 +152,9 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
         // 如果改名的是文件夹，则需要给该文件夹下的所有文件的filePath
         if (file.getIsDir() == NetDiskTypeEnum.DIR.getCode()) {
             String newFilePath = file.getFilePath() + "/" + editParam.getFileName();
+            if (NetDiskConstant.MAIN_DIR_PATH.equals(file.getFilePath())) {
+                newFilePath = newFilePath.substring(1); // 去掉前面多出来一个'/'
+            }
             this.update(Wrappers.<NetDiskFile>lambdaUpdate()
                     .set(NetDiskFile::getFilePath, newFilePath)
                     .eq(NetDiskFile::getDirId, file.getId()));

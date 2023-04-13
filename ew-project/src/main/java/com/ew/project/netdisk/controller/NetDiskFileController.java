@@ -7,6 +7,7 @@ import cn.edu.hzu.common.api.utils.ExcelUtils;
 import cn.edu.hzu.common.enums.CommonErrorEnum;
 import cn.edu.hzu.common.exception.CommonException;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.ew.project.netdisk.dto.NetDiskFileQueryParam;
@@ -87,6 +88,18 @@ public class NetDiskFileController {
     @PostMapping("/upload")
     public RestResponse<Boolean> uploadFile(@RequestBody @Valid NetDiskFileAddParam netDiskFileAddParam) {
         return RestResponse.ok(netDiskFileService.uploadFile(netDiskFileAddParam, true));
+    }
+
+    /**
+     * 重命名文件
+     *
+     * @author LiZhengFan
+     * @since 2023-04-12
+     */
+    @ApiOperation("重命名文件")
+    @PutMapping("/rename")
+    public RestResponse<Boolean> renameFile(@RequestBody @Valid NetDiskFileEditParam netDiskFileEditParam) {
+        return RestResponse.ok(netDiskFileService.renameFile(netDiskFileEditParam));
     }
 
     /**
