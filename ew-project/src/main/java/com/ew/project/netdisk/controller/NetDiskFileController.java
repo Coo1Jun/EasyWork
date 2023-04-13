@@ -66,6 +66,18 @@ public class NetDiskFileController {
     }
 
     /**
+     * 新增文件夹
+     *
+     * @author LiZhengFan
+     * @since 2023-04-12
+     */
+    @ApiOperation("新增文件夹")
+    @PostMapping("/directory")
+    public RestResponse<Boolean> addDirectory(@RequestBody @Valid NetDiskFileAddParam netDiskFileAddParam) {
+        return RestResponse.ok(netDiskFileService.addDir(netDiskFileAddParam, false));
+    }
+
+    /**
      * 修改网盘文件信息
      *
      * @author LiZhengFan

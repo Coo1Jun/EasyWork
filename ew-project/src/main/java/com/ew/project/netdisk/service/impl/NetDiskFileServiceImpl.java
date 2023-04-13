@@ -119,14 +119,14 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
 
     @Override
     @Transactional(rollbackFor = {Exception.class, Error.class})
-    public boolean addDir(NetDiskFileAddParam addParam) {
-        return addNetDiskFile(addParam, true);
+    public boolean addDir(NetDiskFileAddParam addParam, boolean allowSameName) {
+        return addNetDiskFile(addParam, true, allowSameName);
     }
 
     @Override
     @Transactional(rollbackFor = {Exception.class, Error.class})
-    public boolean uploadFile(NetDiskFileAddParam addParam) {
-        return addNetDiskFile(addParam, false);
+    public boolean uploadFile(NetDiskFileAddParam addParam, boolean allowSameName) {
+        return addNetDiskFile(addParam, false, allowSameName);
     }
 
     @Override
@@ -169,7 +169,7 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
         addParam.setBelongId(file.getBelongId());
         addParam.setFilePath(editParam.getFilePath());
         addParam.setFileId(file.getFileId());
-        return this.addNetDiskFile(addParam, file.getIsDir() == 1);
+        return this.addNetDiskFile(addParam, file.getIsDir() == 1, true);
     }
 
     @Override
@@ -266,7 +266,7 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
      * @param netDiskFile
      * @return
      */
-    private boolean saveNetDiskFile(NetDiskFile netDiskFile) {
+    private boolean saveNetDiskFile(NetDiskFile netDiskFile, boolean allowSameName) {
         // 判断是否重名
         List<NetDiskFile> list = this.list(Wrappers.<NetDiskFile>lambdaQuery()
                 .eq(NetDiskFile::getBelongType, netDiskFile.getBelongType()) // 所属类型
@@ -276,6 +276,13 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
                 .eq(NetDiskFile::getFileName, netDiskFile.getFileName()) // 文件名相同
                 .eq(NetDiskFile::getDeleted, 0));// 没有被删除
         if (CollectionUtils.isNotEmpty(list)) {
+            // 不允许重名，抛出错误
+            if (!allowSameName) {
+                throw CommonException
+                        .builder()
+                        .resultCode(CommonErrorEnum.PARAM_IS_EXIST.setParams(new Object[]{netDiskFile.getFileName()}))
+                        .build();
+            }
             int num = 1;
             Set<Integer> numSet = new HashSet<>();
             for (NetDiskFile file : list) {
@@ -295,11 +302,12 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
      * @param addParam
      * @return
      */
-    private boolean addNetDiskFile(NetDiskFileAddParam addParam, boolean isDir) {
+    private boolean addNetDiskFile(NetDiskFileAddParam addParam, boolean isDir, boolean allowSameName) {
         // 判断所属类型
         if (isErrorBelongType(addParam.getBelongType())) {
             // 错误的所属类型，默认将其设置为个人
             addParam.setBelongType(NetDiskTypeEnum.PERSONAL.getCode());
+            addParam.setBelongId(UserUtils.getCurrentUser().getUserid());
         }
         // 判断文件路径
         if (StringUtils.isEmpty(addParam.getFilePath())) {
@@ -336,6 +344,6 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
         }
         // 设置类型是否为文件夹
         netDiskFile.setIsDir(isDir ? 1 : 0);
-        return saveNetDiskFile(netDiskFile);
+        return saveNetDiskFile(netDiskFile, allowSameName);
     }
 }

@@ -72,7 +72,7 @@ public interface INetDiskFileService extends IBaseService<NetDiskFile> {
      * @return true - 操作成功 false -操作失败
      * @since 2023-04-12
      */
-    boolean addDir(NetDiskFileAddParam netDiskFileAddParam);
+    boolean addDir(NetDiskFileAddParam netDiskFileAddParam, boolean allowSameName);
 
     /**
      * 上传文件
@@ -81,7 +81,7 @@ public interface INetDiskFileService extends IBaseService<NetDiskFile> {
      * @return true - 操作成功 false -操作失败
      * @since 2023-04-12
      */
-    boolean uploadFile(NetDiskFileAddParam netDiskFileAddParam);
+    boolean uploadFile(NetDiskFileAddParam netDiskFileAddParam, boolean allowSameName);
 
     /**
      * 文件重命名
