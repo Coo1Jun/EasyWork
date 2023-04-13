@@ -52,6 +52,9 @@
                a.create_id,
                (SELECT real_name FROM t_user WHERE id = a.create_id AND delete_flag = 0 LIMIT 1) AS create_by,
 	           a.create_time,
+               a.update_id,
+               (SELECT real_name FROM t_user WHERE id = a.create_id AND delete_flag = 0 LIMIT 1) AS update_by,
+               a.update_time,
 	           (SELECT `name` FROM t_project WHERE id = a.belong_id AND delete_flag = 0 LIMIT 1) AS belong_name
         FROM
             t_net_disk_file a
@@ -102,6 +105,9 @@
                a.create_id,
                (SELECT real_name FROM t_user WHERE id = a.create_id AND delete_flag = 0 LIMIT 1) AS create_by,
                a.create_time,
+               a.update_id,
+               (SELECT real_name FROM t_user WHERE id = a.create_id AND delete_flag = 0 LIMIT 1) AS update_by,
+               a.update_time,
                (SELECT real_name FROM t_user WHERE id = a.belong_id AND delete_flag = 0 LIMIT 1) AS belong_name
         FROM
             t_net_disk_file a
