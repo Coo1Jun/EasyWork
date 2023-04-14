@@ -24,6 +24,10 @@ public enum CommonErrorEnum implements CustomResultCode {
      */
     PARAM_IS_EMPTY(10001, "{}不能为空", null),
     /**
+     * 可以设置任意消息
+     */
+    ANY_MESSAGE(10002, "{}", null),
+    /**
      * 参数已经存在
      */
     PARAM_IS_EXIST(10001, "【{}】已经存在", null),

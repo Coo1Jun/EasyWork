@@ -110,6 +110,17 @@ public class NetDiskFileController {
     public RestResponse<Boolean> renameFile(@RequestBody @Valid NetDiskFileEditParam netDiskFileEditParam) {
         return RestResponse.ok(netDiskFileService.renameFile(netDiskFileEditParam));
     }
+    /**
+     * 移动文件
+     *
+     * @author LiZhengFan
+     * @since 2023-04-14
+     */
+    @ApiOperation("移动文件")
+    @PutMapping("/move")
+    public RestResponse<Boolean> moveFile(@RequestBody @Valid NetDiskFileEditParam netDiskFileEditParam) {
+        return RestResponse.ok(netDiskFileService.moveFile(netDiskFileEditParam));
+    }
 
     /**
      * 修改网盘文件信息
