@@ -1,6 +1,8 @@
 package com.ew.project.netdisk.service.impl;
 
 import cn.edu.hzu.client.dto.FileMetaDto;
+import cn.edu.hzu.client.dto.FileMetaEditParam;
+import cn.edu.hzu.client.server.ServerFeignClient;
 import cn.edu.hzu.client.server.service.IServerClientService;
 import cn.edu.hzu.common.api.utils.StringUtils;
 import cn.edu.hzu.common.api.utils.UserUtils;
@@ -160,6 +162,14 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
                 updateChildDirPath(file, editParam.getFileName());
                 updateAllChildFilePath(file.getId());
             });
+        }
+        // 更改文件内容的名字
+        if (StringUtils.isNotEmpty(file.getFileId())) {
+            FileMetaEditParam fileMetaEditParam = new FileMetaEditParam();
+            fileMetaEditParam.setName(editParam.getFileName());
+            fileMetaEditParam.setExtendName(file.getExtendName());
+            fileMetaEditParam.setId(file.getFileId());
+            serverClientService.renameFile(fileMetaEditParam);
         }
         return true;
     }

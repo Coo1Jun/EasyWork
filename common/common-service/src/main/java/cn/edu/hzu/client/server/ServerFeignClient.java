@@ -2,12 +2,14 @@ package cn.edu.hzu.client.server;
 
 
 import cn.edu.hzu.client.dto.FileMetaDto;
+import cn.edu.hzu.client.dto.FileMetaEditParam;
 import cn.edu.hzu.client.dto.UserDto;
 import cn.edu.hzu.common.api.RestResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -50,4 +52,12 @@ public interface ServerFeignClient {
      */
     @GetMapping("/api/ew-server/client/file/list")
     RestResponse<List<FileMetaDto>> getFileListByIds(@RequestParam("ids") List<String> ids);
+
+    /**
+     * 根据文件id修改文件名
+     * @param
+     * @return
+     */
+    @PutMapping("/api/ew-server/client/file/rename")
+    RestResponse<Boolean> renameFile(FileMetaEditParam fileMetaEditParam);
 }

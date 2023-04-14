@@ -2,6 +2,7 @@ package cn.edu.hzu.client.server.service;
 
 
 import cn.edu.hzu.client.dto.FileMetaDto;
+import cn.edu.hzu.client.dto.FileMetaEditParam;
 import cn.edu.hzu.client.dto.UserDto;
 import cn.edu.hzu.common.api.RestResponse;
 
@@ -63,6 +64,20 @@ public interface IServerClientService {
     RestResponse<List<FileMetaDto>> getFileListByIdsClient(boolean throwEx, List<String> ids);
     default List<FileMetaDto> getFileListByIds(List<String> ids) {
         RestResponse<List<FileMetaDto>> response = getFileListByIdsClient(true, ids);
+        return response.getData();
+    }
+
+    /**
+     * 根据文件id修改文件名
+     * @param throwEx 是否抛出异常（当程序报错时）
+     * @param
+     * @return
+     * @author lzf
+     * @date: 2023/4/9 14:58
+     */
+    RestResponse<Boolean> renameFileClient(boolean throwEx, FileMetaEditParam fileMetaEditParam);
+    default Boolean renameFile(FileMetaEditParam fileMetaEditParam) {
+        RestResponse<Boolean> response = renameFileClient(true, fileMetaEditParam);
         return response.getData();
     }
 }

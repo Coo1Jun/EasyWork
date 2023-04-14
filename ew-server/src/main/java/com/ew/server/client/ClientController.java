@@ -2,6 +2,7 @@ package com.ew.server.client;
 
 import cn.edu.hzu.common.api.RestResponse;
 import com.ew.server.file.dto.FileMetaDto;
+import com.ew.server.file.dto.FileMetaEditParam;
 import com.ew.server.file.service.IFileMetaService;
 import com.ew.server.user.dto.UserDto;
 import com.ew.server.user.service.IUserService;
@@ -58,6 +59,11 @@ public class ClientController {
     @GetMapping(value = "/file/list")
     public RestResponse<List<FileMetaDto>> getFileList(@RequestParam("ids") List<String> ids) {
         return RestResponse.ok(fileMetaService.getFileList(ids));
+    }
+
+    @PutMapping("/file/rename")
+    RestResponse<Boolean> renameFile(@RequestBody FileMetaEditParam fileMetaEditParam) {
+        return RestResponse.ok(fileMetaService.updateByParam(fileMetaEditParam));
     }
     // file文件服务 end =====================================================================
 }

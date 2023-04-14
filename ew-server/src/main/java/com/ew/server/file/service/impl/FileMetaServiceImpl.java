@@ -75,9 +75,14 @@ public class FileMetaServiceImpl extends BaseServiceImpl<FileMetaMapper, FileMet
     @SuppressWarnings("unchecked")
     @Override
     @Transactional(rollbackFor = {Exception.class, Error.class})
-    public boolean updateByParam(FileMetaEditParam fileMetaEditParam) {
-        FileMeta fileMeta = fileMetaParamMapper.editParam2Entity(fileMetaEditParam);
-        // Assert.notNull(ResultCode.PARAM_VALID_ERROR,fileMeta);
+    public boolean updateByParam(FileMetaEditParam editParam) {
+        FileMeta fileMeta = fileMetaParamMapper.editParam2Entity(editParam);
+        if (StringUtils.isNotEmpty(editParam.getName())) {
+            fileMeta.setOriginalFilename(editParam.getName());
+            if (StringUtils.isNotEmpty(editParam.getExtendName())) {
+                fileMeta.setOriginalFilename(editParam.getName() + "." + editParam.getExtendName());
+            }
+        }
         return updateById(fileMeta);
     }
 

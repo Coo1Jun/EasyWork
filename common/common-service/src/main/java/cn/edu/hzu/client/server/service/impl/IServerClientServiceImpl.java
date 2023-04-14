@@ -2,6 +2,7 @@ package cn.edu.hzu.client.server.service.impl;
 
 import cn.edu.hzu.client.AbstractBaseServiceClient;
 import cn.edu.hzu.client.dto.FileMetaDto;
+import cn.edu.hzu.client.dto.FileMetaEditParam;
 import cn.edu.hzu.client.server.ServerFeignClient;
 import cn.edu.hzu.client.dto.UserDto;
 import cn.edu.hzu.client.server.service.IServerClientService;
@@ -52,6 +53,14 @@ public class IServerClientServiceImpl extends AbstractBaseServiceClient implemen
     public RestResponse<List<FileMetaDto>> getFileListByIdsClient(boolean throwEx, List<String> ids) {
         execBefore(ProjectEnum.EW_SERVER, ids);
         RestResponse<List<FileMetaDto>> result = serverFeignClient.getFileListByIds(ids);
+        execAfter(throwEx, ProjectEnum.EW_SERVER, result);
+        return result;
+    }
+
+    @Override
+    public RestResponse<Boolean> renameFileClient(boolean throwEx, FileMetaEditParam fileMetaEditParam) {
+        execBefore(ProjectEnum.EW_SERVER, fileMetaEditParam);
+        RestResponse<Boolean> result = serverFeignClient.renameFile(fileMetaEditParam);
         execAfter(throwEx, ProjectEnum.EW_SERVER, result);
         return result;
     }
