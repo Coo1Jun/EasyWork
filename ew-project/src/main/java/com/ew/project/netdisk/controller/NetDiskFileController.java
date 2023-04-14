@@ -7,13 +7,10 @@ import cn.edu.hzu.common.api.utils.ExcelUtils;
 import cn.edu.hzu.common.enums.CommonErrorEnum;
 import cn.edu.hzu.common.exception.CommonException;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.ew.project.netdisk.dto.*;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.ew.project.netdisk.dto.NetDiskFileQueryParam;
-import com.ew.project.netdisk.dto.NetDiskFileAddParam;
-import com.ew.project.netdisk.dto.NetDiskFileEditParam;
-import com.ew.project.netdisk.dto.NetDiskFileDto;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -52,6 +49,18 @@ public class NetDiskFileController {
     @GetMapping("/list")
     public RestResponse<PageResult<NetDiskFileDto>> pageList(@Valid NetDiskFileQueryParam netDiskFileQueryParam) {
         return RestResponse.ok(netDiskFileService.pageDto(netDiskFileQueryParam));
+    }
+
+    /**
+     * 获取文件夹树结构
+     *
+     * @author LiZhengFan
+     * @since 2023-04-12
+     */
+    @ApiOperation("获取文件夹树结构")
+    @GetMapping("/dir/tree")
+    public RestResponse<List<DirTreeNode>> dirTreeList() {
+        return RestResponse.ok(netDiskFileService.getDirTree());
     }
 
     /**

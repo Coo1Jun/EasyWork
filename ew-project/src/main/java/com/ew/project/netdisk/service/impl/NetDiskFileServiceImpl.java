@@ -12,17 +12,13 @@ import cn.edu.hzu.common.exception.CommonException;
 import cn.hutool.core.thread.ThreadUtil;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.ew.project.netdisk.constant.NetDiskConstant;
+import com.ew.project.netdisk.dto.*;
 import com.ew.project.netdisk.entity.NetDiskFile;
 import com.ew.project.netdisk.enums.NetDiskErrorEnum;
 import com.ew.project.netdisk.enums.NetDiskTypeEnum;
 import com.ew.project.netdisk.mapper.NetDiskFileMapper;
 import com.ew.project.netdisk.service.INetDiskFileService;
 import cn.edu.hzu.common.service.impl.BaseServiceImpl;
-import com.ew.project.netdisk.dto.NetDiskFileQueryParam;
-import com.ew.project.netdisk.dto.NetDiskFileAddParam;
-import com.ew.project.netdisk.dto.NetDiskFileEditParam;
-import com.ew.project.netdisk.dto.NetDiskFileParamMapper;
-import com.ew.project.netdisk.dto.NetDiskFileDto;
 import cn.edu.hzu.common.entity.BaseEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,6 +29,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import cn.edu.hzu.common.api.PageResult;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -273,6 +270,56 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
         }
         Integer total = this.baseMapper.getPerNetFileCount(curUser.getUserid(), queryParam);
         return PageResult.<NetDiskFileDto>builder().records(fileList).total(total).build();
+    }
+
+    @Override
+    public List<DirTreeNode> getDirTree() {
+        String userid = UserUtils.getCurrentUser().getUserid();
+        // 获取项目类型的文件夹树结构
+        List<DirTreeNode> proDirTree = this.baseMapper.getProDirTree(userid);
+        // 获取个人类型的文件夹树结构
+        List<DirTreeNode> perDirTree = this.baseMapper.getPerDirTree(userid);
+        List<DirTreeNode> result = new ArrayList<>();
+        setDirTreeNodeChildren(result, proDirTree);
+        setDirTreeNodeChildren(result, perDirTree);
+        // 将全部包在“全部文件”下
+        DirTreeNode all = new DirTreeNode();
+        all.setChildren(result);
+        all.setFilePath("/");
+        all.setFileName("全部文件");
+        return Collections.singletonList(all);
+    }
+
+    /**
+     *
+     */
+    private void setDirTreeNodeChildren(List<DirTreeNode> result, List<DirTreeNode> target) {
+        if (CollectionUtils.isNotEmpty(target)) {
+            List<DirTreeNode> child = new ArrayList<>();
+            for (DirTreeNode node : target) {
+                if (node.getFileNameNum() != null && node.getFileNameNum() != 0) {
+                    node.setFileName(node.getFileName() + "(" + node.getFileNameNum() + ")");
+                }
+                if (NetDiskConstant.MAIN_DIR_PATH.equals(node.getFilePath())) {
+                    node.setFilePath("");
+                }
+                node.setFilePath(node.getFilePath() + "/" + node.getFileName());
+                node.setFileName((node.getBelongType() == NetDiskTypeEnum.PROJECT.getCode() ? "[项目] " : "[个人] ") + node.getFileName());
+                if (StringUtils.isEmpty(node.getDirId())) {
+                    result.add(node);
+                } else {
+                    child.add(node);
+                }
+            }
+            // key：所属目录id，value：目录id对应的所有子目录
+            Map<String, List<DirTreeNode>> map = child.stream().collect(Collectors.groupingBy(DirTreeNode::getDirId));
+            for (DirTreeNode node : target) {
+                List<DirTreeNode> children = map.get(node.getId());
+                if (CollectionUtils.isNotEmpty(children)) {
+                    node.setChildren(children);
+                }
+            }
+        }
     }
 
     @Override

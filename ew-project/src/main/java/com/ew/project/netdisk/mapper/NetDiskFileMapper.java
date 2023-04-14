@@ -1,5 +1,6 @@
 package com.ew.project.netdisk.mapper;
 
+import com.ew.project.netdisk.dto.DirTreeNode;
 import com.ew.project.netdisk.dto.NetDiskFileDto;
 import com.ew.project.netdisk.dto.NetDiskFileQueryParam;
 import com.ew.project.netdisk.entity.NetDiskFile;
@@ -35,5 +36,15 @@ public interface NetDiskFileMapper extends BaseMapper<NetDiskFile> {
      */
     List<NetDiskFileDto> getPerNetFile(@Param("user_id") String userId, @Param("query")NetDiskFileQueryParam queryParam);
     Integer getPerNetFileCount(@Param("user_id") String userId, @Param("query")NetDiskFileQueryParam queryParam);
+
+    /**
+     * 根据用户id获取项目类型的文件夹树结构
+     */
+    List<DirTreeNode> getProDirTree(@Param("user_id") String userId);
+
+    /**
+     * 根据用户id获取个人类型的文件夹树结构
+     */
+    List<DirTreeNode> getPerDirTree(@Param("user_id") String userId);
 
 }

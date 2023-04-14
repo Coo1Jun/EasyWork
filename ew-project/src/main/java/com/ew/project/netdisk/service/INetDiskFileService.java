@@ -1,11 +1,8 @@
 package com.ew.project.netdisk.service;
 
+import com.ew.project.netdisk.dto.*;
 import com.ew.project.netdisk.entity.NetDiskFile;
 import cn.edu.hzu.common.service.IBaseService;
-import com.ew.project.netdisk.dto.NetDiskFileQueryParam;
-import com.ew.project.netdisk.dto.NetDiskFileAddParam;
-import com.ew.project.netdisk.dto.NetDiskFileEditParam;
-import com.ew.project.netdisk.dto.NetDiskFileDto;
 import cn.edu.hzu.common.api.PageResult;
 
 import java.util.List;
@@ -118,4 +115,9 @@ public interface INetDiskFileService extends IBaseService<NetDiskFile> {
      * @since 2023-04-12
      */
     PageResult<NetDiskFileDto> getPerNetDisk(NetDiskFileQueryParam netDiskFileQueryParam);
+
+    /**
+     * 获取文件夹树结构
+     */
+    List<DirTreeNode> getDirTree();
 }
