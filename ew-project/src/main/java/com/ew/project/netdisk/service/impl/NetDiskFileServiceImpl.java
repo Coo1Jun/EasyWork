@@ -7,6 +7,7 @@ import cn.edu.hzu.common.api.utils.UserUtils;
 import cn.edu.hzu.common.entity.SsoUser;
 import cn.edu.hzu.common.enums.CommonErrorEnum;
 import cn.edu.hzu.common.exception.CommonException;
+import cn.hutool.core.thread.ThreadUtil;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.ew.project.netdisk.constant.NetDiskConstant;
 import com.ew.project.netdisk.entity.NetDiskFile;
@@ -149,19 +150,54 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
         if (count > 0) {
             throw CommonException.builder().resultCode(CommonErrorEnum.PARAM_IS_EXIST.setParams(new Object[]{editParam.getFileName()})).build();
         }
-        // 如果改名的是文件夹，则需要给该文件夹下的所有文件的filePath
-        if (file.getIsDir() == NetDiskTypeEnum.DIR.getCode()) {
-            String newFilePath = file.getFilePath() + "/" + editParam.getFileName();
-            if (NetDiskConstant.MAIN_DIR_PATH.equals(file.getFilePath())) {
-                newFilePath = newFilePath.substring(1); // 去掉前面多出来一个'/'
-            }
-            this.update(Wrappers.<NetDiskFile>lambdaUpdate()
-                    .set(NetDiskFile::getFilePath, newFilePath)
-                    .eq(NetDiskFile::getDirId, file.getId()));
-        }
         file.setFileName(editParam.getFileName());
         file.setFileNameNum(null);
-        return updateById(file);
+        updateById(file);
+        // 如果改名的是文件夹，则需要给该文件夹下的所有文件的filePath
+        if (file.getIsDir() == NetDiskTypeEnum.DIR.getCode()) {
+            // 开启异步线程后台更新
+            ThreadUtil.execAsync(() -> {
+                updateChildDirPath(file, editParam.getFileName());
+                updateAllChildFilePath(file.getId());
+            });
+        }
+        return true;
+    }
+
+    /**
+     * 更新dir目录下的所有文件filePath
+     * @param dir
+     * @param fileName dir的名称
+     */
+    private void updateChildDirPath(NetDiskFile dir, String fileName) {
+        String filePath = dir.getFilePath() + "/" + fileName;
+        if (NetDiskConstant.MAIN_DIR_PATH.equals(dir.getFilePath())) {
+            filePath = filePath.substring(1); // 去掉前面多出来一个'/'
+        }
+        // 更新
+        this.update(Wrappers.<NetDiskFile>lambdaUpdate()
+                .set(NetDiskFile::getFilePath, filePath)
+                .eq(NetDiskFile::getDirId, dir.getId()));
+        log.info("更新【{}】文件夹下的所有子文件filePath完成", filePath);
+    }
+
+    /**
+     * 更新目录id为parentId的目录的子文件的路径
+     * @param parentId
+     */
+    public void updateAllChildFilePath(String parentId) {
+        // 找出所有子文件夹
+        List<NetDiskFile> dirList = this.list(Wrappers.<NetDiskFile>lambdaQuery()
+                .eq(NetDiskFile::getDirId, parentId));
+        if (CollectionUtils.isNotEmpty(dirList)) {
+            for (NetDiskFile dir : dirList) {
+                // 递归更新当前目录的子文件夹
+                if (NetDiskTypeEnum.DIR.getCode() == dir.getIsDir()) {
+                    updateChildDirPath(dir, dir.getFileName());
+                    updateAllChildFilePath(dir.getId());
+                }
+            }
+        }
     }
 
     @Override
