@@ -59,8 +59,8 @@ public class NetDiskFileController {
      */
     @ApiOperation("获取文件夹树结构")
     @GetMapping("/dir/tree")
-    public RestResponse<List<DirTreeNode>> dirTreeList() {
-        return RestResponse.ok(netDiskFileService.getDirTree());
+    public RestResponse<List<DirTreeNode>> dirTreeList(@Valid NetDiskFileQueryParam netDiskFileQueryParam) {
+        return RestResponse.ok(netDiskFileService.getDirTree(netDiskFileQueryParam));
     }
 
     /**

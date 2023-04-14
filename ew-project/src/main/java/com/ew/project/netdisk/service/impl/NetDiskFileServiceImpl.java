@@ -339,15 +339,15 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
     }
 
     @Override
-    public List<DirTreeNode> getDirTree() {
+    public List<DirTreeNode> getDirTree(NetDiskFileQueryParam queryParam) {
         String userid = UserUtils.getCurrentUser().getUserid();
         // 获取项目类型的文件夹树结构
         List<DirTreeNode> proDirTree = this.baseMapper.getProDirTree(userid);
         // 获取个人类型的文件夹树结构
         List<DirTreeNode> perDirTree = this.baseMapper.getPerDirTree(userid);
         List<DirTreeNode> result = new ArrayList<>();
-        setDirTreeNodeChildren(result, proDirTree);
-        setDirTreeNodeChildren(result, perDirTree);
+        setDirTreeNodeChildren(result, proDirTree, queryParam.getExcludeId());
+        setDirTreeNodeChildren(result, perDirTree, queryParam.getExcludeId());
         // 将全部包在“全部文件”下
         DirTreeNode all = new DirTreeNode();
         all.setChildren(result);
@@ -358,12 +358,13 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
     }
 
     /**
-     *
+     * 汇总target集合，将结果保存在result中，excludeId为排除的id，即id为excludeId的目录排除。
      */
-    private void setDirTreeNodeChildren(List<DirTreeNode> result, List<DirTreeNode> target) {
+    private void setDirTreeNodeChildren(List<DirTreeNode> result, List<DirTreeNode> target, String excludeId) {
         if (CollectionUtils.isNotEmpty(target)) {
             List<DirTreeNode> child = new ArrayList<>();
             for (DirTreeNode node : target) {
+                if (node.getId().equals(excludeId)) continue;
                 if (node.getFileNameNum() != null && node.getFileNameNum() != 0) {
                     node.setFileName(node.getFileName() + "(" + node.getFileNameNum() + ")");
                 }

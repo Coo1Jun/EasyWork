@@ -119,5 +119,5 @@ public interface INetDiskFileService extends IBaseService<NetDiskFile> {
     /**
      * 获取文件夹树结构
      */
-    List<DirTreeNode> getDirTree();
+    List<DirTreeNode> getDirTree(NetDiskFileQueryParam netDiskFileQueryParam);
 }

@@ -31,6 +31,9 @@ public class NetDiskFileQueryParam extends PageParam {
     @ApiModelProperty("目录id")
     private String dirId;
 
+    @ApiModelProperty("排除id")
+    private String excludeId;
+
     /**
      * 分页查询的偏移量
      */
