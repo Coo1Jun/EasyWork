@@ -123,6 +123,18 @@ public class NetDiskFileController {
     }
 
     /**
+     * 复制文件
+     *
+     * @author LiZhengFan
+     * @since 2023-04-14
+     */
+    @ApiOperation("复制文件")
+    @PutMapping("/copy")
+    public RestResponse<Boolean> copyFile(@RequestBody @Valid NetDiskFileEditParam netDiskFileEditParam) {
+        return RestResponse.ok(netDiskFileService.copyFile(netDiskFileEditParam));
+    }
+
+    /**
      * 修改网盘文件信息
      *
      * @author LiZhengFan
