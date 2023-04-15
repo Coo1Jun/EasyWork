@@ -316,13 +316,7 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
                     .eq(NetDiskFile::getFileName, source.getFileName()) // 文件名相同
                     .eq(NetDiskFile::getDeleted, 0));// 没有被删除
             if (count > 0) {
-                String msg;
-                if (source.getIsDir() == NetDiskTypeEnum.DIR.getCode()) {
-                    msg = "目标路径同名文件夹，复制目录失败";
-                } else {
-                    msg = "目标路径同名文件，复制文件失败";
-                }
-                throw CommonException.builder().resultCode(CommonErrorEnum.ANY_MESSAGE.setParams(new Object[]{msg})).build();
+                source.setFileName("copy副本 - " + source.getFileName());
             }
         } else { // 移动到目标id目录
             NetDiskFile dir = this.getById(editParam.getDirId()); // 查出目标目录
@@ -347,13 +341,7 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
                     .eq(NetDiskFile::getFileName, source.getFileName()) // 文件名相同
                     .eq(NetDiskFile::getDeleted, 0));// 没有被删除
             if (count > 0) {
-                String msg;
-                if (source.getIsDir() == NetDiskTypeEnum.DIR.getCode()) {
-                    msg = "目标路径同名文件夹，复制目录失败";
-                } else {
-                    msg = "目标路径同名文件，复制文件失败";
-                }
-                throw CommonException.builder().resultCode(CommonErrorEnum.ANY_MESSAGE.setParams(new Object[]{msg})).build();
+                source.setFileName("copy副本 - " + source.getFileName());
             }
         }
         // 保存
