@@ -218,28 +218,28 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
         if (StringUtils.isEmpty(editParam.getFilePath())) {
             throw CommonException.builder().resultCode(CommonErrorEnum.PARAM_IS_EMPTY.setParams(new Object[]{"目标路径"})).build();
         }
-        NetDiskFile target = this.getById(editParam.getId());
+        NetDiskFile source = this.getById(editParam.getId());
         // 目标目录id为空，则移动到目标filePath
         if (StringUtils.isEmpty(editParam.getDirId())) {
             if (!NetDiskConstant.MAIN_DIR_PATH.equals(editParam.getFilePath())) {
                 throw CommonException.builder().resultCode(CommonErrorEnum.ANY_MESSAGE.setParams(new Object[]{"目标路径有误"})).build();
             }
             // 移动到主目录 "/"
-            target.setFilePath(NetDiskConstant.MAIN_DIR_PATH);
-            target.setBelongType(NetDiskTypeEnum.PERSONAL.getCode());
-            target.setBelongId(UserUtils.getCurrentUser().getUserid());
-            target.setDirId("");
+            source.setFilePath(NetDiskConstant.MAIN_DIR_PATH);
+            source.setBelongType(NetDiskTypeEnum.PERSONAL.getCode());
+            source.setBelongId(UserUtils.getCurrentUser().getUserid());
+            source.setDirId("");
             // 判断主目录是否有同名文件
             int count = this.count(Wrappers.<NetDiskFile>lambdaQuery()
-                    .eq(NetDiskFile::getBelongType, target.getBelongType()) // 所属类型
-                    .eq(NetDiskFile::getBelongId, target.getBelongId()) // 所属id
-                    .eq(NetDiskFile::getIsDir, target.getIsDir()) // 是否为文件夹
+                    .eq(NetDiskFile::getBelongType, source.getBelongType()) // 所属类型
+                    .eq(NetDiskFile::getBelongId, source.getBelongId()) // 所属id
+                    .eq(NetDiskFile::getIsDir, source.getIsDir()) // 是否为文件夹
                     .eq(NetDiskFile::getFilePath, NetDiskConstant.MAIN_DIR_PATH) // 文件路径要相同
-                    .eq(NetDiskFile::getFileName, target.getFileName()) // 文件名相同
+                    .eq(NetDiskFile::getFileName, source.getFileName()) // 文件名相同
                     .eq(NetDiskFile::getDeleted, 0));// 没有被删除
             if (count > 0) {
                 String msg;
-                if (target.getIsDir() == NetDiskTypeEnum.DIR.getCode()) {
+                if (source.getIsDir() == NetDiskTypeEnum.DIR.getCode()) {
                     msg = "目标路径同名文件夹，移动目录失败";
                 } else {
                     msg = "目标路径同名文件，移动文件失败";
@@ -248,29 +248,23 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
             }
         } else { // 移动到目标id目录
             NetDiskFile dir = this.getById(editParam.getDirId()); // 查出目标目录
-            target.setBelongType(dir.getBelongType());
-            target.setBelongId(dir.getBelongId());
-            target.setDirId(dir.getId());
+            source.setBelongType(dir.getBelongType());
+            source.setBelongId(dir.getBelongId());
+            source.setDirId(dir.getId());
             // 设置正确的filePath
-            if (NetDiskConstant.MAIN_DIR_PATH.equals(dir.getFilePath())) {
-                target.setFilePath(dir.getFilePath() + dir.getFileName());
-            } else {
-                target.setFilePath(dir.getFilePath() + "/" + dir.getFileName());
-            }
-            if (dir.getFileNameNum() != null && dir.getFileNameNum() != 0) {
-                target.setFilePath(target.getFilePath() + "(" + dir.getFileNameNum() + ")");
-            }
+            String filePath = getFilePath(dir);
+            source.setFilePath(filePath);
             // 判断目标目录是否有同名文件
             int count = this.count(Wrappers.<NetDiskFile>lambdaQuery()
-                    .eq(NetDiskFile::getBelongType, target.getBelongType()) // 所属类型
-                    .eq(NetDiskFile::getBelongId, target.getBelongId()) // 所属id
-                    .eq(NetDiskFile::getIsDir, target.getIsDir()) // 是否为文件夹
-                    .eq(NetDiskFile::getDirId, target.getDirId()) // 目录id要相同
-                    .eq(NetDiskFile::getFileName, target.getFileName()) // 文件名相同
+                    .eq(NetDiskFile::getBelongType, source.getBelongType()) // 所属类型
+                    .eq(NetDiskFile::getBelongId, source.getBelongId()) // 所属id
+                    .eq(NetDiskFile::getIsDir, source.getIsDir()) // 是否为文件夹
+                    .eq(NetDiskFile::getDirId, source.getDirId()) // 目录id要相同
+                    .eq(NetDiskFile::getFileName, source.getFileName()) // 文件名相同
                     .eq(NetDiskFile::getDeleted, 0));// 没有被删除
             if (count > 0) {
                 String msg;
-                if (target.getIsDir() == NetDiskTypeEnum.DIR.getCode()) {
+                if (source.getIsDir() == NetDiskTypeEnum.DIR.getCode()) {
                     msg = "目标路径同名文件夹，移动目录失败";
                 } else {
                     msg = "目标路径同名文件，移动文件失败";
@@ -279,17 +273,139 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
             }
         }
         // 更新
-        this.updateById(target);
-        if (target.getIsDir() == NetDiskTypeEnum.DIR.getCode()) {
+        this.updateById(source);
+        if (source.getIsDir() == NetDiskTypeEnum.DIR.getCode()) {
             // 开启异步线程后台更新
             ThreadUtil.execAsync(() -> {
                 // 更新target目录下的所有文件路径
-                updateChildDirPath(target, target.getFileName());
+                updateChildDirPath(source, source.getFileName());
                 // 更新target的子目录下的所有文件路径
-                updateAllChildFilePath(target.getId());
+                updateAllChildFilePath(source.getId());
             });
         }
         return true;
+    }
+
+    @Override
+    public boolean copyFile(NetDiskFileEditParam editParam) {
+        if (StringUtils.isEmpty(editParam.getFilePath())) {
+            throw CommonException.builder().resultCode(CommonErrorEnum.PARAM_IS_EMPTY.setParams(new Object[]{"目标路径"})).build();
+        }
+        NetDiskFile source = this.getById(editParam.getId());
+        // 如果source是文件夹，先获取source作为文件夹时，子文件的filePath
+        String chileFilePath = getFilePath(source);
+        // 获取source的belongType和belongId
+        Integer childBelongType = source.getBelongType();
+        String childBelongId = source.getBelongId();
+        // 目标目录id为空，则复制到目标filePath
+        if (StringUtils.isEmpty(editParam.getDirId())) {
+            if (!NetDiskConstant.MAIN_DIR_PATH.equals(editParam.getFilePath())) {
+                throw CommonException.builder().resultCode(CommonErrorEnum.ANY_MESSAGE.setParams(new Object[]{"目标路径有误"})).build();
+            }
+            // 移动到主目录 "/"
+            source.setFilePath(NetDiskConstant.MAIN_DIR_PATH);
+            source.setBelongType(NetDiskTypeEnum.PERSONAL.getCode());
+            source.setBelongId(UserUtils.getCurrentUser().getUserid());
+            source.setDirId("");
+            // 判断主目录是否有同名文件
+            int count = this.count(Wrappers.<NetDiskFile>lambdaQuery()
+                    .eq(NetDiskFile::getBelongType, source.getBelongType()) // 所属类型
+                    .eq(NetDiskFile::getBelongId, source.getBelongId()) // 所属id
+                    .eq(NetDiskFile::getIsDir, source.getIsDir()) // 是否为文件夹
+                    .eq(NetDiskFile::getFilePath, NetDiskConstant.MAIN_DIR_PATH) // 文件路径要相同
+                    .eq(NetDiskFile::getFileName, source.getFileName()) // 文件名相同
+                    .eq(NetDiskFile::getDeleted, 0));// 没有被删除
+            if (count > 0) {
+                String msg;
+                if (source.getIsDir() == NetDiskTypeEnum.DIR.getCode()) {
+                    msg = "目标路径同名文件夹，复制目录失败";
+                } else {
+                    msg = "目标路径同名文件，复制文件失败";
+                }
+                throw CommonException.builder().resultCode(CommonErrorEnum.ANY_MESSAGE.setParams(new Object[]{msg})).build();
+            }
+        } else { // 移动到目标id目录
+            NetDiskFile dir = this.getById(editParam.getDirId()); // 查出目标目录
+            source.setBelongType(dir.getBelongType());
+            source.setBelongId(dir.getBelongId());
+            source.setDirId(dir.getId());
+            // 设置正确的filePath
+            if (NetDiskConstant.MAIN_DIR_PATH.equals(dir.getFilePath())) {
+                source.setFilePath(dir.getFilePath() + dir.getFileName());
+            } else {
+                source.setFilePath(dir.getFilePath() + "/" + dir.getFileName());
+            }
+            if (dir.getFileNameNum() != null && dir.getFileNameNum() != 0) {
+                source.setFilePath(source.getFilePath() + "(" + dir.getFileNameNum() + ")");
+            }
+            // 判断目标目录是否有同名文件
+            int count = this.count(Wrappers.<NetDiskFile>lambdaQuery()
+                    .eq(NetDiskFile::getBelongType, source.getBelongType()) // 所属类型
+                    .eq(NetDiskFile::getBelongId, source.getBelongId()) // 所属id
+                    .eq(NetDiskFile::getIsDir, source.getIsDir()) // 是否为文件夹
+                    .eq(NetDiskFile::getDirId, source.getDirId()) // 目录id要相同
+                    .eq(NetDiskFile::getFileName, source.getFileName()) // 文件名相同
+                    .eq(NetDiskFile::getDeleted, 0));// 没有被删除
+            if (count > 0) {
+                String msg;
+                if (source.getIsDir() == NetDiskTypeEnum.DIR.getCode()) {
+                    msg = "目标路径同名文件夹，复制目录失败";
+                } else {
+                    msg = "目标路径同名文件，复制文件失败";
+                }
+                throw CommonException.builder().resultCode(CommonErrorEnum.ANY_MESSAGE.setParams(new Object[]{msg})).build();
+            }
+        }
+        // 保存
+        source.setId(null);
+        this.save(source);
+        // 判断是否是文件夹
+        if (source.getIsDir() == NetDiskTypeEnum.DIR.getCode()) {
+            // 开启异步线程查询并插入新数据并更新
+            ThreadUtil.execAsync(() -> {
+                // 查出该文件夹下的所有文件(包括子和孙)
+                List<NetDiskFile> childList = this.list(Wrappers.<NetDiskFile>lambdaQuery()
+                        .eq(NetDiskFile::getBelongType, childBelongType)
+                        .eq(NetDiskFile::getBelongId, childBelongId)
+                        .likeRight(NetDiskFile::getFilePath, chileFilePath)
+                        .eq(NetDiskFile::getDeleted, 0));
+                if (CollectionUtils.isNotEmpty(childList)) {
+                    for (NetDiskFile file : childList) {
+                        file.setId(null);
+                        // 更新filePath
+                        file.setFilePath(getFilePath(source) + file.getFilePath().substring(chileFilePath.length()));
+                        // 更新类型
+                        file.setBelongId(source.getBelongId());
+                        file.setBelongType(source.getBelongType());
+                    }
+                    // 保存
+                    this.saveBatch(childList);
+                    Map<String, String> filePathToId = new HashMap<>();
+                    for (NetDiskFile file : childList) {
+                        if (file.getIsDir() == NetDiskTypeEnum.DIR.getCode()) {
+                            filePathToId.put(getFilePath(file), file.getId());
+                        }
+                    }
+                    filePathToId.put(getFilePath(source), source.getId());
+                    for (NetDiskFile file : childList) {
+                        file.setDirId(filePathToId.get(file.getFilePath()));
+                    }
+                    this.updateBatchById(childList);
+                }
+            });
+        }
+        return true;
+    }
+
+    public String getFilePath(NetDiskFile file) {
+        String filePath = file.getFilePath() + "/" + file.getFileName();
+        if (NetDiskConstant.MAIN_DIR_PATH.equals(file.getFilePath())) {
+            filePath = filePath.substring(1);
+        }
+        if (file.getFileNameNum() != null && file.getFileNameNum() != 0) {
+            filePath = filePath + "(" + file.getFileNameNum() + ")";
+        }
+        return filePath;
     }
 
     @Override

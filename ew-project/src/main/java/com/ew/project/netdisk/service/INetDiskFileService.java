@@ -99,6 +99,15 @@ public interface INetDiskFileService extends IBaseService<NetDiskFile> {
     boolean moveFile(NetDiskFileEditParam netDiskFileEditParam);
 
     /**
+     * 文件复制
+     *
+     * @param netDiskFileEditParam 更新入参实体类
+     * @return true - 操作成功 false -操作失败
+     * @since 2023-04-12
+     */
+    boolean copyFile(NetDiskFileEditParam netDiskFileEditParam);
+
+    /**
      * 分页查询，获取项目类型的文件夹
      *
      * @param netDiskFileQueryParam 查询参数
