@@ -28,6 +28,7 @@ public class AopLogConfig {
      */
     final String ssoServerExecution = "execution(public * com.ew.server..controller.*.*(..))";
     final String ewProjectExecution = "execution(public * com.ew.project..controller.*.*(..))";
+    final String ewChatExecution = "execution(public * com.ew.chat..controller.*.*(..))";
     /**
      * ew-server 的client接口，用于服务调用
      */
