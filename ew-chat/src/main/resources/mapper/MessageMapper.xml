@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ew.chat.message.mapper.MessageMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ew.chat.message.entity.Message">
+        <id column="id" property="id" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="remark" property="remark" />
+        <result column="content" property="content" />
+        <result column="send_time" property="sendTime" />
+        <result column="type" property="type" />
+        <result column="file_name" property="fileName" />
+        <result column="file_size" property="fileSize" />
+        <result column="status" property="status" />
+        <result column="to_contact_id" property="toContactId" />
+        <result column="from_user_id" property="fromUserId" />
+        <result column="version" property="version" />
+        <result column="create_id" property="createId" />
+        <result column="update_id" property="updateId" />
+        <result column="delete_flag" property="deleteFlag" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_by,
+        create_time,
+        update_by,
+        update_time,
+        remark,
+        id, content, send_time, type, file_name, file_size, status, to_contact_id, from_user_id, version, create_id, update_id, delete_flag
+    </sql>
+
+</mapper>
