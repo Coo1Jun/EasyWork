@@ -43,6 +43,9 @@ public class WsSessionUtils {
     }
 
     public static boolean removeSession(Session session) {
+        if (session == null) {
+            return false;
+        }
         String userId = userMap.get(session.getId());
         if (StringUtils.isEmpty(userId)) {
             return false;

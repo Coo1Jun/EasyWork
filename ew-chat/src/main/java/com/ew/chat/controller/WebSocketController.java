@@ -99,6 +99,7 @@ public class WebSocketController {
 
     @OnError
     public void onError(Session session, Throwable error) {
+        WsSessionUtils.removeSession(session);
         log.error("websocket出现错误");
         error.printStackTrace();
     }
