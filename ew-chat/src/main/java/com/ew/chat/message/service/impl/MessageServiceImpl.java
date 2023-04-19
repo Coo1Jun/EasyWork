@@ -1,14 +1,18 @@
 package com.ew.chat.message.service.impl;
 
+import cn.edu.hzu.client.dto.UserDto;
+import cn.edu.hzu.client.server.service.IServerClientService;
+import cn.edu.hzu.common.api.utils.StringUtils;
+import cn.edu.hzu.common.api.utils.UserUtils;
+import cn.edu.hzu.common.entity.SsoUser;
+import cn.edu.hzu.common.enums.CommonErrorEnum;
+import cn.edu.hzu.common.exception.CommonException;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.ew.chat.message.dto.*;
 import com.ew.chat.message.entity.Message;
 import com.ew.chat.message.mapper.MessageMapper;
 import com.ew.chat.message.service.IMessageService;
 import cn.edu.hzu.common.service.impl.BaseServiceImpl;
-import com.ew.chat.message.dto.MessageQueryParam;
-import com.ew.chat.message.dto.MessageAddParam;
-import com.ew.chat.message.dto.MessageEditParam;
-import com.ew.chat.message.dto.MessageParamMapper;
-import com.ew.chat.message.dto.MessageDto;
 import cn.edu.hzu.common.entity.BaseEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,11 +23,9 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import cn.edu.hzu.common.api.PageResult;
 import cn.edu.hzu.common.api.ResultCode;
 
-import java.util.Optional;
+import java.util.*;
 
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 
 /**
@@ -41,6 +43,8 @@ public class MessageServiceImpl extends BaseServiceImpl<MessageMapper, Message> 
 
     @Autowired
     private MessageParamMapper messageParamMapper;
+    @Autowired
+    private IServerClientService serverClientService;
 
     @Override
     public PageResult<MessageDto> pageDto(MessageQueryParam messageQueryParam) {
@@ -66,6 +70,60 @@ public class MessageServiceImpl extends BaseServiceImpl<MessageMapper, Message> 
         Message message = messageParamMapper.editParam2Entity(messageEditParam);
         // Assert.notNull(ResultCode.PARAM_VALID_ERROR,message);
         return updateById(message);
+    }
+
+    @Override
+    public List<MessageDto> historyList(MessageQueryParam queryParam) {
+        if (StringUtils.isEmpty(queryParam.getToContactId())) {
+            throw CommonException.builder().resultCode(CommonErrorEnum.PARAM_IS_EMPTY.setParams(new Object[]{"窗口id"})).build();
+        }
+        SsoUser curUser = UserUtils.getCurrentUser();
+        LambdaQueryWrapper<Message> wrapper = Wrappers.<Message>lambdaQuery();
+        wrapper.eq(StringUtils.isNotEmpty(queryParam.getToContactId()),
+                Message::getToContactId, queryParam.getToContactId())
+                .eq(Message::getFromUserId, curUser.getUserid())
+                .or(q -> q.eq(Message::getToContactId, curUser.getUserid())
+                        .eq(StringUtils.isNotEmpty(queryParam.getToContactId()),
+                                Message::getFromUserId, queryParam.getToContactId()))
+                .orderByDesc(Message::getSendTime);
+        PageResult<Message> page = this.page(queryParam, wrapper);
+        List<MessageDto> result = new ArrayList<>();
+        if (page != null) {
+            List<Message> records = page.getRecords();
+            if (CollectionUtils.isNotEmpty(records)) {
+                Map<String, MessageUser> userMap = getUserMap(queryParam.getToContactId(), curUser.getUserid());
+                // 倒叙遍历，这样才是按时间正序排列
+                for (int i = records.size() - 1; i >= 0; i--) {
+                    Message m = records.get(i);
+                    MessageDto dto = messageParamMapper.entity2Dto(m);
+                    dto.setFromUser(userMap.get(m.getFromUserId()));
+                    dto.setToContactId(queryParam.getToContactId());
+                    result.add(dto);
+                }
+            }
+        }
+        return result;
+    }
+
+    private Map<String, MessageUser> getUserMap(String otherUserId, String fromUserId) {
+        MessageUser fromUser = getMessageUser(fromUserId);
+        MessageUser otherUser = getMessageUser(otherUserId);
+        Map<String, MessageUser> map = new HashMap<>();
+        map.put(fromUserId, fromUser);
+        map.put(otherUserId, otherUser);
+        return map;
+    }
+
+    /**
+     * 根据用户id获取用户信息
+     */
+    private MessageUser getMessageUser(String userId) {
+        MessageUser user = new MessageUser();
+        UserDto userDto = serverClientService.getUserDtoById(userId);
+        user.setId(userId);
+        user.setDisplayName(userDto.getRealName());
+        user.setAvatar(userDto.getPortrait());
+        return user;
     }
 
     @Override

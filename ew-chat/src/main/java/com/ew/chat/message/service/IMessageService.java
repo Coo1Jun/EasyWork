@@ -74,4 +74,11 @@ public interface IMessageService extends IBaseService<Message> {
      *
      */
     boolean updateByParam(MessageEditParam messageEditParam);
+
+    /**
+     * 获取聊天记录
+     * @param messageQueryParam 查询参数
+     * @return
+     */
+    List<MessageDto> historyList(MessageQueryParam messageQueryParam);
 }

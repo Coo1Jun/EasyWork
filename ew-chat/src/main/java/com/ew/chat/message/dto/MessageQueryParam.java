@@ -20,5 +20,7 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Message查询", description = "查询参数")
 public class MessageQueryParam extends PageParam {
+    @ApiModelProperty("接收消息的联系人ID")
+    private String toContactId;
 
 }
