@@ -22,6 +22,9 @@ public class ContactEditParam {
     @ApiModelProperty(value = "主键ID")
     private String id;
 
+    @ApiModelProperty("备注名称")
+    private String remarkName;
+
 
     @ApiModelProperty(value = "版本号")
     private Integer version;
