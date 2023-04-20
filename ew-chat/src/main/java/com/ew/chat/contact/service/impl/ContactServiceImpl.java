@@ -75,6 +75,7 @@ public class ContactServiceImpl extends BaseServiceImpl<ContactMapper, Contact> 
             for (Contact c : list) {
                 ContactDto dto = contactParamMapper.entity2Dto(c);
                 dto.setId(c.getContactId());
+                dto.setKeyId(c.getId()); // 主键id
                 dto.setDisplayName(c.getName());
                 if (ContactType.PERSON.equals(dto.getType())) {
                     // 查询用户

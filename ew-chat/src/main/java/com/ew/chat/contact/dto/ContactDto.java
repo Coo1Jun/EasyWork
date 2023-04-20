@@ -23,7 +23,10 @@ import java.util.Date;
 public class ContactDto {
 
     @ApiModelProperty("contactId")
-    private String id;
+    private String id; // 这不是数据库的主键id，而是字段为contact_id的值，为了迎合前端而做的修改
+
+    @ApiModelProperty("主键id")
+    private String keyId; // 这才是数据库中的主键id
 
     /**
      * 这是谁保存的联系人
