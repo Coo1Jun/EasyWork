@@ -7,7 +7,9 @@ import cn.edu.hzu.common.api.utils.UserUtils;
 import cn.edu.hzu.common.entity.SsoUser;
 import cn.edu.hzu.common.enums.CommonErrorEnum;
 import cn.edu.hzu.common.exception.CommonException;
+import cn.hutool.core.thread.ThreadUtil;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.ew.chat.message.constants.MessageType;
 import com.ew.chat.message.dto.*;
 import com.ew.chat.message.entity.Message;
 import com.ew.chat.message.mapper.MessageMapper;
@@ -100,6 +102,18 @@ public class MessageServiceImpl extends BaseServiceImpl<MessageMapper, Message> 
                     dto.setToContactId(queryParam.getToContactId());
                     result.add(dto);
                 }
+                // 异步 更新消息的状态为succeed
+                ThreadUtil.execAsync(() -> {
+                    log.info("============异步更新start,发送方->【{}】,接收方->【{}】，状态改为succeed",
+                            queryParam.getToContactId(), curUser.getUserid());
+                    this.update(Wrappers.<Message>lambdaUpdate().
+                            set(Message::getStatus, MessageType.SUCCEED) // 设置状态为succeed
+                            .eq(Message::getStatus, MessageType.UNREAD) // 条件是状态为unread的
+                            .eq(Message::getFromUserId, queryParam.getToContactId()) // 当前窗口发给自己的消息
+                            .eq(Message::getToContactId, curUser.getUserid()));
+                    log.info("==============异步更新end,发送方->【{}】,接收方->【{}】，状态改为succeed",
+                            queryParam.getToContactId(), curUser.getUserid());
+                });
             }
         }
         return result;
