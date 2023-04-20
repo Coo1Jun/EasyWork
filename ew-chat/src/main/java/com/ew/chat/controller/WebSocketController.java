@@ -2,6 +2,7 @@ package com.ew.chat.controller;
 
 import cn.edu.hzu.common.api.utils.StringUtils;
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.ew.chat.message.dto.MessageDto;
 import com.ew.chat.message.dto.MessageParamMapper;
 import com.ew.chat.message.entity.Message;
@@ -16,6 +17,7 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.Set;
 
 /**
  * @author lzf
@@ -23,7 +25,7 @@ import java.io.IOException;
  * @description WebSocket控制层
  */
 @Controller
-@ServerEndpoint("/websocket/{userId}")
+@ServerEndpoint("/websocket/{userAndTimeId}")
 @CrossOrigin
 @Slf4j
 public class WebSocketController {
@@ -60,11 +62,15 @@ public class WebSocketController {
 
     /**
      * 连接建立成功调用的方法
+     * 这里userAndTimeId 是userId + "," + 时间戳
+     * 这样设计可以实现多端连接
      */
     @OnOpen
-    public void onOpen(@PathParam("userId") String userId, Session session) {
-        WsSessionUtils.putSession(userId, session);
-        log.info("【websocket】=》用户【{}】连接加入,【{}】", userId, session.getId());
+    public void onOpen(@PathParam("userAndTimeId") String userAndTimeId, Session session) {
+        WsSessionUtils.putSession(userAndTimeId, session);
+        // 保存多端用户
+        WsSessionUtils.putMultiUser(userAndTimeId);
+        log.info("【websocket】=》用户【{}】连接加入,【{}】", userAndTimeId, session.getId());
     }
 
     /**
@@ -86,9 +92,14 @@ public class WebSocketController {
             MessageDto messageDto = JSON.parseObject(jsonStrMsg, MessageDto.class);
             // 判断对方是否在线
             if (WsSessionUtils.isUserOnline(messageDto.getToContactId())) {
-                Session targetSession = WsSessionUtils.getSession(messageDto.getToContactId());
-                // 异步转发消息
-                targetSession.getAsyncRemote().sendText(jsonStrMsg);
+                Set<String> userSet = WsSessionUtils.getMultiUserSet(messageDto.getToContactId());
+                if (CollectionUtils.isNotEmpty(userSet)) {
+                    for (String userAndTimeId : userSet) {
+                        Session targetSession = WsSessionUtils.getSession(userAndTimeId);
+                        // 异步转发消息
+                        targetSession.getAsyncRemote().sendText(jsonStrMsg);
+                    }
+                }
             }
             Message message = messageParamMapper.dto2entity(messageDto);
             message.setFromUserId(messageDto.getFromUser().getId());
