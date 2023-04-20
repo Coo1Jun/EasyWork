@@ -3,6 +3,7 @@ package com.ew.chat.controller;
 import cn.edu.hzu.common.api.utils.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.ew.chat.message.constants.MessageType;
 import com.ew.chat.message.dto.MessageDto;
 import com.ew.chat.message.dto.MessageParamMapper;
 import com.ew.chat.message.entity.Message;
@@ -90,6 +91,8 @@ public class WebSocketController {
         if (StringUtils.isNotEmpty(jsonStrMsg)) {
             log.info("接收到消息=》{}", jsonStrMsg);
             MessageDto messageDto = JSON.parseObject(jsonStrMsg, MessageDto.class);
+            Message message = messageParamMapper.dto2entity(messageDto);
+            message.setFromUserId(messageDto.getFromUser().getId());
             // 判断对方是否在线
             if (WsSessionUtils.isUserOnline(messageDto.getToContactId())) {
                 Set<String> userSet = WsSessionUtils.getMultiUserSet(messageDto.getToContactId());
@@ -98,13 +101,15 @@ public class WebSocketController {
                         Session targetSession = WsSessionUtils.getSession(userAndTimeId);
                         // 异步转发消息
                         targetSession.getAsyncRemote().sendText(jsonStrMsg);
+                        // 将消息保存至数据库
+                        messageService.save(message);
                     }
                 }
+            } else {
+                // 将消息保存至数据库 类型改为 unread
+                message.setStatus(MessageType.UNREAD);
+                messageService.save(message);
             }
-            Message message = messageParamMapper.dto2entity(messageDto);
-            message.setFromUserId(messageDto.getFromUser().getId());
-            // 将消息保存至数据库
-            messageService.save(message);
         }
     }
 
