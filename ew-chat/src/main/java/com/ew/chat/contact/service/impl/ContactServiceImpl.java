@@ -103,8 +103,7 @@ public class ContactServiceImpl extends BaseServiceImpl<ContactMapper, Contact> 
                         dto.setLastContent("[图片]");
                     }
                 } else {
-                    dto.setLastSendTime(System.currentTimeMillis());
-                    dto.setLastContent("");
+                    dto.setLastContent(" "); // 由于前端组件的问题，当该聊天对象没有消息记录时，设置内容为空格，不能设置为空或空串，否则联系人窗口不显示
                 }
                 result.add(dto);
             }
