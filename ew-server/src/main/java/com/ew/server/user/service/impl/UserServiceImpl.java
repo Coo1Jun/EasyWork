@@ -286,10 +286,12 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, User> implement
     @Override
     public UserDto getDtoById(String id) {
         UserDto userDto = userParamMapper.entity2Dto(this.getById(id));
-        FileMetaDto file = fileMetaService.getDtoById(userDto.getPortrait());
-        userDto.setPortrait(Constant.DEFAULT_USER_PORTRAIT);
-        if (file != null) {
-            userDto.setPortrait(file.getUrl());
+        if (userDto != null) {
+            FileMetaDto file = fileMetaService.getDtoById(userDto.getPortrait());
+            userDto.setPortrait(Constant.DEFAULT_USER_PORTRAIT);
+            if (file != null) {
+                userDto.setPortrait(file.getUrl());
+            }
         }
         return userDto;
     }

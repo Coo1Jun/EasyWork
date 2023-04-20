@@ -28,6 +28,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import cn.edu.hzu.common.api.PageResult;
 import cn.edu.hzu.common.api.ResultCode;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -80,8 +81,10 @@ public class ContactServiceImpl extends BaseServiceImpl<ContactMapper, Contact> 
                 if (ContactType.PERSON.equals(dto.getType())) {
                     // 查询用户
                     UserDto contactUser = serverClientService.getUserDtoById(dto.getId());
-                    dto.setDisplayName(contactUser.getRealName()); // 用户名
-                    dto.setAvatar(contactUser.getPortrait()); // 头像
+                    if (contactUser != null) {
+                        dto.setDisplayName(contactUser.getRealName()); // 用户名
+                        dto.setAvatar(contactUser.getPortrait()); // 头像
+                    }
                 }
                 // 是否有备注
                 if (StringUtils.isNotEmpty(c.getRemarkName())) {
@@ -91,12 +94,17 @@ public class ContactServiceImpl extends BaseServiceImpl<ContactMapper, Contact> 
                 dto.setUnread(getContactUnread(dto.getId(), curUserId));
                 // 查询最后一条消息的时间和内容
                 Message lastMessage = getLastMessage(dto.getId(), curUserId);
-                dto.setLastSendTime(lastMessage.getSendTime());
-                dto.setLastContent(lastMessage.getContent());
-                if (MessageType.FILE.equals(lastMessage.getType())) {
-                    dto.setLastContent("[文件]");
-                } else if (MessageType.IMAGE.equals(lastMessage.getType())) {
-                    dto.setLastContent("[图片]");
+                if (lastMessage != null) {
+                    dto.setLastSendTime(lastMessage.getSendTime());
+                    dto.setLastContent(lastMessage.getContent());
+                    if (MessageType.FILE.equals(lastMessage.getType())) {
+                        dto.setLastContent("[文件]");
+                    } else if (MessageType.IMAGE.equals(lastMessage.getType())) {
+                        dto.setLastContent("[图片]");
+                    }
+                } else {
+                    dto.setLastSendTime(System.currentTimeMillis());
+                    dto.setLastContent("");
                 }
                 result.add(dto);
             }
@@ -133,8 +141,17 @@ public class ContactServiceImpl extends BaseServiceImpl<ContactMapper, Contact> 
     @Override
     @Transactional(rollbackFor = {Exception.class, Error.class})
     public boolean saveByParam(ContactAddParam contactAddParam) {
+        String userid = UserUtils.getCurrentUser().getUserid();
         Contact contact = contactParamMapper.addParam2Entity(contactAddParam);
-        // Assert.notNull(ResultCode.PARAM_VALID_ERROR,contact);
+        contact.setFromId(UserUtils.getCurrentUser().getUserid());
+        int count = this.count(Wrappers.<Contact>lambdaQuery()
+                .eq(Contact::getContactId, contactAddParam.getContactId())
+                .eq(Contact::getFromId, userid)
+                .eq(Contact::getType, contactAddParam.getType()));
+        // 已经有该联系人，不需要重复添加
+        if (count > 0) {
+            return true;
+        }
         return save(contact);
     }
 
