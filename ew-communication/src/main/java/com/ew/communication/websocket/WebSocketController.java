@@ -1,10 +1,14 @@
 package com.ew.communication.websocket;
 
+import cn.edu.hzu.client.dto.GroupDto;
 import cn.edu.hzu.client.server.service.IProjectClientService;
 import cn.edu.hzu.common.api.utils.StringUtils;
+import cn.hutool.core.thread.ThreadUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.ew.communication.contact.constants.ContactType;
+import com.ew.communication.contact.dto.ContactAddParam;
+import com.ew.communication.contact.service.IContactService;
 import com.ew.communication.groupchat.service.IGroupChatMemberService;
 import com.ew.communication.message.constants.MessageType;
 import com.ew.communication.message.dto.MessageDto;
@@ -77,6 +81,12 @@ public class WebSocketController {
         WebSocketController.groupChatMemberService = groupChatMemberService;
     }
 
+    private static IContactService contactService;
+    @Autowired
+    private void setContactService(IContactService contactService) {
+        WebSocketController.contactService = contactService;
+    }
+
     /**
      * 连接建立成功调用的方法
      * 这里userAndTimeId 是userId + "," + 时间戳
@@ -128,8 +138,18 @@ public class WebSocketController {
                                 }
                             }
                         } else {
-                            // 不在线，未读数量+1
-                            groupChatMemberService.addUnreadOrSave(userId, messageDto.getToContactId());
+                            ThreadUtil.execAsync(() -> {
+                                // 不在线，未读数量+1
+                                groupChatMemberService.addUnreadOrSave(userId, messageDto.getToContactId());
+                                // 为项目组中的成员添加 聊天窗口
+                                ContactAddParam contactAddParam = new ContactAddParam();
+                                contactAddParam.setContactId(messageDto.getToContactId());
+                                contactAddParam.setFromId(userId);
+                                GroupDto groupInfo = projectClientService.getGroupInfoById(messageDto.getToContactId());
+                                contactAddParam.setName("【项目组】" + groupInfo.getName());
+                                contactAddParam.setType(ContactType.GROUP);
+                                contactService.saveByParam(contactAddParam);
+                            });
                         }
                     }
                 }
@@ -149,9 +169,17 @@ public class WebSocketController {
                         }
                     }
                 } else {
-                    // 将消息保存至数据库 类型改为 unread
-                    message.setStatus(MessageType.UNREAD);
-                    messageService.save(message);
+                    ThreadUtil.execAsync(() -> {
+                        // 将消息保存至数据库 类型改为 unread
+                        message.setStatus(MessageType.UNREAD);
+                        messageService.save(message);
+                        // 为对方添加联系人
+                        ContactAddParam contactAddParam = new ContactAddParam();
+                        contactAddParam.setContactId(messageDto.getFromUser().getId());
+                        contactAddParam.setFromId(messageDto.getToContactId());
+                        contactAddParam.setType(ContactType.PERSON);
+                        contactService.saveByParam(contactAddParam);
+                    });
                 }
             }
         }

@@ -1,6 +1,7 @@
 package cn.edu.hzu.client.server;
 
 
+import cn.edu.hzu.client.dto.GroupDto;
 import cn.edu.hzu.common.api.RestResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -17,4 +18,7 @@ public interface ProjectFeignClient {
      */
     @GetMapping("/api/ew-project/client/group/user/list")
     RestResponse<List<String>> getUserIds(@RequestParam("groupId") String groupId);
+
+    @GetMapping("/api/ew-project/client/group/info")
+    RestResponse<GroupDto> getGroupInfoById(@RequestParam("groupId") String groupId);
 }

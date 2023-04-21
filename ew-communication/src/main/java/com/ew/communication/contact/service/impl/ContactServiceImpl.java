@@ -176,10 +176,12 @@ public class ContactServiceImpl extends BaseServiceImpl<ContactMapper, Contact> 
     public boolean saveByParam(ContactAddParam contactAddParam) {
         String userid = UserUtils.getCurrentUser().getUserid();
         Contact contact = contactParamMapper.addParam2Entity(contactAddParam);
-        contact.setFromId(UserUtils.getCurrentUser().getUserid());
+        if (StringUtils.isEmpty(contact.getFromId())) {
+            contact.setFromId(UserUtils.getCurrentUser().getUserid());
+        }
         int count = this.count(Wrappers.<Contact>lambdaQuery()
                 .eq(Contact::getContactId, contactAddParam.getContactId())
-                .eq(Contact::getFromId, userid)
+                .eq(Contact::getFromId, contact.getFromId())
                 .eq(Contact::getType, contactAddParam.getType()));
         // 已经有该联系人，不需要重复添加
         if (count > 0) {

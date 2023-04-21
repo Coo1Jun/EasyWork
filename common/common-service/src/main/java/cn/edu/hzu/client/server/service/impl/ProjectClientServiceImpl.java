@@ -1,6 +1,7 @@
 package cn.edu.hzu.client.server.service.impl;
 
 import cn.edu.hzu.client.AbstractBaseServiceClient;
+import cn.edu.hzu.client.dto.GroupDto;
 import cn.edu.hzu.client.dto.UserDto;
 import cn.edu.hzu.client.server.ProjectFeignClient;
 import cn.edu.hzu.client.server.service.IProjectClientService;
@@ -28,6 +29,14 @@ public class ProjectClientServiceImpl extends AbstractBaseServiceClient implemen
     public RestResponse<List<String>> getUserIdsByGroupIdClient(boolean throwEx, String groupId) {
         execBefore(ProjectEnum.EW_PROJECT, groupId);
         RestResponse<List<String>> result = projectFeignClient.getUserIds(groupId);
+        execAfter(throwEx, ProjectEnum.EW_PROJECT, result);
+        return result;
+    }
+
+    @Override
+    public RestResponse<GroupDto> getGroupInfoByIdClient(boolean throwEx, String groupId) {
+        execBefore(ProjectEnum.EW_PROJECT, groupId);
+        RestResponse<GroupDto> result = projectFeignClient.getGroupInfoById(groupId);
         execAfter(throwEx, ProjectEnum.EW_PROJECT, result);
         return result;
     }
