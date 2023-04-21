@@ -63,9 +63,11 @@ public class UserMtmGroupServiceImpl extends BaseServiceImpl<UserMtmGroupMapper,
         for (UserMtmGroupDto dto : memberList) {
             dto.setRole(MemberRoleEnum.getTitle(dto.getRole()));
             dto.setId(dto.getUserId());
-            FileMetaDto fileById = serverClientService.getFileById(dto.getAvatar());
-            if (fileById != null) {
-                dto.setAvatar(fileById.getUrl());
+            if (StringUtils.isNotEmpty(dto.getAvatar())) {
+                FileMetaDto fileById = serverClientService.getFileById(dto.getAvatar());
+                if (fileById != null) {
+                    dto.setAvatar(fileById.getUrl());
+                }
             }
         }
         // 查询总数

@@ -44,4 +44,7 @@ public class MessageDto {
     @ApiModelProperty("接收消息的联系人ID")
     private String toContactId;
 
+    @ApiModelProperty("联系人类型，group群聊，person个人")
+    private String toContactType;
+
 }

@@ -9,6 +9,7 @@ import cn.edu.hzu.common.enums.CommonErrorEnum;
 import cn.edu.hzu.common.exception.CommonException;
 import cn.hutool.core.thread.ThreadUtil;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.ew.communication.contact.constants.ContactType;
 import com.ew.communication.message.constants.MessageType;
 import com.ew.communication.message.dto.*;
 import com.ew.communication.message.entity.Message;
@@ -78,6 +79,9 @@ public class MessageServiceImpl extends BaseServiceImpl<MessageMapper, Message> 
         if (StringUtils.isEmpty(queryParam.getToContactId())) {
             throw CommonException.builder().resultCode(CommonErrorEnum.PARAM_IS_EMPTY.setParams(new Object[]{"窗口id"})).build();
         }
+        if (ContactType.GROUP.equals(queryParam.getContactType())) {
+            return getGroupChatHistory(queryParam);
+        }
         SsoUser curUser = UserUtils.getCurrentUser();
         LambdaQueryWrapper<Message> wrapper = Wrappers.<Message>lambdaQuery();
         wrapper.eq(StringUtils.isNotEmpty(queryParam.getToContactId()),
@@ -137,6 +141,36 @@ public class MessageServiceImpl extends BaseServiceImpl<MessageMapper, Message> 
         user.setDisplayName(userDto.getRealName());
         user.setAvatar(userDto.getPortrait());
         return user;
+    }
+
+    /**
+     * 获取群聊的聊天记录
+     * @param queryParam 查询参数
+     * @return
+     */
+    private List<MessageDto> getGroupChatHistory(MessageQueryParam queryParam) {
+        LambdaQueryWrapper<Message> wrapper = Wrappers.<Message>lambdaQuery();
+        wrapper.eq(Message::getToContactId, queryParam.getToContactId()).orderByDesc(Message::getSendTime);
+        PageResult<Message> page = this.page(queryParam, wrapper);
+        List<MessageDto> result = new ArrayList<>();
+        if (page != null) {
+            List<Message> records = page.getRecords();
+            if (CollectionUtils.isNotEmpty(records)) {
+                Map<String, MessageUser> userMap = new HashMap<>();
+                // 倒叙遍历，这样才是按时间正序排列
+                for (int i = records.size() - 1; i >= 0; i--) {
+                    Message m = records.get(i);
+                    MessageDto dto = messageParamMapper.entity2Dto(m);
+                    if (userMap.get(m.getFromUserId()) == null) {
+                        userMap.put(m.getFromUserId(), getMessageUser(m.getFromUserId()));
+                    }
+                    dto.setFromUser(userMap.get(m.getFromUserId()));
+                    dto.setToContactId(queryParam.getToContactId());
+                    result.add(dto);
+                }
+            }
+        }
+        return result;
     }
 
     @Override

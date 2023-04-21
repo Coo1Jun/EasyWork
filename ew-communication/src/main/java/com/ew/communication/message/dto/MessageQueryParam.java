@@ -21,4 +21,7 @@ public class MessageQueryParam extends PageParam {
     @ApiModelProperty("接收消息的联系人ID")
     private String toContactId;
 
+    @ApiModelProperty("联系人类型")
+    private String contactType;
+
 }

@@ -16,6 +16,8 @@ import com.ew.communication.contact.dto.ContactEditParam;
 import com.ew.communication.contact.dto.ContactParamMapper;
 import com.ew.communication.contact.dto.ContactDto;
 import cn.edu.hzu.common.entity.BaseEntity;
+import com.ew.communication.groupchat.entity.GroupChatMember;
+import com.ew.communication.groupchat.service.IGroupChatMemberService;
 import com.ew.communication.message.constants.MessageType;
 import com.ew.communication.message.entity.Message;
 import com.ew.communication.message.service.IMessageService;
@@ -45,7 +47,7 @@ import java.util.List;
  */
 @Slf4j
 @Service
-@Transactional(readOnly = true, rollbackFor = {Exception.class, Error.class})
+@Transactional(rollbackFor = {Exception.class, Error.class})
 public class ContactServiceImpl extends BaseServiceImpl<ContactMapper, Contact> implements IContactService {
 
     @Autowired
@@ -56,6 +58,9 @@ public class ContactServiceImpl extends BaseServiceImpl<ContactMapper, Contact> 
 
     @Autowired
     private IMessageService messageService;
+
+    @Autowired
+    private IGroupChatMemberService groupChatMemberService;
 
     @Override
     public PageResult<ContactDto> pageDto(ContactQueryParam contactQueryParam) {
@@ -83,26 +88,56 @@ public class ContactServiceImpl extends BaseServiceImpl<ContactMapper, Contact> 
                         dto.setDisplayName(contactUser.getRealName()); // 用户名
                         dto.setAvatar(contactUser.getPortrait()); // 头像
                     }
+                    // 查询未读的消息(对方发给自己)
+                    dto.setUnread(getContactUnread(dto.getId(), curUserId));
+                    // 查询最后一条消息的时间和内容
+                    Message lastMessage = getLastMessage(dto.getId(), curUserId);
+                    if (lastMessage != null) {
+                        dto.setLastSendTime(lastMessage.getSendTime());
+                        dto.setLastContent(lastMessage.getContent());
+                        if (MessageType.FILE.equals(lastMessage.getType())) {
+                            dto.setLastContent("[文件]");
+                        } else if (MessageType.IMAGE.equals(lastMessage.getType())) {
+                            dto.setLastContent("[图片]");
+                        }
+                    } else {
+                        dto.setLastSendTime(dto.getCreateTime().getTime());
+                        dto.setLastContent(" "); // 由于前端组件的问题，当该聊天对象没有消息记录时，设置内容为空格，不能设置为空或空串，否则联系人窗口不显示
+                    }
+                } else { // 群聊类型
+                    // 查询最后一条信息
+                    Message lastMessage = messageService.getOne(Wrappers.<Message>lambdaQuery()
+                            .eq(Message::getToContactId, dto.getId())
+                            .orderByDesc(Message::getSendTime).last("LIMIT 1"));
+                    if (lastMessage != null) {
+                        dto.setLastSendTime(lastMessage.getSendTime());
+                        dto.setLastContent(lastMessage.getContent());
+                        if (MessageType.FILE.equals(lastMessage.getType())) {
+                            dto.setLastContent("[文件]");
+                        } else if (MessageType.IMAGE.equals(lastMessage.getType())) {
+                            dto.setLastContent("[图片]");
+                        }
+                    } else {
+                        dto.setLastSendTime(dto.getCreateTime().getTime());
+                        dto.setLastContent(" "); // 由于前端组件的问题，当该聊天对象没有消息记录时，设置内容为空格，不能设置为空或空串，否则联系人窗口不显示
+                    }
+                    // 设置未读数量
+                    GroupChatMember one = groupChatMemberService.getOne(Wrappers.<GroupChatMember>lambdaQuery()
+                            .eq(GroupChatMember::getGroupChatId, dto.getId())
+                            .eq(GroupChatMember::getUserId, curUserId)
+                            .last("LIMIT 1"));
+                    if (one != null) {
+                        dto.setUnread(one.getUnread());
+                        one.setUnread(0);
+                        // 更新未读数量为0
+                        groupChatMemberService.updateById(one);
+                    } else {
+                        dto.setUnread(0);
+                    }
                 }
                 // 是否有备注
                 if (StringUtils.isNotEmpty(c.getRemarkName())) {
                     dto.setDisplayName(c.getRemarkName());
-                }
-                // 查询未读的消息(对方发给自己)
-                dto.setUnread(getContactUnread(dto.getId(), curUserId));
-                // 查询最后一条消息的时间和内容
-                Message lastMessage = getLastMessage(dto.getId(), curUserId);
-                if (lastMessage != null) {
-                    dto.setLastSendTime(lastMessage.getSendTime());
-                    dto.setLastContent(lastMessage.getContent());
-                    if (MessageType.FILE.equals(lastMessage.getType())) {
-                        dto.setLastContent("[文件]");
-                    } else if (MessageType.IMAGE.equals(lastMessage.getType())) {
-                        dto.setLastContent("[图片]");
-                    }
-                } else {
-                    dto.setLastSendTime(dto.getCreateTime().getTime());
-                    dto.setLastContent(" "); // 由于前端组件的问题，当该聊天对象没有消息记录时，设置内容为空格，不能设置为空或空串，否则联系人窗口不显示
                 }
                 result.add(dto);
             }
