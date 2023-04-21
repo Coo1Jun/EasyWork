@@ -43,7 +43,7 @@ sso:
   server: http://127.0.0.1:8020/ew-server
   #  路径排除Path，允许设置多个，且支持Ant表达式。用于排除SSO客户端不需要过滤的路径
   excluded:
-    paths:
+    paths: /client/**
 
 mybatis-plus:
   configuration:
