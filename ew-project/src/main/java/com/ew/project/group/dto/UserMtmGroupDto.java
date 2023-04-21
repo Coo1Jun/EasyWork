@@ -27,6 +27,12 @@ public class UserMtmGroupDto{
     @ApiModelProperty(value = "用户id")
     private String userId;
 
+    @ApiModelProperty("头像")
+    private String avatar;
+
+    @ApiModelProperty("个性签名")
+    private String description;
+
     @ApiModelProperty(value = "项目组id")
     private String groupId;
 

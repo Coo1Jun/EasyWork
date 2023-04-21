@@ -5,7 +5,7 @@
 <mapper namespace="com.ew.project.group.mapper.UserMtmGroupMapper">
 
     <select id="getMemberList" resultType="com.ew.project.group.dto.UserMtmGroupDto">
-        SELECT a.*, t_user.real_name AS name, t_user.email
+        SELECT a.*, t_user.real_name AS name, t_user.email, t_user.portrait AS avatar, t_user.description
         FROM t_user_mtm_group a
         JOIN t_user ON a.user_id = t_user.id
         WHERE a.group_id = #{query.groupId}

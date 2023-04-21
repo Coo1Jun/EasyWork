@@ -1,5 +1,7 @@
 package com.ew.project.group.service.impl;
 
+import cn.edu.hzu.client.dto.FileMetaDto;
+import cn.edu.hzu.client.server.service.IServerClientService;
 import cn.edu.hzu.common.api.utils.StringUtils;
 import com.ew.project.group.dto.*;
 import com.ew.project.group.entity.Group;
@@ -42,6 +44,8 @@ public class UserMtmGroupServiceImpl extends BaseServiceImpl<UserMtmGroupMapper,
 
     @Autowired
     private UserMtmGroupMapper userMtmGroupMapper;
+    @Autowired
+    private IServerClientService serverClientService;
 
     @Override
     public PageResult<UserMtmGroupDto> pageDto(UserMtmGroupQueryParam userMtmGroupQueryParam) {
@@ -58,6 +62,11 @@ public class UserMtmGroupServiceImpl extends BaseServiceImpl<UserMtmGroupMapper,
         if (memberList == null) return null;
         for (UserMtmGroupDto dto : memberList) {
             dto.setRole(MemberRoleEnum.getTitle(dto.getRole()));
+            dto.setId(dto.getUserId());
+            FileMetaDto fileById = serverClientService.getFileById(dto.getAvatar());
+            if (fileById != null) {
+                dto.setAvatar(fileById.getUrl());
+            }
         }
         // 查询总数
         int total = userMtmGroupMapper.memberListCount(queryParam);
