@@ -30,7 +30,7 @@ public class Knife4jConfiguration {
                 .groupName("ew-communication")
                 .select()
                 //这里指定Controller扫描包路径
-                .apis(RequestHandlerSelectors.basePackage("com.ew.chat"))
+                .apis(RequestHandlerSelectors.basePackage("com.ew.communication"))
                 .paths(PathSelectors.any())
                 .build();
         return docket;

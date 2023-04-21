@@ -8,7 +8,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
 @SpringBootApplication(scanBasePackages = {"cn.edu.hzu", "com.ew.communication"})
 @EnableFeignClients(basePackages = {"cn.edu.hzu"})
-@MapperScan("com.ew.chat.**.**.mapper")
+@MapperScan("com.ew.communication.**.**.mapper")
 @EnableWebSocket
 public class EwCommunicationApplication {
 

@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class EwChatApplicationTests {
+class EwCommunicationApplicationTests {
 
     @Autowired
     private IMessageService messageService;
