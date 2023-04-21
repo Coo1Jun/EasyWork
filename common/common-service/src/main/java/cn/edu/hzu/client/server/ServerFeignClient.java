@@ -42,8 +42,8 @@ public interface ServerFeignClient {
      * @param id 文件id集合
      * @return
      */
-    @GetMapping("/api/ew-server/client/file/{id}")
-    RestResponse<FileMetaDto> getFileById(@PathVariable String id);
+    @GetMapping("/api/ew-server/client/file")
+    RestResponse<FileMetaDto> getFileById(@RequestParam("id") String id);
 
     /**
      * 根据文件id获取对应的文件列表信息

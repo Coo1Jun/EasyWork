@@ -51,8 +51,8 @@ public class ClientController {
 
     // file文件服务 start ==================================================================
 
-    @GetMapping("/file/{id}")
-    RestResponse<FileMetaDto> getFileById(@PathVariable String id){
+    @GetMapping("/file")
+    RestResponse<FileMetaDto> getFileById(@RequestParam("id") String id){
         return RestResponse.ok(fileMetaService.getDtoById(id));
     }
 
