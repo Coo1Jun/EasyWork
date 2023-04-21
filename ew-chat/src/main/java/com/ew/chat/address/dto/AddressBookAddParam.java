@@ -18,4 +18,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode
 @ApiModel(value = "AddressBook新增", description = "新增参数")
 public class AddressBookAddParam {
+    @ApiModelProperty("对象id")
+    private String userId;
 }

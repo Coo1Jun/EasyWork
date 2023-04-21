@@ -67,7 +67,7 @@ public class AddressBookServiceImpl extends BaseServiceImpl<AddressBookMapper, A
     @Transactional(rollbackFor = {Exception.class, Error.class})
     public boolean updateByParam(AddressBookEditParam addressBookEditParam) {
         AddressBook addressBook = addressBookParamMapper.editParam2Entity(addressBookEditParam);
-        // Assert.notNull(ResultCode.PARAM_VALID_ERROR,addressBook);
+        addressBook.setFromId(UserUtils.getCurrentUser().getUserid());
         return updateById(addressBook);
     }
 
