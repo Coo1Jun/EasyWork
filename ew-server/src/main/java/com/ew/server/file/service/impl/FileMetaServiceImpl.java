@@ -167,6 +167,7 @@ public class FileMetaServiceImpl extends BaseServiceImpl<FileMetaMapper, FileMet
 
     @Override
     public FileMetaDto getDtoById(String id) {
+        if (StringUtils.isEmpty(id)) return null;
         return fileMetaParamMapper.entity2Dto(this.getById(id));
     }
 
