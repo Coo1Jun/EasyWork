@@ -38,4 +38,6 @@ public interface UserMtmGroupMapper extends BaseMapper<UserMtmGroup> {
      * @return
      */
     List<UserMtmGroupDto> getMemberListByGroupId(@Param("group_id") String groupId);
+
+    List<String> getUserIdsByGroupId(@Param("group_id") String groupId);
 }

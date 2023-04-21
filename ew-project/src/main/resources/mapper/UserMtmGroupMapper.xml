@@ -42,4 +42,8 @@
         AND a.delete_flag = 0
         ORDER BY a.role ASC
     </select>
+
+    <select id="getUserIdsByGroupId" resultType="string">
+        SELECT user_id FROM t_user_mtm_group WHERE group_id = #{group_id} AND delete_flag = 0
+    </select>
 </mapper>
