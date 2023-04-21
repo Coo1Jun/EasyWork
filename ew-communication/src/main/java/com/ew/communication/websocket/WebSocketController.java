@@ -1,8 +1,11 @@
 package com.ew.communication.websocket;
 
+import cn.edu.hzu.client.server.service.IProjectClientService;
 import cn.edu.hzu.common.api.utils.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.ew.communication.contact.constants.ContactType;
+import com.ew.communication.groupchat.service.IGroupChatMemberService;
 import com.ew.communication.message.constants.MessageType;
 import com.ew.communication.message.dto.MessageDto;
 import com.ew.communication.message.dto.MessageParamMapper;
@@ -18,6 +21,7 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -61,6 +65,18 @@ public class WebSocketController {
         WebSocketController.messageService = messageService;
     }
 
+    private static IProjectClientService projectClientService;
+    @Autowired
+    private void setProjectClientService(IProjectClientService projectClientService) {
+        WebSocketController.projectClientService = projectClientService;
+    }
+
+    private static IGroupChatMemberService groupChatMemberService;
+    @Autowired
+    private void setGroupChatMemberMapper(IGroupChatMemberService groupChatMemberService) {
+        WebSocketController.groupChatMemberService = groupChatMemberService;
+    }
+
     /**
      * 连接建立成功调用的方法
      * 这里userAndTimeId 是userId + "," + 时间戳
@@ -93,22 +109,50 @@ public class WebSocketController {
             MessageDto messageDto = JSON.parseObject(jsonStrMsg, MessageDto.class);
             Message message = messageParamMapper.dto2entity(messageDto);
             message.setFromUserId(messageDto.getFromUser().getId());
-            // 判断对方是否在线
-            if (WsSessionUtils.isUserOnline(messageDto.getToContactId())) {
-                Set<String> userSet = WsSessionUtils.getMultiUserSet(messageDto.getToContactId());
-                if (CollectionUtils.isNotEmpty(userSet)) {
-                    for (String userAndTimeId : userSet) {
-                        Session targetSession = WsSessionUtils.getSession(userAndTimeId);
-                        // 异步转发消息
-                        targetSession.getAsyncRemote().sendText(jsonStrMsg);
-                        // 将消息保存至数据库
-                        messageService.save(message);
+            if (ContactType.GROUP.equals(messageDto.getToContactType())) {
+                // 根据contactId（项目组id）找出组成员，逐个判断是否在线。在线->转发，不在线->未读数量+1
+                List<String> userIds = projectClientService.getUserIdsByGroupId(messageDto.getToContactId());
+                if (CollectionUtils.isNotEmpty(userIds)) {
+                    for (String userId : userIds) {
+                        if (userId.equals(message.getFromUserId())) {
+                            continue;
+                        }
+                        // 逐个判断是否在线
+                        if (WsSessionUtils.isUserOnline(userId)) {
+                            Set<String> userSet = WsSessionUtils.getMultiUserSet(userId);
+                            if (CollectionUtils.isNotEmpty(userSet)) {
+                                for (String userAndTimeId : userSet) {
+                                    Session targetSession = WsSessionUtils.getSession(userAndTimeId);
+                                    // 异步转发消息
+                                    targetSession.getAsyncRemote().sendText(jsonStrMsg);
+                                }
+                            }
+                        } else {
+                            // 不在线，未读数量+1
+                            groupChatMemberService.addUnreadOrSave(userId, messageDto.getToContactId());
+                        }
                     }
                 }
-            } else {
-                // 将消息保存至数据库 类型改为 unread
-                message.setStatus(MessageType.UNREAD);
+                // 将消息保存至数据库
                 messageService.save(message);
+            } else {
+                // 判断对方是否在线
+                if (WsSessionUtils.isUserOnline(messageDto.getToContactId())) {
+                    Set<String> userSet = WsSessionUtils.getMultiUserSet(messageDto.getToContactId());
+                    if (CollectionUtils.isNotEmpty(userSet)) {
+                        for (String userAndTimeId : userSet) {
+                            Session targetSession = WsSessionUtils.getSession(userAndTimeId);
+                            // 异步转发消息
+                            targetSession.getAsyncRemote().sendText(jsonStrMsg);
+                            // 将消息保存至数据库
+                            messageService.save(message);
+                        }
+                    }
+                } else {
+                    // 将消息保存至数据库 类型改为 unread
+                    message.setStatus(MessageType.UNREAD);
+                    messageService.save(message);
+                }
             }
         }
     }
