@@ -3,7 +3,7 @@
 <mapper namespace="com.ew.chat.message.mapper.MessageMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.ew.chat.message.entity.Message">
+    <resultMap id="BaseResultMap" type="com.ew.communication.message.entity.Message">
         <id column="id" property="id" />
         <result column="create_by" property="createBy" />
         <result column="create_time" property="createTime" />

@@ -3,7 +3,7 @@
 <mapper namespace="com.ew.chat.address.mapper.AddressBookMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.ew.chat.address.entity.AddressBook">
+    <resultMap id="BaseResultMap" type="com.ew.communication.address.entity.AddressBook">
         <id column="id" property="id"/>
         <result column="create_by" property="createBy"/>
         <result column="create_time" property="createTime"/>
@@ -29,7 +29,7 @@
         id, user_id, from_id, version, create_id, update_id, delete_flag
     </sql>
 
-    <select id="getAddressBookList" resultType="com.ew.chat.address.dto.AddressBookDto">
+    <select id="getAddressBookList" resultType="com.ew.communication.address.dto.AddressBookDto">
         SELECT
                b.id,
                b.real_name AS name,

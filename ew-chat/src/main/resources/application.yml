@@ -1,7 +1,7 @@
 server:
   port: 8022
   servlet:
-    context-path: /api/ew-chat
+    context-path: /api/ew-communication
 spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
@@ -11,7 +11,7 @@ spring:
     password: 111777
   # 应用名称
   application:
-    name: ew-chat
+    name: ew-communication
   cloud:
     nacos:
       discovery:
