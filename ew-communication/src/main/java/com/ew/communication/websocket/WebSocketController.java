@@ -1,4 +1,4 @@
-package com.ew.communication.controller;
+package com.ew.communication.websocket;
 
 import cn.edu.hzu.common.api.utils.StringUtils;
 import com.alibaba.fastjson.JSON;
