@@ -25,4 +25,16 @@ public class WorkItemQueryParam extends PageParam {
 
     @ApiModelProperty("EpicId")
     private String EpicId;
+
+    @ApiModelProperty("工作项标题")
+    private String title;
+
+    @ApiModelProperty("流程状态")
+    private String status;
+
+    @ApiModelProperty("负责人id")
+    private String principalId;
+
+    @ApiModelProperty("工作项类型")
+    private String workType;
 }

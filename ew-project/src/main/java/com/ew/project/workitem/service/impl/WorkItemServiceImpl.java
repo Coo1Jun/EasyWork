@@ -75,13 +75,33 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
     }
 
     @Override
-    public List<WorkItemDto> workItemTreeData(WorkItemQueryParam workItemQueryParam) {
+    public List<WorkItemDto> workItemTreeData(WorkItemQueryParam queryParam) {
+        boolean isTreeData = false;
+        if (StringUtils.isAllEmpty(queryParam.getWorkType(),
+                queryParam.getStatus(),
+                queryParam.getPrincipalId(),
+                queryParam.getTitle())) {
+            isTreeData = true;
+        }
         // 根据项目id和EpicId查出所有Feature\Story\Task\Bug
         List<WorkItemDto> data = workItemParamMapper.workItemListToWorkItemDtoList(this.list(Wrappers.<WorkItem>lambdaQuery()
-                .eq(WorkItem::getProjectId, workItemQueryParam.getProjectId())
-                .eq(WorkItem::getEpicId, workItemQueryParam.getEpicId())
+                .eq(WorkItem::getProjectId, queryParam.getProjectId())
+                .eq(WorkItem::getEpicId, queryParam.getEpicId())
+                // 负责人
+                .eq(StringUtils.isNotEmpty(queryParam.getPrincipalId()),
+                        WorkItem::getPrincipalId, queryParam.getPrincipalId())
+                // 流程状态
+                .eq(StringUtils.isNotEmpty(queryParam.getStatus()),
+                        WorkItem::getStatus, queryParam.getStatus())
+                // 类型
+                .eq(StringUtils.isNotEmpty(queryParam.getWorkType()),
+                        WorkItem::getWorkType, queryParam.getWorkType())
+                // 标题
+                .like(StringUtils.isNotEmpty(queryParam.getTitle()),
+                        WorkItem::getTitle, queryParam.getTitle())
                 .ne(WorkItem::getWorkType, WorkItemConstant.PLANS)
-                .ne(WorkItem::getWorkType, WorkItemConstant.EPIC)));
+                .ne(WorkItem::getWorkType, WorkItemConstant.EPIC)
+                .orderByAsc(WorkItem::getNumber)));
         // 根据父工作项的id分组，key：父工作项的id
         Map<String, List<WorkItemDto>> map = data.stream().collect(Collectors.groupingBy(WorkItemDto::getParentWorkItemId));
         List<WorkItemDto> result = new ArrayList<>();
@@ -89,7 +109,9 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
         Set<String> statusSet = WorkItemConstant.TASK_COMPLETION_FLAG;
         for (WorkItemDto dto : data) {
             // 赋值孩子工作项
-            dto.setChildren(map.get(dto.getId()));
+            if (isTreeData) {
+                dto.setChildren(map.get(dto.getId()));
+            }
             // 赋值负责人信息
             if (StringUtils.isEmpty(dto.getPrincipalId())) {
                 dto.setPrincipal(new UserDto());
@@ -113,7 +135,11 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
             // 赋值结束状态
             dto.setEndFlag(statusSet.contains(dto.getStatus()) ? 1 : 0);
             // 赋值Feature工作项
-            if (WorkItemConstant.FEATURE.equals(dto.getWorkType())) {
+            if (isTreeData) {
+                if (WorkItemConstant.FEATURE.equals(dto.getWorkType())) {
+                    result.add(dto);
+                }
+            } else {
                 result.add(dto);
             }
             // 查出附件信息
