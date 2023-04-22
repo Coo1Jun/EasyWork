@@ -132,15 +132,27 @@ public class WorkItemController {
     }
 
     /**
-     * 根据id删除工作项基本信息
+     * 根据id删除工作项基本信息（Plans和Epic）
      *
      * @author LiZhengFan
      * @since 2023-04-07
      */
-    @ApiOperation(value = "根据id删除工作项基本信息")
-    @DeleteMapping("/{ids}")
-    public RestResponse<Boolean> delete(@PathVariable("ids") @NotEmpty String[] ids) {
-        return RestResponse.ok(workItemService.removeByIds(Arrays.asList(ids)));
+    @ApiOperation(value = "根据id删除工作项基本信息->pe")
+    @DeleteMapping("/pe/{id}")
+    public RestResponse<Boolean> deletePlansAndEpic(@PathVariable("id") @NotEmpty String id) {
+        return RestResponse.ok(workItemService.removeById(id));
+    }
+
+    /**
+     * 根据id删除工作项基本信息（除了Plans和Epic的其他类型的工作项）
+     *
+     * @author LiZhengFan
+     * @since 2023-04-07
+     */
+    @ApiOperation(value = "根据id删除工作项基本信息->fstb")
+    @DeleteMapping("/fstb/{id}")
+    public RestResponse<Boolean> delete(@PathVariable("id") @NotEmpty String id) {
+        return RestResponse.ok(workItemService.removeWorkItem(id));
     }
 
     /**

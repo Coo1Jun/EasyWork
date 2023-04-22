@@ -116,4 +116,11 @@ public interface IWorkItemService extends IBaseService<WorkItem> {
      * @since 2023-04-07
      */
     boolean updateByParam(WorkItemEditParam workItemEditParam);
+
+    /**
+     * 删除工作项，并删除所有子项
+     * @param id
+     * @return
+     */
+    boolean removeWorkItem(String id);
 }

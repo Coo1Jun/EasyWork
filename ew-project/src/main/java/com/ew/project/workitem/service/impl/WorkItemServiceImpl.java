@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
-@Transactional(readOnly = true, rollbackFor = {Exception.class, Error.class})
+@Transactional(rollbackFor = {Exception.class, Error.class})
 public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkItem> implements IWorkItemService {
 
     @Autowired
@@ -408,6 +408,30 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
         // 保存文件列表
         saveFileList(editParam.getId(), editParam.getFileList());
         return true;
+    }
+
+    @Override
+    public boolean removeWorkItem(String id) {
+        WorkItem workItem = this.getById(id);
+        if (workItem == null) return true;
+        if (WorkItemConstant.STORY.equals(workItem.getWorkType())) {
+            // Story是倒数第二级，直接删除所有子项即可
+            this.remove(Wrappers.<WorkItem>lambdaQuery().eq(WorkItem::getParentWorkItemId, id));
+        } else if (WorkItemConstant.FEATURE.equals(workItem.getWorkType())) {
+            // Feature是倒数第三级，除了要删除子项Story，还要删除子项的子项
+            // 查出子项
+            List<WorkItem> list = this.list(Wrappers.<WorkItem>lambdaQuery().eq(WorkItem::getParentWorkItemId, id));
+            // 删除子项
+            this.remove(Wrappers.<WorkItem>lambdaQuery().eq(WorkItem::getParentWorkItemId, id));
+            // 遍历子项，删除子项的子项
+            if (CollectionUtils.isNotEmpty(list)) {
+                 for (WorkItem w : list) {
+                     // 删除子项
+                     this.remove(Wrappers.<WorkItem>lambdaQuery().eq(WorkItem::getParentWorkItemId, w.getId()));
+                 }
+            }
+        }
+        return this.removeById(id);
     }
 
     /**
