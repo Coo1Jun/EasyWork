@@ -315,6 +315,10 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
                 && StringUtils.isEmpty(addParam.getParentWorkItemId())) {
             param = "父工作项";
         }
+        if (WorkItemConstant.EPIC.equals(addParam.getWorkType())
+                && StringUtils.isEmpty(addParam.getPlansId())) {
+            param = "所属计划集";
+        }
         if (!"".equals(param)) {
             throw CommonException.builder()
                     .resultCode(WorkItemErrorEnum.PARAMETER_EMPTY.setParams(new Object[]{param}))
