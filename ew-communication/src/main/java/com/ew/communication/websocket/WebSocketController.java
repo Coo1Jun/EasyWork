@@ -39,15 +39,14 @@ import java.util.Set;
 @Slf4j
 public class WebSocketController {
     /**
-     * @Autowired
-     * private MessageParamMapper messageParamMapper;
+     * @Autowired private MessageParamMapper messageParamMapper;
      * 使用以上方式注入，属性为空，为什么？
      * 原因解析：
      * 首先我们来从@Autowired和Bean的属性注入角度来看。
      * 1.容器启动的时候，会将每个’单例‘的Bean加载到容器当中。
      * 2.单例Bean的加载有三个步骤。实例化、依赖注入、初始化。而@Autowired的作用就体现于依赖注入当中。
      * 3.我们WebSocketController类中，通过@Autowired对MessageParamMapper进行自动装配。其实他是成功的，假设我们这时候装配的对象是sender1。
-     *
+     * <p>
      * 接着我们再来从WebSocket的角度来看：
      * 1.我们每建立一个WebSocket链接，都会产生一个新的对象，也就是被@ServerEndpoint修饰的对象。
      * 2.也就是说WebSocket是一个多例的对象而非单例。 也就是说，当建立链接之后创建的WebSocketController实例对象和容器启动的时候，
@@ -58,30 +57,35 @@ public class WebSocketController {
      */
 
     private static MessageParamMapper messageParamMapper;
+
     @Autowired
     private void setMessageParamMapper(MessageParamMapper messageParamMapper) {
         WebSocketController.messageParamMapper = messageParamMapper;
     }
 
     private static IMessageService messageService;
+
     @Autowired
     private void setMessageParamMapper(IMessageService messageService) {
         WebSocketController.messageService = messageService;
     }
 
     private static IProjectClientService projectClientService;
+
     @Autowired
     private void setProjectClientService(IProjectClientService projectClientService) {
         WebSocketController.projectClientService = projectClientService;
     }
 
     private static IGroupChatMemberService groupChatMemberService;
+
     @Autowired
     private void setGroupChatMemberMapper(IGroupChatMemberService groupChatMemberService) {
         WebSocketController.groupChatMemberService = groupChatMemberService;
     }
 
     private static IContactService contactService;
+
     @Autowired
     private void setContactService(IContactService contactService) {
         WebSocketController.contactService = contactService;
@@ -138,19 +142,19 @@ public class WebSocketController {
                                 }
                             }
                         } else {
-                            ThreadUtil.execAsync(() -> {
-                                // 不在线，未读数量+1
-                                groupChatMemberService.addUnreadOrSave(userId, messageDto.getToContactId());
-                                // 为项目组中的成员添加 聊天窗口
-                                ContactAddParam contactAddParam = new ContactAddParam();
-                                contactAddParam.setContactId(messageDto.getToContactId());
-                                contactAddParam.setFromId(userId);
-                                GroupDto groupInfo = projectClientService.getGroupInfoById(messageDto.getToContactId());
-                                contactAddParam.setName("【项目组】" + groupInfo.getName());
-                                contactAddParam.setType(ContactType.GROUP);
-                                contactService.saveByParam(contactAddParam);
-                            });
+                            // 不在线，未读数量+1
+                            groupChatMemberService.addUnreadOrSave(userId, messageDto.getToContactId());
                         }
+                        ThreadUtil.execAsync(() -> {
+                            // 为项目组中的成员添加 聊天窗口
+                            ContactAddParam contactAddParam = new ContactAddParam();
+                            contactAddParam.setContactId(messageDto.getToContactId());
+                            contactAddParam.setFromId(userId);
+                            GroupDto groupInfo = projectClientService.getGroupInfoById(messageDto.getToContactId());
+                            contactAddParam.setName("【项目组】" + groupInfo.getName());
+                            contactAddParam.setType(ContactType.GROUP);
+                            contactService.saveByParam(contactAddParam);
+                        });
                     }
                 }
                 // 将消息保存至数据库
@@ -169,18 +173,18 @@ public class WebSocketController {
                         }
                     }
                 } else {
-                    ThreadUtil.execAsync(() -> {
-                        // 将消息保存至数据库 类型改为 unread
-                        message.setStatus(MessageType.UNREAD);
-                        messageService.save(message);
-                        // 为对方添加联系人
-                        ContactAddParam contactAddParam = new ContactAddParam();
-                        contactAddParam.setContactId(messageDto.getFromUser().getId());
-                        contactAddParam.setFromId(messageDto.getToContactId());
-                        contactAddParam.setType(ContactType.PERSON);
-                        contactService.saveByParam(contactAddParam);
-                    });
+                    // 将消息保存至数据库 类型改为 unread
+                    message.setStatus(MessageType.UNREAD);
+                    messageService.save(message);
                 }
+                ThreadUtil.execAsync(() -> {
+                    // 为对方添加联系人
+                    ContactAddParam contactAddParam = new ContactAddParam();
+                    contactAddParam.setContactId(messageDto.getFromUser().getId());
+                    contactAddParam.setFromId(messageDto.getToContactId());
+                    contactAddParam.setType(ContactType.PERSON);
+                    contactService.saveByParam(contactAddParam);
+                });
             }
         }
     }
