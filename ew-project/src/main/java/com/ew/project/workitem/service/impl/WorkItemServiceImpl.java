@@ -4,7 +4,9 @@ import cn.edu.hzu.client.dto.FileMetaDto;
 import cn.edu.hzu.client.dto.UserDto;
 import cn.edu.hzu.client.server.service.IServerClientService;
 import cn.edu.hzu.common.api.PageResult;
+import cn.edu.hzu.common.api.utils.DateUtils;
 import cn.edu.hzu.common.api.utils.StringUtils;
+import cn.edu.hzu.common.api.utils.UserUtils;
 import cn.edu.hzu.common.entity.BaseEntity;
 import cn.edu.hzu.common.exception.CommonException;
 import cn.edu.hzu.common.service.impl.BaseServiceImpl;
@@ -469,6 +471,45 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
         } else {
             return new ArrayList<>();
         }
+    }
+
+    @Override
+    public List<WorkItemDto> getWorkItemDelayByUser() {
+        String userId = UserUtils.getCurrentUser().getUserid();
+        // 工作项已经完成的标志
+        Set<String> statusSet = WorkItemConstant.TASK_COMPLETION_FLAG;
+        List<WorkItemDto> result = workItemParamMapper.workItemListToWorkItemDtoList(
+                this.list(Wrappers.<WorkItem>lambdaQuery()
+                .eq(WorkItem::getPrincipalId, userId)
+                .notIn(WorkItem::getStatus, statusSet) // 不在完成状态
+                .le(WorkItem::getEndTime, new Date()))); // 截止日期已经过了
+        if (CollectionUtils.isNotEmpty(result)) {
+            for (WorkItemDto dto : result) {
+                setWorkItemDtoDetail(dto);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<WorkItemDto> getWorkItemNearDelayByUser() {
+        String userId = UserUtils.getCurrentUser().getUserid();
+        // 工作项已经完成的标志
+        Set<String> statusSet = WorkItemConstant.TASK_COMPLETION_FLAG;
+        // 获取三天后的日期
+        Date date = DateUtils.addDays(new Date(), 3);
+        List<WorkItemDto> result = workItemParamMapper.workItemListToWorkItemDtoList(
+                this.list(Wrappers.<WorkItem>lambdaQuery()
+                        .eq(WorkItem::getPrincipalId, userId)
+                        .notIn(WorkItem::getStatus, statusSet) // 不在完成状态
+                        .ge(WorkItem::getEndTime, new Date()) // 还没截止
+                        .lt(WorkItem::getEndTime, date))); // 截止日期小于三天
+        if (CollectionUtils.isNotEmpty(result)) {
+            for (WorkItemDto dto : result) {
+                setWorkItemDtoDetail(dto);
+            }
+        }
+        return result;
     }
 
     /**

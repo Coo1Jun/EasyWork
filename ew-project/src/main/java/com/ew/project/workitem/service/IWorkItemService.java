@@ -130,4 +130,16 @@ public interface IWorkItemService extends IBaseService<WorkItem> {
      * @return
      */
     List<WorkItemDto> subWorkItemList(String parentId);
+
+    /**
+     * 获取用户已经延期的工作项
+     * @return
+     */
+    List<WorkItemDto> getWorkItemDelayByUser();
+
+    /**
+     * 获取用户即将延期的工作项（截止日期小于三天）
+     * @return
+     */
+    List<WorkItemDto> getWorkItemNearDelayByUser();
 }

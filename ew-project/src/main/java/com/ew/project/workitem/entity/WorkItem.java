@@ -61,7 +61,7 @@ public class WorkItem extends BaseEntity {
     @TableField("parent_work_item_id")
     private String parentWorkItemId;
     /**
-     * 父工作项id
+     * EpicId
      */
     @TableField("epic_id")
     private String epicId;

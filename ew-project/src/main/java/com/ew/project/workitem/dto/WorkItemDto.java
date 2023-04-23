@@ -45,6 +45,9 @@ public class WorkItemDto {
     @ApiModelProperty("负责人id")
     private String principalId;
 
+    @ApiModelProperty("EpicId")
+    private String epicId;
+
     @ApiModelProperty("负责人信息")
     private UserDto principal;
 

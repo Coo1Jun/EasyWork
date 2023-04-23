@@ -108,6 +108,30 @@ public class WorkItemController {
     }
 
     /**
+     * 获取用户已经延期的工作项
+     *
+     * @author LiZhengFan
+     * @since 2023-04-23
+     */
+    @ApiOperation("获取用户已经延期的工作项")
+    @GetMapping("/delayed")
+    public RestResponse<List<WorkItemDto>> getWorkItemDelay() {
+        return RestResponse.ok(workItemService.getWorkItemDelayByUser());
+    }
+
+    /**
+     * 获取用户即将延期的工作项（截止日期小于三天）
+     *
+     * @author LiZhengFan
+     * @since 2023-04-23
+     */
+    @ApiOperation("获取用户即将延期的工作项（截止日期小于三天）")
+    @GetMapping("/near/delay")
+    public RestResponse<List<WorkItemDto>> getWorkItemNearDelay() {
+        return RestResponse.ok(workItemService.getWorkItemNearDelayByUser());
+    }
+
+    /**
      * 新增工作项基本信息
      *
      * @author LiZhengFan
