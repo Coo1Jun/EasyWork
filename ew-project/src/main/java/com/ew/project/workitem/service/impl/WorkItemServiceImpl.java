@@ -105,35 +105,13 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
         // 根据父工作项的id分组，key：父工作项的id
         Map<String, List<WorkItemDto>> map = data.stream().collect(Collectors.groupingBy(WorkItemDto::getParentWorkItemId));
         List<WorkItemDto> result = new ArrayList<>();
-        long now = System.currentTimeMillis();
-        Set<String> statusSet = WorkItemConstant.TASK_COMPLETION_FLAG;
         for (WorkItemDto dto : data) {
             // 赋值孩子工作项
             if (isTreeData) {
                 dto.setChildren(map.get(dto.getId()));
             }
-            // 赋值负责人信息
-            if (StringUtils.isEmpty(dto.getPrincipalId())) {
-                dto.setPrincipal(new UserDto());
-            } else {
-                UserDto user = serverClientService.getUserDtoById(dto.getPrincipalId());
-                if (user == null) {
-                    dto.setPrincipal(new UserDto());
-                } else {
-                    dto.setPrincipal(user);
-                }
-            }
-            // 赋值剩余时间
-            long endTime = dto.getEndTime().getTime();
-            if (endTime <= now) {
-                dto.setRemainingTime("0");
-            } else {
-                dto.setRemainingTime(NumberUtil.roundStr((double) (endTime - now) / (24 * 60 * 60 * 1000), 1));
-            }
-            // 赋值工时
-            dto.setManHour((int) (dto.getEndTime().getTime() - dto.getStartTime().getTime()) / (24 * 60 * 60 * 1000));
-            // 赋值结束状态
-            dto.setEndFlag(statusSet.contains(dto.getStatus()) ? 1 : 0);
+            // 给dto赋值信息
+            setWorkItemDtoDetail(dto);
             // 赋值Feature工作项
             if (isTreeData) {
                 if (WorkItemConstant.FEATURE.equals(dto.getWorkType())) {
@@ -150,6 +128,33 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
             }
         }
         return result;
+    }
+
+    private void setWorkItemDtoDetail(WorkItemDto dto) {
+        long now = System.currentTimeMillis();
+        Set<String> statusSet = WorkItemConstant.TASK_COMPLETION_FLAG;
+        // 赋值负责人信息
+        if (StringUtils.isEmpty(dto.getPrincipalId())) {
+            dto.setPrincipal(new UserDto());
+        } else {
+            UserDto user = serverClientService.getUserDtoById(dto.getPrincipalId());
+            if (user == null) {
+                dto.setPrincipal(new UserDto());
+            } else {
+                dto.setPrincipal(user);
+            }
+        }
+        // 赋值剩余时间
+        long endTime = dto.getEndTime().getTime();
+        if (endTime <= now) {
+            dto.setRemainingTime("0");
+        } else {
+            dto.setRemainingTime(NumberUtil.roundStr((double) (endTime - now) / (24 * 60 * 60 * 1000), 1));
+        }
+        // 赋值工时
+        dto.setManHour((int) (dto.getEndTime().getTime() - dto.getStartTime().getTime()) / (24 * 60 * 60 * 1000));
+        // 赋值结束状态
+        dto.setEndFlag(statusSet.contains(dto.getStatus()) ? 1 : 0);
     }
 
     @Override
@@ -455,32 +460,10 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
                 }
             }
         }
-        long now = System.currentTimeMillis();
-        Set<String> statusSet = WorkItemConstant.TASK_COMPLETION_FLAG;
         if (CollectionUtils.isNotEmpty(result)) {
             for (WorkItemDto dto : result) {
-                // 赋值负责人信息
-                if (StringUtils.isEmpty(dto.getPrincipalId())) {
-                    dto.setPrincipal(new UserDto());
-                } else {
-                    UserDto user = serverClientService.getUserDtoById(dto.getPrincipalId());
-                    if (user == null) {
-                        dto.setPrincipal(new UserDto());
-                    } else {
-                        dto.setPrincipal(user);
-                    }
-                }
-                // 赋值剩余时间
-                long endTime = dto.getEndTime().getTime();
-                if (endTime <= now) {
-                    dto.setRemainingTime("0");
-                } else {
-                    dto.setRemainingTime(NumberUtil.roundStr((double) (endTime - now) / (24 * 60 * 60 * 1000), 1));
-                }
-                // 赋值工时
-                dto.setManHour((int) (dto.getEndTime().getTime() - dto.getStartTime().getTime()) / (24 * 60 * 60 * 1000));
-                // 赋值结束状态
-                dto.setEndFlag(statusSet.contains(dto.getStatus()) ? 1 : 0);
+                // 给dto赋值信息
+                setWorkItemDtoDetail(dto);
             }
             return result;
         } else {
