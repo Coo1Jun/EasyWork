@@ -96,6 +96,18 @@ public class WorkItemController {
     }
 
     /**
+     * 根据工作项id获取子工作项
+     *
+     * @author LiZhengFan
+     * @since 2023-04-23
+     */
+    @ApiOperation("根据工作项id获取子工作项")
+    @GetMapping("/sub/{parentId}")
+    public RestResponse<List<WorkItemDto>> getSubWorkItem(@PathVariable("parentId") @NotEmpty String parentId) {
+        return RestResponse.ok(workItemService.subWorkItemList(parentId));
+    }
+
+    /**
      * 新增工作项基本信息
      *
      * @author LiZhengFan

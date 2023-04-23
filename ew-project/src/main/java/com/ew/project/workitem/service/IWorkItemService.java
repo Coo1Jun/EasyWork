@@ -123,4 +123,11 @@ public interface IWorkItemService extends IBaseService<WorkItem> {
      * @return
      */
     boolean removeWorkItem(String id);
+
+    /**
+     * 根据工作项id获取子工作项
+     * @param parentId
+     * @return
+     */
+    List<WorkItemDto> subWorkItemList(String parentId);
 }

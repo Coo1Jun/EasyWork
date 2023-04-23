@@ -438,6 +438,56 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
         return this.removeById(id);
     }
 
+    @Override
+    public List<WorkItemDto> subWorkItemList(String parentId) {
+        WorkItem parent = this.getById(parentId);
+        List<WorkItemDto> result = workItemParamMapper.workItemListToWorkItemDtoList(
+                this.list(Wrappers.<WorkItem>lambdaQuery().eq(WorkItem::getParentWorkItemId, parentId)));
+        // 如果类型是Feature，继续查Story的子工作项
+        if (WorkItemConstant.FEATURE.equals(parent.getWorkType())) {
+            if (CollectionUtils.isNotEmpty(result)) {
+                for (WorkItemDto dto : result) {
+                    List<WorkItemDto> StorySub = workItemParamMapper.workItemListToWorkItemDtoList(
+                            this.list(Wrappers.<WorkItem>lambdaQuery().eq(WorkItem::getParentWorkItemId, dto.getId())));
+                    if (CollectionUtils.isNotEmpty(StorySub)) {
+                        dto.setChildren(StorySub);
+                    }
+                }
+            }
+        }
+        long now = System.currentTimeMillis();
+        Set<String> statusSet = WorkItemConstant.TASK_COMPLETION_FLAG;
+        if (CollectionUtils.isNotEmpty(result)) {
+            for (WorkItemDto dto : result) {
+                // 赋值负责人信息
+                if (StringUtils.isEmpty(dto.getPrincipalId())) {
+                    dto.setPrincipal(new UserDto());
+                } else {
+                    UserDto user = serverClientService.getUserDtoById(dto.getPrincipalId());
+                    if (user == null) {
+                        dto.setPrincipal(new UserDto());
+                    } else {
+                        dto.setPrincipal(user);
+                    }
+                }
+                // 赋值剩余时间
+                long endTime = dto.getEndTime().getTime();
+                if (endTime <= now) {
+                    dto.setRemainingTime("0");
+                } else {
+                    dto.setRemainingTime(NumberUtil.roundStr((double) (endTime - now) / (24 * 60 * 60 * 1000), 1));
+                }
+                // 赋值工时
+                dto.setManHour((int) (dto.getEndTime().getTime() - dto.getStartTime().getTime()) / (24 * 60 * 60 * 1000));
+                // 赋值结束状态
+                dto.setEndFlag(statusSet.contains(dto.getStatus()) ? 1 : 0);
+            }
+            return result;
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
     /**
      * 保存文件列表
      * @return
