@@ -142,4 +142,10 @@ public interface IWorkItemService extends IBaseService<WorkItem> {
      * @return
      */
     List<WorkItemDto> getWorkItemNearDelayByUser();
+
+    /**
+     * 获取还未延期，并且截止日期大于三天，还没完成的工作项
+     * @return
+     */
+    List<WorkItemDto> getWorkItemOther();
 }

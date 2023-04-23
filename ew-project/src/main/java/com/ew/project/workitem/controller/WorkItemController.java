@@ -130,6 +130,17 @@ public class WorkItemController {
     public RestResponse<List<WorkItemDto>> getWorkItemNearDelay() {
         return RestResponse.ok(workItemService.getWorkItemNearDelayByUser());
     }
+    /**
+     * 获取还未延期，并且截止日期大于三天，还没完成的工作项
+     *
+     * @author LiZhengFan
+     * @since 2023-04-23
+     */
+    @ApiOperation("获取还未延期，并且截止日期大于三天，还没完成的工作项")
+    @GetMapping("/other")
+    public RestResponse<List<WorkItemDto>> getWorkItemOther() {
+        return RestResponse.ok(workItemService.getWorkItemOther());
+    }
 
     /**
      * 新增工作项基本信息

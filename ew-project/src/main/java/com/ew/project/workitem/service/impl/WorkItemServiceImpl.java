@@ -512,6 +512,26 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
         return result;
     }
 
+    @Override
+    public List<WorkItemDto> getWorkItemOther() {
+        String userId = UserUtils.getCurrentUser().getUserid();
+        // 工作项已经完成的标志
+        Set<String> statusSet = WorkItemConstant.TASK_COMPLETION_FLAG;
+        // 获取三天后的日期
+        Date date = DateUtils.addDays(new Date(), 3);
+        List<WorkItemDto> result = workItemParamMapper.workItemListToWorkItemDtoList(
+                this.list(Wrappers.<WorkItem>lambdaQuery()
+                        .eq(WorkItem::getPrincipalId, userId)
+                        .notIn(WorkItem::getStatus, statusSet) // 不在完成状态
+                        .ge(WorkItem::getEndTime, date))); // 截止日期大于三天
+        if (CollectionUtils.isNotEmpty(result)) {
+            for (WorkItemDto dto : result) {
+                setWorkItemDtoDetail(dto);
+            }
+        }
+        return result;
+    }
+
     /**
      * 保存文件列表
      * @return
