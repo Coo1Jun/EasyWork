@@ -4,11 +4,10 @@ import cn.edu.hzu.common.api.RestResponse;
 import com.ew.project.group.dto.GroupDto;
 import com.ew.project.group.mapper.UserMtmGroupMapper;
 import com.ew.project.group.service.IGroupService;
+import com.ew.project.workitem.dto.WorkItemDto;
+import com.ew.project.workitem.service.IWorkItemService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,6 +24,8 @@ public class ClientController {
     private UserMtmGroupMapper userMtmGroupMapper;
     @Autowired
     private IGroupService groupService;
+    @Autowired
+    private IWorkItemService workItemService;
 
     @GetMapping("/group/user/list")
     public RestResponse<List<String>> getUserIdsByGroupId(@RequestParam("groupId") String groupId) {
@@ -34,5 +35,13 @@ public class ClientController {
     @GetMapping("/group/info")
     public RestResponse<GroupDto> getGroupInfoById(@RequestParam("groupId") String groupId) {
         return RestResponse.ok(groupService.getDtoById(groupId));
+    }
+
+    /**
+     * 获取工作项基本信息
+     */
+    @GetMapping("/work/info/{id}")
+    public RestResponse<WorkItemDto> getWorkItemById(@PathVariable("id") String id) {
+        return RestResponse.ok(workItemService.getDtoById(id));
     }
 }

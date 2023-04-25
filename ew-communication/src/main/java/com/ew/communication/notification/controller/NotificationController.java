@@ -3,10 +3,7 @@ package com.ew.communication.notification.controller;
 
 import cn.edu.hzu.common.api.PageResult;
 import cn.edu.hzu.common.api.RestResponse;
-import com.ew.communication.notification.dto.NotificationAddParam;
-import com.ew.communication.notification.dto.NotificationDto;
-import com.ew.communication.notification.dto.NotificationEditParam;
-import com.ew.communication.notification.dto.NotificationQueryParam;
+import com.ew.communication.notification.dto.*;
 import com.ew.communication.notification.service.INotificationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -40,10 +37,23 @@ public class NotificationController {
      * @since 2023-04-25
      */
     @ApiOperation("分页获取通知实体信息列表")
-    @GetMapping("/list")
+    @GetMapping("/page/list")
     public RestResponse<PageResult<NotificationDto>> pageList(@Valid NotificationQueryParam notificationQueryParam) {
         return RestResponse.ok(notificationService.pageDto(notificationQueryParam));
     }
+
+    /**
+     * 获取通知实体信息列表
+     *
+     * @author LiZhengFan
+     * @since 2023-04-25
+     */
+    @ApiOperation("获取通知实体信息列表")
+    @GetMapping("/list")
+    public RestResponse<NotificationResult> list(@Valid NotificationQueryParam notificationQueryParam) {
+        return RestResponse.ok(notificationService.getList(notificationQueryParam));
+    }
+
 
     /**
      * 新增通知实体信息

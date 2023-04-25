@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -203,15 +201,15 @@ public class WorkItemController {
     }
 
     /**
-     * 根据id获取工作项基本信息
+     * 根据id获取Epic工作项基本信息
      *
      * @author LiZhengFan
      * @since 2023-04-07
      */
-    @ApiOperation(value = "根据id获取工作项基本信息")
+    @ApiOperation(value = "根据id获取Epic工作项基本信息")
     @GetMapping(value = "/one")
     public RestResponse<WorkItemDto> get(@Valid WorkItemQueryParam workItemQueryParam) {
-        return RestResponse.ok(workItemService.getDtoById(workItemQueryParam));
+        return RestResponse.ok(workItemService.getEpicDtoById(workItemQueryParam));
     }
 
     /**

@@ -64,4 +64,6 @@ public interface NotificationParamMapper {
      */
     List<Notification> dtoList2Entity(List<NotificationDto> rows);
 
+    List<NotificationDto> entityList2Dto(List<Notification> rows);
+
 }

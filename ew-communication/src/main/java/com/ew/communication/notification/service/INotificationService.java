@@ -1,11 +1,8 @@
 package com.ew.communication.notification.service;
 
+import com.ew.communication.notification.dto.*;
 import com.ew.communication.notification.entity.Notification;
 import cn.edu.hzu.common.service.IBaseService;
-import com.ew.communication.notification.dto.NotificationQueryParam;
-import com.ew.communication.notification.dto.NotificationAddParam;
-import com.ew.communication.notification.dto.NotificationEditParam;
-import com.ew.communication.notification.dto.NotificationDto;
 import cn.edu.hzu.common.api.PageResult;
 
 import java.util.List;
@@ -64,4 +61,11 @@ public interface INotificationService extends IBaseService<Notification> {
      * @since 2023-04-25
      */
     boolean updateByParam(NotificationEditParam notificationEditParam);
+
+    /**
+     * 获取通知列表
+     * @param notificationQueryParam
+     * @return
+     */
+    NotificationResult getList(NotificationQueryParam notificationQueryParam);
 }

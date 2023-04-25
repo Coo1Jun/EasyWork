@@ -1,11 +1,18 @@
 package com.ew.communication.notification.service.impl;
 
+import cn.edu.hzu.client.dto.UserDto;
+import cn.edu.hzu.client.server.service.IProjectClientService;
+import cn.edu.hzu.client.server.service.IServerClientService;
 import cn.edu.hzu.common.api.PageResult;
+import cn.edu.hzu.common.api.utils.StringUtils;
+import cn.edu.hzu.common.api.utils.UserUtils;
 import cn.edu.hzu.common.constant.NotificationConstant;
+import cn.edu.hzu.common.constant.NotificationType;
 import cn.edu.hzu.common.entity.BaseEntity;
 import cn.edu.hzu.common.service.impl.BaseServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ew.communication.notification.dto.*;
 import com.ew.communication.notification.entity.Notification;
@@ -16,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +43,12 @@ public class NotificationServiceImpl extends BaseServiceImpl<NotificationMapper,
 
     @Autowired
     private NotificationParamMapper notificationParamMapper;
+
+    // 服务调用
+    @Autowired
+    private IServerClientService serverClientService;
+    @Autowired
+    private IProjectClientService projectClientService;
 
     @Override
     public PageResult<NotificationDto> pageDto(NotificationQueryParam notificationQueryParam) {
@@ -61,6 +75,44 @@ public class NotificationServiceImpl extends BaseServiceImpl<NotificationMapper,
         Notification notification = notificationParamMapper.editParam2Entity(notificationEditParam);
         // Assert.notNull(ResultCode.PARAM_VALID_ERROR,notification);
         return updateById(notification);
+    }
+
+    @Override
+    public NotificationResult getList(NotificationQueryParam notificationQueryParam) {
+        String curUserId = UserUtils.getCurrentUser().getUserid();
+        List<NotificationDto> dtoList = notificationParamMapper.entityList2Dto(
+                this.list(Wrappers.<Notification>lambdaQuery()
+                        .eq(Notification::getUserId, curUserId)
+                        .orderByDesc(Notification::getCreateTime)));
+        NotificationResult result = new NotificationResult();
+        result.setUnread(0);
+        result.setResult(CollectionUtils.isEmpty(dtoList) ? new ArrayList<>() : dtoList);
+        if (CollectionUtils.isNotEmpty(dtoList)) {
+            int unread = 0;
+            for (NotificationDto dto : dtoList) {
+                // 未读通知
+                if (dto.getIsRead() == NotificationConstant.UN_HANDLE) {
+                    unread++;
+                }
+                // 获取用户信息
+                if (StringUtils.isNotEmpty(dto.getFromId())) {
+                    UserDto userDto = serverClientService.getUserDtoById(dto.getFromId());
+                    if (userDto != null) {
+                        dto.setFromName(userDto.getRealName());
+                        dto.setFromAvatar(userDto.getPortrait());
+                        dto.setFromEmail(userDto.getEmail());
+                    }
+                }
+                // 获取工作项信息或项目组信息
+                if (NotificationType.WARN.equals(dto.getType()) || NotificationType.WORK.equals(dto.getType())) {
+                    dto.setWorkItem(projectClientService.getWorkItemById(dto.getOperationId()));
+                } else if (NotificationType.GROUP.equals(dto.getType())) {
+                    dto.setGroup(projectClientService.getGroupInfoById(dto.getOperationId()));
+                }
+            }
+            result.setUnread(unread);
+        }
+        return result;
     }
 
     @Override

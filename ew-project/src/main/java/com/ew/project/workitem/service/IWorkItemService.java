@@ -97,7 +97,15 @@ public interface IWorkItemService extends IBaseService<WorkItem> {
      * @return WorkItemDto
      * @since 2023-04-07
      */
-    WorkItemDto getDtoById(WorkItemQueryParam workItemQueryParam);
+    WorkItemDto getEpicDtoById(WorkItemQueryParam workItemQueryParam);
+
+    /**
+     * 根据id查询，转dto
+     *
+     * @return WorkItemDto
+     * @since 2023-04-07
+     */
+    WorkItemDto getDtoById(String id);
 
     /**
      * 批量新增
