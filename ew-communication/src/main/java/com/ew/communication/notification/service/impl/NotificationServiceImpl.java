@@ -14,6 +14,8 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.ew.communication.address.entity.AddressBook;
+import com.ew.communication.address.service.IAddressBookService;
 import com.ew.communication.notification.dto.*;
 import com.ew.communication.notification.entity.Notification;
 import com.ew.communication.notification.mapper.NotificationMapper;
@@ -43,6 +45,8 @@ public class NotificationServiceImpl extends BaseServiceImpl<NotificationMapper,
 
     @Autowired
     private NotificationParamMapper notificationParamMapper;
+    @Autowired
+    private IAddressBookService addressBookService;
 
     // 服务调用
     @Autowired
@@ -72,8 +76,29 @@ public class NotificationServiceImpl extends BaseServiceImpl<NotificationMapper,
     @Override
     @Transactional(rollbackFor = {Exception.class, Error.class})
     public boolean updateByParam(NotificationEditParam notificationEditParam) {
-        Notification notification = notificationParamMapper.editParam2Entity(notificationEditParam);
-        // Assert.notNull(ResultCode.PARAM_VALID_ERROR,notification);
+        Notification notification = this.getById(notificationEditParam.getId());
+        if (notificationEditParam.getIsRead() != NotificationConstant.UNREAD) {
+            notification.setIsRead(notificationEditParam.getIsRead());
+        }
+        if (notificationEditParam.getIsHandle() != NotificationConstant.UN_HANDLE) {
+            notification.setIsHandle(notificationEditParam.getIsHandle());
+        }
+        if (NotificationType.FRIEND.equals(notification.getType())) {
+            if (notificationEditParam.getIsHandle() == NotificationConstant.AGREE) {
+                AddressBook addressBook1 = new AddressBook();
+                AddressBook addressBook2 = new AddressBook();
+                addressBook1.setFromId(notification.getFromId());
+                addressBook1.setUserId(notification.getUserId());
+                addressBook2.setUserId(notification.getFromId());
+                addressBook2.setFromId(notification.getUserId());
+                addressBookService.save(addressBook1);
+                addressBookService.save(addressBook2);
+            }
+        } else if (NotificationType.GROUP.equals(notification.getType())) {
+            if (notificationEditParam.getIsHandle() == NotificationConstant.AGREE) {
+                // todo 将用户添加至对应的项目组
+            }
+        }
         return updateById(notification);
     }
 
