@@ -120,4 +120,11 @@ public interface IUserService extends IBaseService<User> {
      * @return
      */
     boolean changeEmail(UserRegisterDto userRegisterDto);
+
+    /**
+     * 根据邮箱查找用户
+     * @param email
+     * @return
+     */
+    UserDto findUserByEmail(String email);
 }

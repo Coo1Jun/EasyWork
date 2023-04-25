@@ -53,6 +53,15 @@ public class UserController {
     }
 
     /**
+     * 根据邮箱查找用户
+     */
+    @ApiOperation("根据邮箱查找用户")
+    @GetMapping("/find")
+    public RestResponse<UserDto> findUser(@RequestParam("email") String email) {
+        return RestResponse.ok(userService.findUserByEmail(email));
+    }
+
+    /**
      *
      * 新增用户信息
      *
