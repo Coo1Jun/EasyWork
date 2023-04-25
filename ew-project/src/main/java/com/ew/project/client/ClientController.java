@@ -6,6 +6,8 @@ import com.ew.project.group.entity.UserMtmGroup;
 import com.ew.project.group.mapper.UserMtmGroupMapper;
 import com.ew.project.group.service.IGroupService;
 import com.ew.project.group.service.IUserMtmGroupService;
+import com.ew.project.project.dto.ProjectDto;
+import com.ew.project.project.service.IProjectService;
 import com.ew.project.workitem.dto.WorkItemDto;
 import com.ew.project.workitem.service.IWorkItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,8 @@ public class ClientController {
     private IGroupService groupService;
     @Autowired
     private IWorkItemService workItemService;
+    @Autowired
+    private IProjectService projectService;
 
     @GetMapping("/group/user/list")
     public RestResponse<List<String>> getUserIdsByGroupId(@RequestParam("groupId") String groupId) {
@@ -56,5 +60,13 @@ public class ClientController {
     @GetMapping("/work/info/{id}")
     public RestResponse<WorkItemDto> getWorkItemById(@PathVariable("id") String id) {
         return RestResponse.ok(workItemService.getDtoById(id));
+    }
+
+    /**
+     * 根据项目id获取项目基本信息
+     */
+    @GetMapping("/project/info/{id}")
+    public RestResponse<ProjectDto> getProjectById(@PathVariable("id") String id) {
+        return RestResponse.ok(projectService.getDtoById(id));
     }
 }

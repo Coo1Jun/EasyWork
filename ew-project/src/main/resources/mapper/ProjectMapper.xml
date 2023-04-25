@@ -100,8 +100,6 @@
             a.delete_flag = 0
         AND
             a.id = #{project_id}
-        AND
-            a.group_id IN (SELECT group_id FROM t_user_mtm_group WHERE user_id =#{user_id} AND delete_flag = 0)
         LIMIT 1
     </select>
 

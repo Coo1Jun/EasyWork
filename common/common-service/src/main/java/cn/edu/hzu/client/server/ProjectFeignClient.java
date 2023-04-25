@@ -2,6 +2,7 @@ package cn.edu.hzu.client.server;
 
 
 import cn.edu.hzu.client.dto.GroupDto;
+import cn.edu.hzu.client.dto.ProjectDto;
 import cn.edu.hzu.client.dto.UserMtmGroup;
 import cn.edu.hzu.client.dto.WorkItemDto;
 import cn.edu.hzu.common.api.RestResponse;
@@ -31,4 +32,10 @@ public interface ProjectFeignClient {
 
     @GetMapping("/api/ew-project/client/group/member/add")
     RestResponse<Boolean> addGroupMember(@RequestBody UserMtmGroup userMtmGroup);
+
+    /**
+     * 根据项目id获取项目基本信息
+     */
+    @GetMapping("/api/ew-project/client/project/info/{id}")
+    RestResponse<ProjectDto> getProjectById(@PathVariable("id") String id);
 }

@@ -59,6 +59,12 @@ public class NotificationDto {
     @ApiModelProperty("项目组信息")
     private GroupDto group;
 
+    @ApiModelProperty("项目名称")
+    private String projectName;
+
+    @ApiModelProperty("项目标识")
+    private String projectTab;
+
 
 
     /**

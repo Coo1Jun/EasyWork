@@ -1,12 +1,15 @@
 package com.ew.project.workitem.service.impl;
 
 import cn.edu.hzu.client.dto.FileMetaDto;
+import cn.edu.hzu.client.dto.NotificationAddParam;
 import cn.edu.hzu.client.dto.UserDto;
+import cn.edu.hzu.client.server.service.ICommunicationClientService;
 import cn.edu.hzu.client.server.service.IServerClientService;
 import cn.edu.hzu.common.api.PageResult;
 import cn.edu.hzu.common.api.utils.DateUtils;
 import cn.edu.hzu.common.api.utils.StringUtils;
 import cn.edu.hzu.common.api.utils.UserUtils;
+import cn.edu.hzu.common.constant.NotificationType;
 import cn.edu.hzu.common.entity.BaseEntity;
 import cn.edu.hzu.common.exception.CommonException;
 import cn.edu.hzu.common.service.impl.BaseServiceImpl;
@@ -57,6 +60,9 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
 
     @Autowired
     private IServerClientService serverClientService;
+
+    @Autowired
+    private ICommunicationClientService communicationClientService;
 
     @Override
     public PageResult<WorkItemDto> pageDto(WorkItemQueryParam workItemQueryParam) {
@@ -414,6 +420,16 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
         log.info("更新的实体===》{}", JSON.toJSONString(workItem));
         boolean result = updateById(workItem);
         if (!result) return false;
+        String curUserId = UserUtils.getCurrentUser().getUserid();
+        if (StringUtils.isNotEmpty(editParam.getPrincipalId()) && !editParam.getPrincipalId().equals(curUserId)) {
+            // 如果是更换负责人，则给负责人发送通知，如果负责人是本人，则不用
+            NotificationAddParam notificationAddParam = new NotificationAddParam();
+            notificationAddParam.setType(NotificationType.WORK);
+            notificationAddParam.setOperationId(workItem.getId());
+            notificationAddParam.setFromId(curUserId);
+            notificationAddParam.setUserId(editParam.getPrincipalId());
+            communicationClientService.addNotification(notificationAddParam);
+        }
         // 先删除原有的文件列表
         workItemOtmFileService.remove(Wrappers.<WorkItemOtmFile>lambdaQuery().eq(WorkItemOtmFile::getWorkItemId, editParam.getId()));
         // 保存文件列表

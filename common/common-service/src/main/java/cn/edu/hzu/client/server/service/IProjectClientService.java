@@ -1,6 +1,7 @@
 package cn.edu.hzu.client.server.service;
 
 import cn.edu.hzu.client.dto.GroupDto;
+import cn.edu.hzu.client.dto.ProjectDto;
 import cn.edu.hzu.client.dto.UserMtmGroup;
 import cn.edu.hzu.client.dto.WorkItemDto;
 import cn.edu.hzu.common.api.RestResponse;
@@ -50,6 +51,15 @@ public interface IProjectClientService {
 
     default Boolean addGroupMember(UserMtmGroup userMtmGroup) {
         RestResponse<Boolean> response = addGroupMemberClient(true, userMtmGroup);
+        return response.getData();
+    }
+
+    /**
+     * 根据项目id获取项目基本信息
+     */
+    RestResponse<ProjectDto> getProjectInfoByIdClient(boolean throwEx, String id);
+    default ProjectDto getProjectInfoById(String id) {
+        RestResponse<ProjectDto> response = getProjectInfoByIdClient(true, id);
         return response.getData();
     }
 }

@@ -35,7 +35,7 @@ public class NotificationAddParam {
      * 通知类型	①type为work：此id为工作项work_item_id	②type为group：此id为项目组id
      */
     @ApiModelProperty("通知类型")
-    private Integer operationId;
+    private String operationId;
 
     /**
      * 通知类型

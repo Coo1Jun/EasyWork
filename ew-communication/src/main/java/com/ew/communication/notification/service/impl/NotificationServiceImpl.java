@@ -1,7 +1,9 @@
 package com.ew.communication.notification.service.impl;
 
+import cn.edu.hzu.client.dto.ProjectDto;
 import cn.edu.hzu.client.dto.UserDto;
 import cn.edu.hzu.client.dto.UserMtmGroup;
+import cn.edu.hzu.client.dto.WorkItemDto;
 import cn.edu.hzu.client.server.service.IProjectClientService;
 import cn.edu.hzu.client.server.service.IServerClientService;
 import cn.edu.hzu.common.api.PageResult;
@@ -135,7 +137,11 @@ public class NotificationServiceImpl extends BaseServiceImpl<NotificationMapper,
                 }
                 // 获取工作项信息或项目组信息
                 if (NotificationType.WARN.equals(dto.getType()) || NotificationType.WORK.equals(dto.getType())) {
-                    dto.setWorkItem(projectClientService.getWorkItemById(dto.getOperationId()));
+                    WorkItemDto workItem = projectClientService.getWorkItemById(dto.getOperationId());
+                    dto.setWorkItem(workItem);
+                    ProjectDto project = projectClientService.getProjectInfoById(workItem.getProjectId());
+                    dto.setProjectName(project.getProjectName());
+                    dto.setProjectTab(project.getProjectTab());
                 } else if (NotificationType.GROUP.equals(dto.getType())) {
                     dto.setGroup(projectClientService.getGroupInfoById(dto.getOperationId()));
                 }
