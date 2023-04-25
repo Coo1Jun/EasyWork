@@ -64,4 +64,6 @@ public interface IAddressBookService extends IBaseService<AddressBook> {
      * @since 2023-04-21
      */
     boolean updateByParam(AddressBookEditParam addressBookEditParam);
+
+    boolean isAlreadyExist(AddressBookQueryParam addressBookQueryParam);
 }

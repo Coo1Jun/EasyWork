@@ -1,6 +1,8 @@
 package com.ew.communication.address.service.impl;
 
 import cn.edu.hzu.common.api.utils.UserUtils;
+import cn.edu.hzu.common.enums.CommonErrorEnum;
+import cn.edu.hzu.common.exception.CommonException;
 import com.ew.communication.address.entity.AddressBook;
 import com.ew.communication.address.mapper.AddressBookMapper;
 import com.ew.communication.address.service.IAddressBookService;
@@ -66,6 +68,17 @@ public class AddressBookServiceImpl extends BaseServiceImpl<AddressBookMapper, A
         AddressBook addressBook = addressBookParamMapper.editParam2Entity(addressBookEditParam);
         addressBook.setFromId(UserUtils.getCurrentUser().getUserid());
         return updateById(addressBook);
+    }
+
+    @Override
+    public boolean isAlreadyExist(AddressBookQueryParam addressBookQueryParam) {
+        int count = this.count(Wrappers.<AddressBook>lambdaQuery()
+                .eq(AddressBook::getUserId, addressBookQueryParam.getUserId())
+                .eq(AddressBook::getFromId, UserUtils.getCurrentUser().getUserid()));
+        if (count > 0) {
+            throw CommonException.builder().resultCode(CommonErrorEnum.ANY_MESSAGE.setParams(new Object[]{"该用户已经在你通讯录当中"})).build();
+        }
+        return true;
     }
 
     @Override

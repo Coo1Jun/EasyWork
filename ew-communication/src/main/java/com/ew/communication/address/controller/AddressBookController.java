@@ -54,6 +54,18 @@ public class AddressBookController {
     }
 
     /**
+     * 判断用户是否已经在通讯录当中
+     *
+     * @author LiZhengFan
+     * @since 2023-04-25
+     */
+    @ApiOperation("判断用户是否已经在通讯录当中")
+    @GetMapping("/user/exist")
+    public RestResponse<Boolean> alreadyExist(@Valid AddressBookQueryParam addressBookQueryParam) {
+        return RestResponse.ok(addressBookService.isAlreadyExist(addressBookQueryParam));
+    }
+
+    /**
      * 新增通讯录信息实体
      *
      * @author LiZhengFan

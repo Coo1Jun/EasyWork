@@ -20,6 +20,12 @@ import lombok.EqualsAndHashCode;
 public class AddressBookQueryParam extends PageParam {
 
     /**
+     * 用户id
+     */
+    @ApiModelProperty("用户id")
+    private String userId;
+
+    /**
      * 用户名称
      */
     @ApiModelProperty("用户名称")
