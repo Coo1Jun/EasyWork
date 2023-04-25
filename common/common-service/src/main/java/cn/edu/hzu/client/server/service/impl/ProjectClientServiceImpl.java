@@ -3,6 +3,7 @@ package cn.edu.hzu.client.server.service.impl;
 import cn.edu.hzu.client.AbstractBaseServiceClient;
 import cn.edu.hzu.client.dto.GroupDto;
 import cn.edu.hzu.client.dto.UserDto;
+import cn.edu.hzu.client.dto.UserMtmGroup;
 import cn.edu.hzu.client.dto.WorkItemDto;
 import cn.edu.hzu.client.server.ProjectFeignClient;
 import cn.edu.hzu.client.server.service.IProjectClientService;
@@ -46,6 +47,14 @@ public class ProjectClientServiceImpl extends AbstractBaseServiceClient implemen
     public RestResponse<WorkItemDto> getWorkItemByIdClient(boolean throwEx, String id) {
         execBefore(ProjectEnum.EW_PROJECT, id);
         RestResponse<WorkItemDto> result = projectFeignClient.getWorkItemById(id);
+        execAfter(throwEx, ProjectEnum.EW_PROJECT, result);
+        return result;
+    }
+
+    @Override
+    public RestResponse<Boolean> addGroupMemberClient(boolean throwEx, UserMtmGroup userMtmGroup) {
+        execBefore(ProjectEnum.EW_PROJECT, userMtmGroup);
+        RestResponse<Boolean> result = projectFeignClient.addGroupMember(userMtmGroup);
         execAfter(throwEx, ProjectEnum.EW_PROJECT, result);
         return result;
     }

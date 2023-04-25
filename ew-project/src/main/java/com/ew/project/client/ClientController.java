@@ -2,8 +2,10 @@ package com.ew.project.client;
 
 import cn.edu.hzu.common.api.RestResponse;
 import com.ew.project.group.dto.GroupDto;
+import com.ew.project.group.entity.UserMtmGroup;
 import com.ew.project.group.mapper.UserMtmGroupMapper;
 import com.ew.project.group.service.IGroupService;
+import com.ew.project.group.service.IUserMtmGroupService;
 import com.ew.project.workitem.dto.WorkItemDto;
 import com.ew.project.workitem.service.IWorkItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,8 @@ public class ClientController {
     @Autowired
     private UserMtmGroupMapper userMtmGroupMapper;
     @Autowired
+    private IUserMtmGroupService userMtmGroupService;
+    @Autowired
     private IGroupService groupService;
     @Autowired
     private IWorkItemService workItemService;
@@ -30,6 +34,15 @@ public class ClientController {
     @GetMapping("/group/user/list")
     public RestResponse<List<String>> getUserIdsByGroupId(@RequestParam("groupId") String groupId) {
         return RestResponse.ok(userMtmGroupMapper.getUserIdsByGroupId(groupId));
+    }
+
+    /**
+     * 添加项目组成员
+     * @return
+     */
+    @PostMapping("/group/member/add")
+    public RestResponse<Boolean> addGroupMember(@RequestBody UserMtmGroup userMtmGroup) {
+        return RestResponse.ok(userMtmGroupService.save(userMtmGroup));
     }
 
     @GetMapping("/group/info")

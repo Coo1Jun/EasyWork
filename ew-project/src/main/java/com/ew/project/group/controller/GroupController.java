@@ -8,18 +8,19 @@ import cn.edu.hzu.common.enums.CommonErrorEnum;
 import cn.edu.hzu.common.exception.CommonException;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.ew.project.group.dto.*;
+import com.ew.project.group.entity.UserMtmGroup;
+import com.ew.project.group.service.IGroupService;
 import com.ew.project.group.service.IUserMtmGroupService;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.Arrays;
-import java.util.List;
 import javax.validation.constraints.NotEmpty;
-import com.ew.project.group.service.IGroupService;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
+import java.util.List;
 
 /**
  * <p>
@@ -122,6 +123,20 @@ public class GroupController {
     @PostMapping
     public RestResponse<Boolean> add(@RequestBody @Valid GroupAddParam groupAddParam) {
         return RestResponse.ok(groupService.saveByParam(groupAddParam));
+    }
+
+    /**
+     *
+     * 新增项目组成员
+     *
+     * @author LiZhengFan
+     * @since 2023-04-25
+     *
+     */
+    @ApiOperation("新增项目组成员")
+    @PostMapping("/member")
+    public RestResponse<Boolean> addGroupMember(@RequestBody UserMtmGroup userMtmGroup) {
+        return RestResponse.ok(userMtmGroupService.save(userMtmGroup));
     }
 
     /**

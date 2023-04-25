@@ -1,6 +1,7 @@
 package com.ew.communication.notification.service.impl;
 
 import cn.edu.hzu.client.dto.UserDto;
+import cn.edu.hzu.client.dto.UserMtmGroup;
 import cn.edu.hzu.client.server.service.IProjectClientService;
 import cn.edu.hzu.client.server.service.IServerClientService;
 import cn.edu.hzu.common.api.PageResult;
@@ -96,7 +97,11 @@ public class NotificationServiceImpl extends BaseServiceImpl<NotificationMapper,
             }
         } else if (NotificationType.GROUP.equals(notification.getType())) {
             if (notificationEditParam.getIsHandle() == NotificationConstant.AGREE) {
-                // todo 将用户添加至对应的项目组
+                UserMtmGroup userMtmGroup = new UserMtmGroup();
+                userMtmGroup.setRole("user");
+                userMtmGroup.setUserId(notification.getUserId());
+                userMtmGroup.setGroupId(notification.getOperationId());
+                projectClientService.addGroupMember(userMtmGroup);
             }
         }
         return updateById(notification);

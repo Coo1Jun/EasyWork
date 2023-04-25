@@ -36,7 +36,7 @@ import java.util.List;
  */
 @Slf4j
 @Service
-@Transactional(readOnly = true,rollbackFor={Exception.class, Error.class})
+@Transactional(rollbackFor={Exception.class, Error.class})
 public class UserMtmGroupServiceImpl extends BaseServiceImpl<UserMtmGroupMapper, UserMtmGroup> implements IUserMtmGroupService {
 
     @Autowired
