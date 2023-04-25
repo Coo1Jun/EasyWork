@@ -68,4 +68,9 @@ public interface INotificationService extends IBaseService<Notification> {
      * @return
      */
     NotificationResult getList(NotificationQueryParam notificationQueryParam);
+
+    /**
+     * 项目组邀请成员
+     */
+    boolean groupInvite(GroupInvitation groupInvitation);
 }

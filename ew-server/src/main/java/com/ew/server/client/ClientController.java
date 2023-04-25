@@ -47,6 +47,16 @@ public class ClientController {
         return RestResponse.ok(userService.getUserListByIds(ids));
     }
 
+    /**
+     * 根据用户邮箱查找用户
+     * @param
+     * @return
+     */
+    @GetMapping("/find/user")
+    public RestResponse<UserDto> getUserByEmail(@RequestParam("email") String email) {
+        return RestResponse.ok(userService.findUserByEmail(email));
+    }
+
     // user用户服务 end ============================================================
 
     // file文件服务 start ==================================================================

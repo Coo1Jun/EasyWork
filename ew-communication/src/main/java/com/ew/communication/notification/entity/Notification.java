@@ -44,7 +44,7 @@ public class Notification extends BaseEntity {
      * 操作id	①type为work：此id为工作项work_item_id	②type为group：此id为项目组id
      */
     @TableField("operation_id")
-    private Integer operationId;
+    private String operationId;
 
     /**
      * 来源的用户id

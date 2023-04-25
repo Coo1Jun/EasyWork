@@ -68,6 +68,15 @@ public class NotificationController {
     }
 
     /**
+     * 项目组邀请成员
+     */
+    @ApiOperation("项目组邀请成员")
+    @PostMapping("/group/invite")
+    public RestResponse<Boolean> groupInvite(@RequestBody GroupInvitation groupInvitation) {
+        return RestResponse.ok(notificationService.groupInvite(groupInvitation));
+    }
+
+    /**
      * 修改通知实体信息
      *
      * @author LiZhengFan

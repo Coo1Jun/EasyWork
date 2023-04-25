@@ -38,6 +38,14 @@ public interface ServerFeignClient {
     RestResponse<List<UserDto>> getUserListByIds(@RequestParam("ids") List<String> ids);
 
     /**
+     * 根据用户邮箱查找用户
+     * @param email 用户邮箱
+     * @return
+     */
+    @GetMapping("/api/ew-server/client/find/user")
+    RestResponse<UserDto> getUserByEmail(@RequestParam("email") String email);
+
+    /**
      * 根据文件id获取对应的文件列表信息
      * @param id 文件id集合
      * @return

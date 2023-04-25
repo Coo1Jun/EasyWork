@@ -42,6 +42,14 @@ public class IServerClientServiceImpl extends AbstractBaseServiceClient implemen
     }
 
     @Override
+    public RestResponse<UserDto> getUserByEmailClient(boolean throwEx, String email) {
+        execBefore(ProjectEnum.EW_SERVER, email);
+        RestResponse<UserDto> result = serverFeignClient.getUserByEmail(email);
+        execAfter(throwEx, ProjectEnum.EW_SERVER, result);
+        return result;
+    }
+
+    @Override
     public RestResponse<FileMetaDto> getFileByIdClient(boolean throwEx, String id) {
         execBefore(ProjectEnum.EW_SERVER, id);
         RestResponse<FileMetaDto> result = serverFeignClient.getFileById(id);

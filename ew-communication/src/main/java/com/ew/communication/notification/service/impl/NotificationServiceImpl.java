@@ -40,7 +40,7 @@ import java.util.Optional;
  */
 @Slf4j
 @Service
-@Transactional(readOnly = true, rollbackFor = {Exception.class, Error.class})
+@Transactional(rollbackFor = {Exception.class, Error.class})
 public class NotificationServiceImpl extends BaseServiceImpl<NotificationMapper, Notification> implements INotificationService {
 
     @Autowired
@@ -138,6 +138,31 @@ public class NotificationServiceImpl extends BaseServiceImpl<NotificationMapper,
             result.setUnread(unread);
         }
         return result;
+    }
+
+    @Override
+    public boolean groupInvite(GroupInvitation groupInvitation) {
+        String userId = UserUtils.getCurrentUser().getUserid();
+        List<String> emails = groupInvitation.getEmails();
+        if (CollectionUtils.isNotEmpty(emails)) {
+            for (String email : emails) {
+                if (StringUtils.isNotEmpty(email)) {
+                    UserDto user = serverClientService.getUserByEmail(email);
+                    if (user != null) {
+                        // 发通知
+                        Notification notification = new Notification();
+                        notification.setType(NotificationType.GROUP);
+                        notification.setIsRead(NotificationConstant.UNREAD);
+                        notification.setIsHandle(NotificationConstant.UN_HANDLE);
+                        notification.setFromId(userId);
+                        notification.setUserId(user.getId());
+                        notification.setOperationId(groupInvitation.getGroupId());
+                        this.save(notification);
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     @Override

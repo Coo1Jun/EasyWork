@@ -40,6 +40,20 @@ public interface IServerClientService {
     }
 
     /**
+     * 根据用户邮箱查找用户
+     * @param throwEx 是否抛出异常（当程序报错时）
+     * @param email 用户邮箱
+     * @return
+     * @author lzf
+     * @date: 2023/4/25 14:58
+     */
+    RestResponse<UserDto> getUserByEmailClient(boolean throwEx, String email);
+    default UserDto getUserByEmail(String email) {
+        RestResponse<UserDto> response = getUserByEmailClient(true, email);
+        return response.getData();
+    }
+
+    /**
      * 根据文件id集合获取文件基本信息
      * @param throwEx 是否抛出异常（当程序报错时）
      * @param id 文件id集合
