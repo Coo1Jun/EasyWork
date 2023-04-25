@@ -3,27 +3,19 @@ package com.ew.communication.notification.controller;
 
 import cn.edu.hzu.common.api.PageResult;
 import cn.edu.hzu.common.api.RestResponse;
-import cn.edu.hzu.common.api.utils.ExcelUtils;
-import cn.edu.hzu.common.enums.CommonErrorEnum;
-import cn.edu.hzu.common.exception.CommonException;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import io.swagger.annotations.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.ew.communication.notification.dto.NotificationQueryParam;
 import com.ew.communication.notification.dto.NotificationAddParam;
-import com.ew.communication.notification.dto.NotificationEditParam;
 import com.ew.communication.notification.dto.NotificationDto;
+import com.ew.communication.notification.dto.NotificationEditParam;
+import com.ew.communication.notification.dto.NotificationQueryParam;
+import com.ew.communication.notification.service.INotificationService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.Arrays;
-import java.util.List;
 import javax.validation.constraints.NotEmpty;
-
-import com.ew.communication.notification.service.INotificationService;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
+import java.util.Arrays;
 
 /**
  * <p>

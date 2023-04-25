@@ -1,4 +1,4 @@
-package com.ew.communication.notification.dto;
+package cn.edu.hzu.client.dto;
 
 
 import io.swagger.annotations.ApiModel;
