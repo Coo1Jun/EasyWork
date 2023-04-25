@@ -5,6 +5,7 @@ import com.ew.project.workitem.entity.WorkItem;
 import cn.edu.hzu.common.service.IBaseService;
 import cn.edu.hzu.common.api.PageResult;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -156,4 +157,12 @@ public interface IWorkItemService extends IBaseService<WorkItem> {
      * @return
      */
     List<WorkItemDto> getWorkItemOther();
+
+    /**
+     * 查询截止日期在 start 和 end 之前的工作项
+     * @param start
+     * @param end
+     * @return
+     */
+    List<WorkItemDto> getEndTimeBetween(Date start, Date end);
 }

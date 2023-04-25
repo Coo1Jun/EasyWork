@@ -548,6 +548,12 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
         return result;
     }
 
+    @Override
+    public List<WorkItemDto> getEndTimeBetween(Date start, Date end) {
+        return workItemParamMapper.workItemListToWorkItemDtoList(
+                this.list(Wrappers.<WorkItem>lambdaQuery().between(WorkItem::getEndTime, start, end)));
+    }
+
     /**
      * 保存文件列表
      * @return
