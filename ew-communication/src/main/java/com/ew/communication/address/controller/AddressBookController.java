@@ -54,6 +54,18 @@ public class AddressBookController {
     }
 
     /**
+     * 获取通讯录信息实体列表（包括项目组的所有成员）
+     *
+     * @author LiZhengFan
+     * @since 2023-04-21
+     */
+    @ApiOperation("获取通讯录信息实体列表（包括项目组的所有成员）")
+    @GetMapping("/member/list")
+    public RestResponse<List<AddressBookDto>> list() {
+        return RestResponse.ok(addressBookService.memberList());
+    }
+
+    /**
      * 判断用户是否已经在通讯录当中
      *
      * @author LiZhengFan

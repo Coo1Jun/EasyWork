@@ -66,4 +66,10 @@ public interface IAddressBookService extends IBaseService<AddressBook> {
     boolean updateByParam(AddressBookEditParam addressBookEditParam);
 
     boolean isAlreadyExist(AddressBookQueryParam addressBookQueryParam);
+
+    /**
+     * 获取通讯录信息实体列表（包括项目组的所有成员）
+     * @return
+     */
+    List<AddressBookDto> memberList();
 }

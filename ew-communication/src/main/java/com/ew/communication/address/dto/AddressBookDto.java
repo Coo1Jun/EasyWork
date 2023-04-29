@@ -35,40 +35,4 @@ public class AddressBookDto {
     @ApiModelProperty("个性签名")
     private String description;
 
-
-    /**
-     * 创建人ID
-     */
-    private String createId;
-
-    /**
-     * 创建人
-     */
-    private String createBy;
-
-    /**
-     * 创建时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date createTime;
-
-    /**
-     * 更新人ID
-     */
-    private String updateId;
-
-    /**
-     * 更新人
-     */
-    private String updateBy;
-
-    /**
-     * 更新时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date updateTime;
-
-    /** 备注 */
-//    @JsonInclude(JsonInclude.Include.NON_NULL)
-//    private String remark;
 }

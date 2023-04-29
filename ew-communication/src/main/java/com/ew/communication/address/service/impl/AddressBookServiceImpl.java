@@ -1,29 +1,31 @@
 package com.ew.communication.address.service.impl;
 
+import cn.edu.hzu.client.dto.UserDto;
+import cn.edu.hzu.client.server.service.IServerClientService;
+import cn.edu.hzu.common.api.PageResult;
+import cn.edu.hzu.common.api.utils.StringUtils;
 import cn.edu.hzu.common.api.utils.UserUtils;
+import cn.edu.hzu.common.entity.BaseEntity;
 import cn.edu.hzu.common.enums.CommonErrorEnum;
 import cn.edu.hzu.common.exception.CommonException;
+import cn.edu.hzu.common.service.impl.BaseServiceImpl;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.ew.communication.address.dto.*;
 import com.ew.communication.address.entity.AddressBook;
 import com.ew.communication.address.mapper.AddressBookMapper;
 import com.ew.communication.address.service.IAddressBookService;
-import cn.edu.hzu.common.service.impl.BaseServiceImpl;
-import com.ew.communication.address.dto.AddressBookQueryParam;
-import com.ew.communication.address.dto.AddressBookAddParam;
-import com.ew.communication.address.dto.AddressBookEditParam;
-import com.ew.communication.address.dto.AddressBookParamMapper;
-import com.ew.communication.address.dto.AddressBookDto;
-import cn.edu.hzu.common.entity.BaseEntity;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import cn.edu.hzu.common.api.PageResult;
-
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -41,6 +43,8 @@ public class AddressBookServiceImpl extends BaseServiceImpl<AddressBookMapper, A
 
     @Autowired
     private AddressBookParamMapper addressBookParamMapper;
+    @Autowired
+    private IServerClientService serverClientService;
 
     @Override
     public PageResult<AddressBookDto> pageDto(AddressBookQueryParam queryParam) {
@@ -79,6 +83,37 @@ public class AddressBookServiceImpl extends BaseServiceImpl<AddressBookMapper, A
             throw CommonException.builder().resultCode(CommonErrorEnum.ANY_MESSAGE.setParams(new Object[]{"该用户已经在你通讯录当中"})).build();
         }
         return true;
+    }
+
+    @Override
+    public List<AddressBookDto> memberList() {
+        // 定义一个map，key为用户id，给成员列表去重
+        Map<String, AddressBookDto> resultMap = new HashMap<>();
+        String curUserId = UserUtils.getCurrentUser().getUserid();
+        // 找出个人通讯录中的所有成员
+        List<AddressBook> personAddressBook = this.list(Wrappers.<AddressBook>lambdaQuery().eq(AddressBook::getFromId, curUserId));
+        if (CollectionUtils.isNotEmpty(personAddressBook)) {
+            for (AddressBook addressBook : personAddressBook) {
+                if (StringUtils.isNotEmpty(addressBook.getUserId())) {
+                    UserDto userInfo = serverClientService.getUserDtoById(addressBook.getUserId());
+                    AddressBookDto dto = new AddressBookDto();
+                    dto.setId(userInfo.getId());
+                    dto.setName(userInfo.getRealName());
+                    dto.setAvatar(userInfo.getPortrait());
+                    dto.setEmail(userInfo.getEmail());
+                    dto.setDescription(userInfo.getDescription());
+                    resultMap.put(dto.getId(), dto);
+                }
+            }
+        }
+        // 查出当前用户所在的所有项目组中的所有成员列表
+        List<AddressBookDto> groupAddressBookList = this.baseMapper.getAddressBookListByGroup(curUserId);
+        if (CollectionUtils.isNotEmpty(groupAddressBookList)) {
+            for (AddressBookDto addressBookDto : groupAddressBookList) {
+                resultMap.put(addressBookDto.getId(), addressBookDto);
+            }
+        }
+        return new ArrayList<>(resultMap.values());
     }
 
     @Override

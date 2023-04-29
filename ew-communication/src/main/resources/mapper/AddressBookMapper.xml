@@ -66,4 +66,20 @@
         </if>
     </select>
 
+    <select id="getAddressBookListByGroup" resultType="com.ew.communication.address.dto.AddressBookDto">
+        SELECT id,
+               real_name                                                                  AS name,
+               email,
+               (SELECT location FROM t_file_meta WHERE id = portrait AND delete_flag = 0) AS avatar,
+               description
+        FROM t_user
+        WHERE id IN (SELECT DISTINCT user_id
+                     FROM t_user_mtm_group
+                     WHERE group_id IN (SELECT group_id
+                                        FROM t_user_mtm_group
+                                        WHERE user_id = #{user_id} AND delete_flag = 0)
+                       AND delete_flag = 0)
+          AND delete_flag = 0
+    </select>
+
 </mapper>

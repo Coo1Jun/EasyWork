@@ -4,6 +4,8 @@ import cn.edu.hzu.common.api.PageResult;
 import cn.edu.hzu.common.entity.BaseEntity;
 import com.ew.communication.address.entity.AddressBook;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 
 import java.util.List;
 
@@ -43,6 +45,9 @@ public interface AddressBookParamMapper {
      * @return AddressBookDto DTO
      * @date 2023-04-21
      */
+    @Mappings({
+            @Mapping(target = "id", source = "fromId"),
+    })
     AddressBookDto entity2Dto(AddressBook addressBook);
 
     /**
@@ -63,5 +68,14 @@ public interface AddressBookParamMapper {
      * @date 2023-04-21
      */
     List<AddressBook> dtoList2Entity(List<AddressBookDto> rows);
+
+    /**
+     * entity集合dto集合转
+     *
+     * @param rows entity集合
+     * @return List<AddressBook> entity列表
+     * @date 2023-04-29
+     */
+    List<AddressBookDto> EntityList2Dto(List<AddressBook> rows);
 
 }

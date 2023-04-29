@@ -30,4 +30,6 @@ public interface AddressBookMapper extends BaseMapper<AddressBook> {
      */
     Integer getAddressBookListCount(@Param("user_id") String userId, @Param("query") AddressBookQueryParam addressBookQueryParam);
 
+    List<AddressBookDto> getAddressBookListByGroup(@Param("user_id") String userId);
+
 }
