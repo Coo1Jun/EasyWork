@@ -76,6 +76,17 @@ public class TodoListController {
     public RestResponse<Boolean> update(@RequestBody @Valid TodoListEditParam todoListEditParam) {
         return RestResponse.ok(todoListService.updateByParam(todoListEditParam));
     }
+    /**
+     * 修改待办为已结束
+     *
+     * @author LiZhengFan
+     * @since 2023-04-30
+     */
+    @ApiOperation(value = "修改待办为已结束")
+    @PutMapping("/end")
+    public RestResponse<Boolean> updateTodoListEnd(@RequestBody @Valid TodoListEditParam todoListEditParam) {
+        return RestResponse.ok(todoListService.setEnd(todoListEditParam));
+    }
 
     /**
      * 根据id删除待办实体信息

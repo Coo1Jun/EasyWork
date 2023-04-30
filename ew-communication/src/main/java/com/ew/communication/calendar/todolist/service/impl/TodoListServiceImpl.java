@@ -75,9 +75,32 @@ public class TodoListServiceImpl extends BaseServiceImpl<TodoListMapper, TodoLis
     @SuppressWarnings("unchecked")
     @Override
     @Transactional(rollbackFor = {Exception.class, Error.class})
-    public boolean updateByParam(TodoListEditParam todoListEditParam) {
+    public boolean updateByParam(TodoListEditParam editParam) {
+        // 判断入参
+        if (StringUtils.isEmpty(editParam.getTitle())) {
+            throw CommonException
+                    .builder().resultCode(CommonErrorEnum.PARAM_IS_EMPTY.setParams(new Object[]{"标题"}))
+                    .build();
+        }
+        if (editParam.getEndTime() == null) {
+            throw CommonException
+                    .builder().resultCode(CommonErrorEnum.PARAM_IS_EMPTY.setParams(new Object[]{"截止时间"}))
+                    .build();
+        }
+        if (editParam.getEmailReminder() == null) {
+            editParam.setEmailReminder(1); // 默认开启邮箱提醒
+        }
+        if (editParam.getEmailReminder() == null) {
+            editParam.setEmailReminder(30); // 默认30分钟
+        }
+        TodoList todoList = todoListParamMapper.editParam2Entity(editParam);
+        return updateById(todoList);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class, Error.class})
+    public boolean setEnd(TodoListEditParam todoListEditParam) {
         TodoList todoList = todoListParamMapper.editParam2Entity(todoListEditParam);
-        // Assert.notNull(ResultCode.PARAM_VALID_ERROR,todoList);
         return updateById(todoList);
     }
 

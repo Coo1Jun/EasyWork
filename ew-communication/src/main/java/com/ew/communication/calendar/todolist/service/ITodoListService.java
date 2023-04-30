@@ -64,4 +64,13 @@ public interface ITodoListService extends IBaseService<TodoList> {
      * @since 2023-04-30
      */
     boolean updateByParam(TodoListEditParam todoListEditParam);
+
+    /**
+     * 更新待办实体的结束标志
+     *
+     * @param todoListEditParam 更新入参实体类
+     * @return true - 操作成功 false -操作失败
+     * @since 2023-04-30
+     */
+    boolean setEnd(TodoListEditParam todoListEditParam);
 }

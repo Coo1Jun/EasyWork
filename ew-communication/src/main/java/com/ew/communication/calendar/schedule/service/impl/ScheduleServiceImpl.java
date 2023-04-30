@@ -88,9 +88,35 @@ public class ScheduleServiceImpl extends BaseServiceImpl<ScheduleMapper, Schedul
     @SuppressWarnings("unchecked")
     @Override
     @Transactional(rollbackFor = {Exception.class, Error.class})
-    public boolean updateByParam(ScheduleEditParam scheduleEditParam) {
-        Schedule schedule = scheduleParamMapper.editParam2Entity(scheduleEditParam);
-        // Assert.notNull(ResultCode.PARAM_VALID_ERROR,schedule);
+    public boolean updateByParam(ScheduleEditParam editParam) {
+        // 判断入参
+        if (StringUtils.isEmpty(editParam.getTitle())) {
+            throw CommonException
+                    .builder().resultCode(CommonErrorEnum.PARAM_IS_EMPTY.setParams(new Object[]{"标题"}))
+                    .build();
+        }
+        if (editParam.getStartTime() == null || editParam.getEndTime() == null) {
+            throw CommonException
+                    .builder().resultCode(CommonErrorEnum.PARAM_IS_EMPTY.setParams(new Object[]{"时间"}))
+                    .build();
+        }
+        if (editParam.getEmailReminder() == null) {
+            editParam.setEmailReminder(1); // 默认开启邮箱提醒
+        }
+        Schedule schedule = scheduleParamMapper.editParam2Entity(editParam);
+        List<String> participants = editParam.getParticipants();
+        // 删除原有的参与人
+        scheduleOtmUserService.remove(Wrappers.<ScheduleOtmUser>lambdaQuery()
+                .eq(ScheduleOtmUser::getScheduleId, schedule.getId()));
+        if (CollectionUtils.isNotEmpty(participants)) {
+            // 保存日程参与人信息
+            for (String userId : participants) {
+                ScheduleOtmUser scheduleOtmUser = new ScheduleOtmUser();
+                scheduleOtmUser.setUserId(userId);
+                scheduleOtmUser.setScheduleId(schedule.getId());
+                scheduleOtmUserService.save(scheduleOtmUser);
+            }
+        }
         return updateById(schedule);
     }
 
