@@ -3,6 +3,7 @@ package com.ew.communication.calendar.controller;
 import cn.edu.hzu.client.dto.UserDto;
 import cn.edu.hzu.client.server.service.IServerClientService;
 import cn.edu.hzu.common.api.RestResponse;
+import cn.edu.hzu.common.api.utils.DateUtils;
 import cn.edu.hzu.common.api.utils.StringUtils;
 import cn.edu.hzu.common.api.utils.UserUtils;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
@@ -21,6 +22,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -55,12 +57,17 @@ public class CalendarController {
 
     @ApiOperation("获取日历实体信息列表")
     @GetMapping("/list")
-    public RestResponse<List<CalendarDto>> getCalendarList() {
+    public RestResponse<List<CalendarDto>> getCalendarList(@RequestParam(value = "home", required = false) String home) {
+        String date = null;
+        if (StringUtils.isNotEmpty(home) && "1".equals(home)) {
+            date = DateUtils.getDate();
+        }
         String curUserId = UserUtils.getCurrentUser().getUserid();
         List<CalendarDto> result = new ArrayList<>();
         // 查询日程列表
         List<CalendarDto> scheduleDtos = calendarParamMapper.scheduleList2CalendarList(
                 scheduleService.list(Wrappers.<Schedule>lambdaQuery()
+                        .ge(StringUtils.isNotEmpty(date), Schedule::getStartTime, date)
                         .inSql(Schedule::getId, StringUtils.format(SCHEDULE_ID_SQL, curUserId))));
         if (CollectionUtils.isNotEmpty(scheduleDtos)) {
             for (CalendarDto dto : scheduleDtos) {
@@ -91,6 +98,7 @@ public class CalendarController {
         // 查询待办列表
         List<CalendarDto> todoListDtos = calendarParamMapper.todoList2CalendarList(
                 todoListService.list(Wrappers.<TodoList>lambdaQuery()
+                        .ge(StringUtils.isNotEmpty(date), TodoList::getEndTime, date)
                         .eq(TodoList::getCreateId, curUserId)));
         if (CollectionUtils.isNotEmpty(todoListDtos)) {
             result.addAll(todoListDtos);
