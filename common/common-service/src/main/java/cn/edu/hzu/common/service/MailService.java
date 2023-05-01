@@ -1,6 +1,7 @@
 package cn.edu.hzu.common.service;
 
 
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -96,7 +97,13 @@ public class MailService {
      * @throws MessagingException
      */
     public void sendMail(List<String> to, String subject, String templateName, Context context) throws MessagingException {
-        this.sendMail((String[]) to.toArray(), subject, templateName, context);
+        String[] tos;
+        if (CollectionUtils.isEmpty(to)) {
+            tos = new String[0];
+        } else {
+            tos = new String[to.size()];
+        }
+        this.sendMail(to.toArray(tos), subject, templateName, context);
     }
 
 }

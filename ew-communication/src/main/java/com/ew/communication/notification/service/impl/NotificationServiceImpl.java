@@ -19,6 +19,7 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ew.communication.address.entity.AddressBook;
 import com.ew.communication.address.service.IAddressBookService;
+import com.ew.communication.calendar.schedule.service.IScheduleService;
 import com.ew.communication.notification.dto.*;
 import com.ew.communication.notification.entity.Notification;
 import com.ew.communication.notification.mapper.NotificationMapper;
@@ -56,6 +57,8 @@ public class NotificationServiceImpl extends BaseServiceImpl<NotificationMapper,
     private IServerClientService serverClientService;
     @Autowired
     private IProjectClientService projectClientService;
+    @Autowired
+    private IScheduleService scheduleService;
 
     @Override
     public PageResult<NotificationDto> pageDto(NotificationQueryParam notificationQueryParam) {
@@ -144,6 +147,10 @@ public class NotificationServiceImpl extends BaseServiceImpl<NotificationMapper,
                     dto.setProjectTab(project.getProjectTab());
                 } else if (NotificationType.GROUP.equals(dto.getType())) {
                     dto.setGroup(projectClientService.getGroupInfoById(dto.getOperationId()));
+                } else if (NotificationType.NEW_SCHEDULE.equals(dto.getType()) || NotificationType.SCHEDULE.equals(dto.getType())) {
+                    dto.setSchedule(scheduleService.getDtoById(dto.getOperationId()));
+                } else if (NotificationType.TODO.equals(dto.getType())) {
+
                 }
             }
             result.setUnread(unread);

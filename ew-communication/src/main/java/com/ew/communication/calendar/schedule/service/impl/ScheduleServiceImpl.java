@@ -1,11 +1,19 @@
 package com.ew.communication.calendar.schedule.service.impl;
 
+import cn.edu.hzu.client.dto.NotificationAddParam;
+import cn.edu.hzu.client.dto.UserDto;
+import cn.edu.hzu.client.server.service.ICommunicationClientService;
+import cn.edu.hzu.client.server.service.IServerClientService;
 import cn.edu.hzu.common.api.PageResult;
+import cn.edu.hzu.common.api.utils.DateUtils;
 import cn.edu.hzu.common.api.utils.StringUtils;
+import cn.edu.hzu.common.constant.NotificationType;
 import cn.edu.hzu.common.entity.BaseEntity;
 import cn.edu.hzu.common.enums.CommonErrorEnum;
 import cn.edu.hzu.common.exception.CommonException;
+import cn.edu.hzu.common.service.MailService;
 import cn.edu.hzu.common.service.impl.BaseServiceImpl;
+import cn.hutool.core.thread.ThreadUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
@@ -20,7 +28,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.context.Context;
 
+import javax.mail.MessagingException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,6 +53,12 @@ public class ScheduleServiceImpl extends BaseServiceImpl<ScheduleMapper, Schedul
     private ScheduleParamMapper scheduleParamMapper;
     @Autowired
     private IScheduleOtmUserService scheduleOtmUserService;
+    @Autowired
+    private ICommunicationClientService communicationClientService;
+    @Autowired
+    private IServerClientService serverClientService;
+    @Autowired
+    private MailService mailService;
 
     @Override
     public PageResult<ScheduleDto> pageDto(ScheduleQueryParam scheduleQueryParam) {
@@ -82,7 +99,65 @@ public class ScheduleServiceImpl extends BaseServiceImpl<ScheduleMapper, Schedul
                 scheduleOtmUserService.save(scheduleOtmUser);
             }
         }
+        // 发送通知和邮件
+        sendNoticeAndEmail(schedule, addParam.getParticipants());
         return true;
+    }
+
+    /**
+     * 发送通知和邮件
+     * @param schedule
+     * @param participants
+     */
+    private void sendNoticeAndEmail(Schedule schedule, List<String> participants) {
+        ThreadUtil.execAsync(() -> {
+            // 发送通知
+            NotificationAddParam notificationAddParam = new NotificationAddParam();
+            notificationAddParam.setType(NotificationType.NEW_SCHEDULE);
+            notificationAddParam.setOperationId(schedule.getId());
+            notificationAddParam.setFromId(schedule.getCreateId());
+            if (CollectionUtils.isNotEmpty(participants)) {
+                for (String userId : participants) {
+                    if (!userId.equals(schedule.getCreateId())) {
+                        notificationAddParam.setUserId(userId);
+                        communicationClientService.addNotification(notificationAddParam);
+                    }
+                }
+            }
+            // 发送邮件
+            if (schedule.getEmailReminder() == 1) {
+                // 获取用户信息
+                List<UserDto> userList = serverClientService.getUserListById(participants);
+                List<String> userEmails = new ArrayList<>();
+                UserDto createUser = null;
+                if (CollectionUtils.isNotEmpty(userList)) {
+                    for (UserDto user : userList) {
+                        if (!user.getId().equals(schedule.getCreateId())) {
+                            userEmails.add(user.getEmail());
+                        } else {
+                            createUser = user;
+                        }
+                    }
+                }
+                if (createUser == null) {
+                    createUser = serverClientService.getUserDtoById(schedule.getCreateId());
+                }
+                // 开始发送邮件
+                String subject = "Easy Work 日程提醒";
+                String templateName = "new-schedule";
+                Context context = new Context();
+                context.setVariable("userName", createUser.getRealName());
+                context.setVariable("title", schedule.getTitle());
+                context.setVariable("startTime", DateUtils.parseDateToStr("yyyy-MM-dd HH:mm:ss", schedule.getStartTime()));
+                context.setVariable("endTime", DateUtils.parseDateToStr("yyyy-MM-dd HH:mm:ss", schedule.getEndTime()));
+                try {
+                    mailService.sendMail(userEmails, subject, templateName, context);
+                    log.info(">>>>>>>>>>>邮件预警发送成功，用户邮箱===》【{}】<<<<<<<<<<<<<<<<", userEmails);
+                } catch (MessagingException e) {
+                    log.warn(">>>>>>>>>>>>>>>>邮件预警发送失败<<<<<<<<<<<<<<<<<");
+                }
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")

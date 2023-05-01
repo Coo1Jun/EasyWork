@@ -23,4 +23,16 @@ public class NotificationType {
      * 预警，工作项work_item_id即将截止
      */
     public static final String WARN = "warn";
+    /**
+     * 新建日程
+     */
+    public static final String NEW_SCHEDULE = "new_schedule";
+    /**
+     * 日程的时间即将到来
+     */
+    public static final String SCHEDULE = "schedule";
+    /**
+     * 待办时间即将截止
+     */
+    public static final String TODO = "todo";
 }
