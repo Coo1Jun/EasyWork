@@ -9,6 +9,13 @@ spring:
     url: jdbc:mysql://localhost:3306/easy_work?serverTimezone=GMT%2B8&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: 111777
+  mail:
+    # 163邮箱的地址为smtp.163.com
+    host: smtp.163.com
+    # 163邮箱
+    username: easywork23@163.com
+    # 密码是在开启smtp/pop3时自动生成的
+    password: SUSTRPCRXGAHYOQG
   # 应用名称
   application:
     name: ew-communication
