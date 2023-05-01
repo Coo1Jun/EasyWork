@@ -1,9 +1,6 @@
 package com.ew.communication.notification.service.impl;
 
-import cn.edu.hzu.client.dto.ProjectDto;
-import cn.edu.hzu.client.dto.UserDto;
-import cn.edu.hzu.client.dto.UserMtmGroup;
-import cn.edu.hzu.client.dto.WorkItemDto;
+import cn.edu.hzu.client.dto.*;
 import cn.edu.hzu.client.server.service.IProjectClientService;
 import cn.edu.hzu.client.server.service.IServerClientService;
 import cn.edu.hzu.common.api.PageResult;
@@ -19,8 +16,11 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ew.communication.address.entity.AddressBook;
 import com.ew.communication.address.service.IAddressBookService;
+import com.ew.communication.calendar.schedule.dto.ScheduleDto;
 import com.ew.communication.calendar.schedule.service.IScheduleService;
 import com.ew.communication.notification.dto.*;
+import com.ew.communication.notification.dto.NotificationAddParam;
+import com.ew.communication.notification.dto.NotificationEditParam;
 import com.ew.communication.notification.entity.Notification;
 import com.ew.communication.notification.mapper.NotificationMapper;
 import com.ew.communication.notification.service.INotificationService;
@@ -121,14 +121,11 @@ public class NotificationServiceImpl extends BaseServiceImpl<NotificationMapper,
                         .orderByDesc(Notification::getCreateTime)));
         NotificationResult result = new NotificationResult();
         result.setUnread(0);
-        result.setResult(CollectionUtils.isEmpty(dtoList) ? new ArrayList<>() : dtoList);
+        List<NotificationDto> notificationList = new ArrayList<>();
+        result.setResult(notificationList);
         if (CollectionUtils.isNotEmpty(dtoList)) {
             int unread = 0;
             for (NotificationDto dto : dtoList) {
-                // 未读通知
-                if (dto.getIsRead() == NotificationConstant.UN_HANDLE) {
-                    unread++;
-                }
                 // 获取用户信息
                 if (StringUtils.isNotEmpty(dto.getFromId())) {
                     UserDto userDto = serverClientService.getUserDtoById(dto.getFromId());
@@ -138,20 +135,31 @@ public class NotificationServiceImpl extends BaseServiceImpl<NotificationMapper,
                         dto.setFromEmail(userDto.getEmail());
                     }
                 }
-                // 获取工作项信息或项目组信息
+                // 获取工作项信息或项目组信息，当查询到的信息为空时，忽略此通知
                 if (NotificationType.WARN.equals(dto.getType()) || NotificationType.WORK.equals(dto.getType())) {
                     WorkItemDto workItem = projectClientService.getWorkItemById(dto.getOperationId());
+                    if (workItem == null) continue;
                     dto.setWorkItem(workItem);
                     ProjectDto project = projectClientService.getProjectInfoById(workItem.getProjectId());
+                    if (project == null) continue;
                     dto.setProjectName(project.getProjectName());
                     dto.setProjectTab(project.getProjectTab());
                 } else if (NotificationType.GROUP.equals(dto.getType())) {
-                    dto.setGroup(projectClientService.getGroupInfoById(dto.getOperationId()));
+                    GroupDto group = projectClientService.getGroupInfoById(dto.getOperationId());
+                    if (group == null) continue;
+                    dto.setGroup(group);
                 } else if (NotificationType.NEW_SCHEDULE.equals(dto.getType()) || NotificationType.SCHEDULE.equals(dto.getType())) {
-                    dto.setSchedule(scheduleService.getDtoById(dto.getOperationId()));
+                    ScheduleDto schedule = scheduleService.getDtoById(dto.getOperationId());
+                    if (schedule == null) continue;
+                    dto.setSchedule(schedule);
                 } else if (NotificationType.TODO.equals(dto.getType())) {
 
                 }
+                // 未读通知
+                if (dto.getIsRead() == NotificationConstant.UN_HANDLE) {
+                    unread++;
+                }
+                notificationList.add(dto);
             }
             result.setUnread(unread);
         }
