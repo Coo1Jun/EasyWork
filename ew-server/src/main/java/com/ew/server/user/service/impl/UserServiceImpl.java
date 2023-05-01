@@ -15,7 +15,7 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ew.server.constants.UserRole;
 import com.ew.server.email.enums.EmailErrorEnum;
-import com.ew.server.email.service.MailService;
+import cn.edu.hzu.common.service.MailService;
 import com.ew.server.email.utils.EmailUtil;
 import com.ew.server.file.dto.FileMetaDto;
 import com.ew.server.file.service.IFileMetaService;
