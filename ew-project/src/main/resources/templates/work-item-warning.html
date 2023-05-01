@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Easy Work 预警</title>
+</head>
+<body>
+<div id="contentDiv"
+     style="position:relative;font-size:14px;height:auto;padding:15px 15px 10px 15px;z-index:1;zoom:1;line-height:1.7;"
+     class="body">
+    <div id="qm_con_body">
+        <div id="mailContentContainer" class="qmbox qm_con_body_content qqmail_webmail_only" style="opacity: 1;">
+            <table border="0" cellspacing="0" cellpadding="0" style="max-width: 600px;">
+                <tbody>
+                <tr>
+                    <td>
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                            <tbody>
+                            <tr>
+                                <td align="center"><img src="https://easywork23.oss-cn-shenzhen.aliyuncs.com/attachment/easy_work_logo.png"
+                                                        style="display: block; width: 160px; height: 35px;"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                <tr height="16"></tr>
+                <tr>
+                    <td>
+                        <table bgcolor="#1378c0" width="100%" border="0" cellspacing="0" cellpadding="0"
+                               style="min-width: 332px; max-width: 600px; border: 1px solid #E0E0E0; border-bottom: 0; border-top-left-radius: 3px; border-top-right-radius: 3px;">
+                            <tbody>
+                            <tr>
+                                <td height="72px" colspan="3"></td>
+                            </tr>
+                            <tr>
+                                <td width="32px"></td>
+                                <td style="font-family: Roboto-Regular,Helvetica,Arial,sans-serif; font-size: 24px; color: #FFFFFF; line-height: 1.25;">
+                                    Easy Work 预警
+                                </td>
+                                <td width="32px"></td>
+                            </tr>
+                            <tr>
+                                <td height="18px" colspan="3"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table bgcolor="#FAFAFA" width="100%" border="0" cellspacing="0" cellpadding="0"
+                               style="min-width: 332px; max-width: 600px; border: 1px solid #F0F0F0; border-bottom: 1px solid #C0C0C0; border-top: 0; border-bottom-left-radius: 3px; border-bottom-right-radius: 3px;">
+                            <tbody>
+                            <tr height="16px">
+                                <td width="32px" rowspan="3"></td>
+                                <td></td>
+                                <td width="32px" rowspan="3"></td>
+                            </tr>
+                            <tr>
+                                <td><p>尊敬的用户：</p>
+                                    <div>
+                                        <span>您有一个工作项</span>
+                                        <span style="color: #409eff"> [ <span th:text="${projectTab}">EW</span> - <span th:text="${number}">20</span> ] <span th:text="${workItemTitle}">邮件服务迁移到common包，全局通用</span></span>
+                                        <span>即将截止，截止时间为<span style="color: #409eff" th:text="${endTime}">2023-05-01 15:09:17</span> 请尽快完成。</span>
+                                    </div>
+                                    <div style="margin-bottom: 32px">
+                                        <p>点击此处 <a style="color: #409eff" href="http://localhost:9528/#/login" target="_blank">登录Easy Work</a>。</p>
+                                    </div>
+                                    <p>此致</p>
+                                    <p>Easy Work 帐号团队敬上</p></td>
+                            </tr>
+                            <tr height="32px"></tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <style type="text/css">.qmbox style, .qmbox script, .qmbox head, .qmbox link, .qmbox meta {
+                display: none !important;
+            }</style>
+        </div>
+    </div><!-- -->
+    <style>#mailContentContainer .txt {
+        height: auto;
+    }</style>
+</div>
+</body>
+</html>
