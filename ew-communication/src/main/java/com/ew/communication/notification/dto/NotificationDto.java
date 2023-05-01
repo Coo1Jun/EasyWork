@@ -3,6 +3,7 @@ package com.ew.communication.notification.dto;
 import cn.edu.hzu.client.dto.GroupDto;
 import cn.edu.hzu.client.dto.WorkItemDto;
 import com.ew.communication.calendar.schedule.dto.ScheduleDto;
+import com.ew.communication.calendar.todolist.dto.TodoListDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -68,6 +69,9 @@ public class NotificationDto {
 
     @ApiModelProperty("日程信息")
     private ScheduleDto schedule;
+
+    @ApiModelProperty("待办信息")
+    private TodoListDto todoList;
 
 
 

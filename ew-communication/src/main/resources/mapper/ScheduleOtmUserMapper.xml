@@ -28,4 +28,12 @@
         id, schedule_id, user_id, version, create_id, update_id, delete_flag
     </sql>
 
+    <select id="getUserEmails" resultType="string">
+        SELECT email
+        FROM t_user
+        WHERE delete_flag = 0
+          AND id IN
+              (SELECT user_id FROM t_schedule_otm_user WHERE delete_flag = 0 AND schedule_id = #{scheduleId})
+    </select>
+
 </mapper>

@@ -18,6 +18,8 @@ import com.ew.communication.address.entity.AddressBook;
 import com.ew.communication.address.service.IAddressBookService;
 import com.ew.communication.calendar.schedule.dto.ScheduleDto;
 import com.ew.communication.calendar.schedule.service.IScheduleService;
+import com.ew.communication.calendar.todolist.dto.TodoListDto;
+import com.ew.communication.calendar.todolist.service.ITodoListService;
 import com.ew.communication.notification.dto.*;
 import com.ew.communication.notification.dto.NotificationAddParam;
 import com.ew.communication.notification.dto.NotificationEditParam;
@@ -59,6 +61,8 @@ public class NotificationServiceImpl extends BaseServiceImpl<NotificationMapper,
     private IProjectClientService projectClientService;
     @Autowired
     private IScheduleService scheduleService;
+    @Autowired
+    private ITodoListService todoListService;
 
     @Override
     public PageResult<NotificationDto> pageDto(NotificationQueryParam notificationQueryParam) {
@@ -153,7 +157,9 @@ public class NotificationServiceImpl extends BaseServiceImpl<NotificationMapper,
                     if (schedule == null) continue;
                     dto.setSchedule(schedule);
                 } else if (NotificationType.TODO.equals(dto.getType())) {
-
+                    TodoListDto todoList = todoListService.getDtoById(dto.getOperationId());
+                    if (todoList == null) continue;
+                    dto.setTodoList(todoList);
                 }
                 // 未读通知
                 if (dto.getIsRead() == NotificationConstant.UN_HANDLE) {
