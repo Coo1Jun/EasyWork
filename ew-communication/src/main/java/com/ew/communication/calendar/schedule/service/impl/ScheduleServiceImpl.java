@@ -148,8 +148,8 @@ public class ScheduleServiceImpl extends BaseServiceImpl<ScheduleMapper, Schedul
                 Context context = new Context();
                 context.setVariable("userName", createUser.getRealName());
                 context.setVariable("title", schedule.getTitle());
-                context.setVariable("startTime", DateUtils.parseDateToStr("yyyy-MM-dd HH:mm:ss", schedule.getStartTime()));
-                context.setVariable("endTime", DateUtils.parseDateToStr("yyyy-MM-dd HH:mm:ss", schedule.getEndTime()));
+                context.setVariable("startTime", DateUtils.parseDateToStr("yyyy-MM-dd HH:mm", schedule.getStartTime()));
+                context.setVariable("endTime", DateUtils.parseDateToStr("yyyy-MM-dd HH:mm", schedule.getEndTime()));
                 try {
                     mailService.sendMail(userEmails, subject, templateName, context);
                     log.info(">>>>>>>>>>>邮件预警发送成功，用户邮箱===》【{}】<<<<<<<<<<<<<<<<", userEmails);
