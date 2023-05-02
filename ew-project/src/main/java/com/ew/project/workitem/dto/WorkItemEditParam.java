@@ -127,4 +127,7 @@ public class WorkItemEditParam {
     @ApiModelProperty("修改类型")
     private String editType;
 
+    @ApiModelProperty("是否更新文件列表0否 1是")
+    private Integer updateFileList;
+
 }

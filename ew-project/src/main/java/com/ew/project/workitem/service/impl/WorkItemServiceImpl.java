@@ -430,10 +430,12 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
             notificationAddParam.setUserId(editParam.getPrincipalId());
             communicationClientService.addNotification(notificationAddParam);
         }
-        // 先删除原有的文件列表
-        workItemOtmFileService.remove(Wrappers.<WorkItemOtmFile>lambdaQuery().eq(WorkItemOtmFile::getWorkItemId, editParam.getId()));
-        // 保存文件列表
-        saveFileList(editParam.getId(), editParam.getFileList());
+        if (editParam.getUpdateFileList() != null && editParam.getUpdateFileList() == 1) {
+            // 先删除原有的文件列表
+            workItemOtmFileService.remove(Wrappers.<WorkItemOtmFile>lambdaQuery().eq(WorkItemOtmFile::getWorkItemId, editParam.getId()));
+            // 保存文件列表
+            saveFileList(editParam.getId(), editParam.getFileList());
+        }
         return true;
     }
 
