@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ew.project.workitem.comment.mapper.WorkItemOtmCommentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ew.project.workitem.comment.entity.WorkItemOtmComment">
+        <id column="id" property="id" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="remark" property="remark" />
+        <result column="work_item_id" property="workItemId" />
+        <result column="content" property="content" />
+        <result column="version" property="version" />
+        <result column="create_id" property="createId" />
+        <result column="update_id" property="updateId" />
+        <result column="delete_flag" property="deleteFlag" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_by,
+        create_time,
+        update_by,
+        update_time,
+        remark,
+        id, work_item_id, content, version, create_id, update_id, delete_flag
+    </sql>
+
+    <select id="getListByWorkItemId" resultType="com.ew.project.workitem.comment.dto.WorkItemOtmCommentDto">
+        SELECT  *,
+                (SELECT real_name FROM t_user WHERE delete_flag = 0 AND id = a.create_id LIMIT 1) AS user_name,
+                (SELECT location FROM t_file_meta WHERE delete_flag = 0 AND id = (SELECT portrait FROM t_user WHERE delete_flag = 0 AND id = a.create_id LIMIT 1) LIMIT 1) AS avatar
+        FROM t_work_item_otm_comment a
+        WHERE work_item_id = #{work_item_id} AND delete_flag = 0
+    </select>
+
+</mapper>
