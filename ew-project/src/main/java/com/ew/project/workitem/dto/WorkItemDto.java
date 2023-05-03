@@ -2,6 +2,8 @@ package com.ew.project.workitem.dto;
 
 import cn.edu.hzu.client.dto.FileMetaDto;
 import cn.edu.hzu.client.dto.UserDto;
+import com.ew.project.workitem.comment.dto.WorkItemOtmCommentDto;
+import com.ew.project.workitem.comment.entity.WorkItemOtmComment;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -141,6 +143,12 @@ public class WorkItemDto {
      */
     @ApiModelProperty("孩子工作项")
     private List<WorkItemDto> children;
+
+    /**
+     * 评论
+     */
+    @ApiModelProperty("评论")
+    private List<WorkItemOtmCommentDto> comments;
 
     /**
      * 卡片已经结束状态("已完成", "关闭", "已取消", "未复现"): 0未结束，1结束

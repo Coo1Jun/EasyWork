@@ -19,6 +19,8 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.ew.project.workitem.comment.dto.WorkItemOtmCommentDto;
+import com.ew.project.workitem.comment.mapper.WorkItemOtmCommentMapper;
 import com.ew.project.workitem.constants.WorkItemConstant;
 import com.ew.project.workitem.dto.*;
 import com.ew.project.workitem.entity.WorkItem;
@@ -63,6 +65,9 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
 
     @Autowired
     private ICommunicationClientService communicationClientService;
+
+    @Autowired
+    private WorkItemOtmCommentMapper workItemOtmCommentMapper;
 
     @Override
     public PageResult<WorkItemDto> pageDto(WorkItemQueryParam workItemQueryParam) {
@@ -134,6 +139,9 @@ public class WorkItemServiceImpl extends BaseServiceImpl<WorkItemMapper, WorkIte
                 List<FileMetaDto> fileListById = serverClientService.getFileListByIds(fileIdList);
                 dto.setFileList(fileListById);
             }
+            // 查出评论信息
+            List<WorkItemOtmCommentDto> commentList = workItemOtmCommentMapper.getListByWorkItemId(dto.getId());
+            dto.setComments(CollectionUtils.isEmpty(commentList) ? new ArrayList<>() : commentList);
         }
         return result;
     }
