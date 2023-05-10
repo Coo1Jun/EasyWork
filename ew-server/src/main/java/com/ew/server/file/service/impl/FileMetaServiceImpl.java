@@ -8,6 +8,7 @@ import cn.edu.hzu.common.service.impl.BaseServiceImpl;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.common.comm.ResponseMessage;
 import com.aliyun.oss.model.OSSObject;
+import com.aliyun.oss.model.ObjectMetadata;
 import com.aliyun.oss.model.PutObjectResult;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -95,7 +96,10 @@ public class FileMetaServiceImpl extends BaseServiceImpl<FileMetaMapper, FileMet
         String newFileName = UUID.randomUUID().toString().replaceAll("-", "") + "." + fileExtension;
         try {
             // 文件内容上传到OSS
-            PutObjectResult result = OSSUtil.upload(directory + newFileName, file.getInputStream());
+            ObjectMetadata objectMetadata = new ObjectMetadata();
+            // 指定该文件被下载时的名称。
+            objectMetadata.setContentDisposition("attachment;filename=" + originalFilename);
+            PutObjectResult result = OSSUtil.upload(directory + newFileName, file.getInputStream(), objectMetadata);
             ResponseMessage response = result.getResponse();
             FileMeta fileMeta = new FileMeta();
             fileMeta.setFileName(newFileName);
