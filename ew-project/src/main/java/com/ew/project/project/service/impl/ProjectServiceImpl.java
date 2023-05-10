@@ -11,6 +11,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.ew.project.netdisk.dto.NetDiskFileAddParam;
+import com.ew.project.netdisk.enums.NetDiskTypeEnum;
+import com.ew.project.netdisk.service.INetDiskFileService;
 import com.ew.project.project.constants.ProjectConstants;
 import com.ew.project.project.dto.*;
 import com.ew.project.project.entity.Project;
@@ -40,6 +43,8 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectMapper, Project> 
 
     @Autowired
     private ProjectParamMapper projectParamMapper;
+    @Autowired
+    private INetDiskFileService netDiskFileService;
 
     @Override
     public PageResult<ProjectDto> pageDto(ProjectQueryParam queryParam) {
@@ -87,7 +92,15 @@ public class ProjectServiceImpl extends BaseServiceImpl<ProjectMapper, Project> 
         }
         Project project = projectParamMapper.addParam2Entity(addParam);
         log.info("添加项目信息=====》{}", JSONObject.toJSONString(project));
-        return save(project);
+        boolean result = save(project);
+        if (result) {
+            NetDiskFileAddParam netDiskFileAddParam = new NetDiskFileAddParam();
+            netDiskFileAddParam.setBelongType(NetDiskTypeEnum.PROJECT.getCode());
+            netDiskFileAddParam.setBelongId(project.getId());
+            netDiskFileAddParam.setFileName(project.getName());
+            netDiskFileService.addDir(netDiskFileAddParam, true);
+        }
+        return result;
     }
 
     @SuppressWarnings("unchecked")

@@ -580,13 +580,15 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
      * @return
      */
     private boolean addNetDiskFile(NetDiskFileAddParam addParam, boolean isDir, boolean allowSameName) {
-        if (StringUtils.isEmpty(addParam.getDirId())) {
-            addParam.setBelongType(NetDiskTypeEnum.PERSONAL.getCode());
-            addParam.setBelongId(UserUtils.getCurrentUser().getUserid());
-        } else {
-            NetDiskFile dir = this.getById(addParam.getDirId());
-            addParam.setBelongId(dir.getBelongId());
-            addParam.setBelongType(dir.getBelongType());
+        if (StringUtils.isEmpty(addParam.getBelongId()) || addParam.getBelongType() == null) {
+            if (StringUtils.isEmpty(addParam.getDirId())) {
+                addParam.setBelongType(NetDiskTypeEnum.PERSONAL.getCode());
+                addParam.setBelongId(UserUtils.getCurrentUser().getUserid());
+            } else {
+                NetDiskFile dir = this.getById(addParam.getDirId());
+                addParam.setBelongId(dir.getBelongId());
+                addParam.setBelongType(dir.getBelongType());
+            }
         }
         // 判断文件路径
         if (StringUtils.isEmpty(addParam.getFilePath())) {
