@@ -98,7 +98,7 @@ public class FileMetaServiceImpl extends BaseServiceImpl<FileMetaMapper, FileMet
             // 文件内容上传到OSS
             ObjectMetadata objectMetadata = new ObjectMetadata();
             // 指定该文件被下载时的名称。
-            objectMetadata.setContentDisposition("attachment;filename=" + originalFilename);
+            objectMetadata.setContentDisposition("attachment;filename=" + URLEncoder.encode(originalFilename , "UTF-8"));
             PutObjectResult result = OSSUtil.upload(directory + newFileName, file.getInputStream(), objectMetadata);
             ResponseMessage response = result.getResponse();
             FileMeta fileMeta = new FileMeta();
