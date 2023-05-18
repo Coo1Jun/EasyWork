@@ -6,11 +6,14 @@ import cn.edu.hzu.client.server.service.IServerClientService;
 import cn.edu.hzu.common.api.PageResult;
 import cn.edu.hzu.common.api.utils.StringUtils;
 import cn.edu.hzu.common.api.utils.UserUtils;
+import cn.edu.hzu.common.entity.BaseEntity;
 import cn.edu.hzu.common.entity.SsoUser;
 import cn.edu.hzu.common.enums.CommonErrorEnum;
 import cn.edu.hzu.common.exception.CommonException;
 import cn.edu.hzu.common.service.impl.BaseServiceImpl;
 import cn.hutool.core.thread.ThreadUtil;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ew.project.netdisk.constant.NetDiskConstant;
@@ -54,7 +57,6 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
      */
     @Override
     public PageResult<NetDiskFileDto> pageDto(NetDiskFileQueryParam netDiskFileQueryParam) {
-        // 获取当前用户id
         String userid = UserUtils.getCurrentUser().getUserid();
         // 查出项目类型的文件总数
         Integer proTotal = this.baseMapper.getProNetFileCount(userid, netDiskFileQueryParam);
@@ -81,6 +83,7 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
                 // 查出个人类型的文件
                 perNetDisk = this.getPerNetDisk(netDiskFileQueryParam);
             }
+
         }
         if (proNetDisk == null) {
             if (perNetDisk != null) {
@@ -99,35 +102,36 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
         }
     }
 
-    /**
-     * 添加文件夹
-     * @param addParam 添加参数
-     * @param allowSameName 是否允许存在相同名字
-     * @return
-     */
+    @SuppressWarnings("unchecked")
+    @Override
+    @Transactional(rollbackFor = {Exception.class, Error.class})
+    public boolean saveByParam(NetDiskFileAddParam netDiskFileAddParam) {
+        NetDiskFile netDiskFile = netDiskFileParamMapper.addParam2Entity(netDiskFileAddParam);
+        // Assert.notNull(ResultCode.PARAM_VALID_ERROR,netDiskFile);
+        return save(netDiskFile);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    @Transactional(rollbackFor = {Exception.class, Error.class})
+    public boolean updateByParam(NetDiskFileEditParam netDiskFileEditParam) {
+        NetDiskFile netDiskFile = netDiskFileParamMapper.editParam2Entity(netDiskFileEditParam);
+        // Assert.notNull(ResultCode.PARAM_VALID_ERROR,netDiskFile);
+        return updateById(netDiskFile);
+    }
+
     @Override
     @Transactional(rollbackFor = {Exception.class, Error.class})
     public boolean addDir(NetDiskFileAddParam addParam, boolean allowSameName) {
         return addNetDiskFile(addParam, true, allowSameName);
     }
 
-    /**
-     * 更新文件
-     * @param addParam
-     * @param allowSameName 是否允许存在相同名字
-     * @return
-     */
     @Override
     @Transactional(rollbackFor = {Exception.class, Error.class})
     public boolean uploadFile(NetDiskFileAddParam addParam, boolean allowSameName) {
         return addNetDiskFile(addParam, false, allowSameName);
     }
 
-    /**
-     * 重命名文件或文件夹
-     * @param editParam
-     * @return
-     */
     @Override
     @Transactional(rollbackFor = {Exception.class, Error.class})
     public boolean renameFile(NetDiskFileEditParam editParam) {
@@ -213,11 +217,6 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
         }
     }
 
-    /**
-     * 移动文件或文件夹
-     * @param editParam
-     * @return
-     */
     @Override
     @Transactional(rollbackFor = {Exception.class, Error.class})
     public boolean moveFile(NetDiskFileEditParam editParam) {
@@ -225,7 +224,6 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
             throw CommonException.builder().resultCode(CommonErrorEnum.PARAM_IS_EMPTY.setParams(new Object[]{"目标路径"})).build();
         }
         NetDiskFile source = this.getById(editParam.getId());
-        int count;
         // 目标目录id为空，则移动到目标filePath
         if (StringUtils.isEmpty(editParam.getDirId())) {
             if (!NetDiskConstant.MAIN_DIR_PATH.equals(editParam.getFilePath())) {
@@ -237,13 +235,22 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
             source.setBelongId(UserUtils.getCurrentUser().getUserid());
             source.setDirId("");
             // 判断主目录是否有同名文件
-            count = this.count(Wrappers.<NetDiskFile>lambdaQuery()
+            int count = this.count(Wrappers.<NetDiskFile>lambdaQuery()
                     .eq(NetDiskFile::getBelongType, source.getBelongType()) // 所属类型
                     .eq(NetDiskFile::getBelongId, source.getBelongId()) // 所属id
                     .eq(NetDiskFile::getIsDir, source.getIsDir()) // 是否为文件夹
                     .eq(NetDiskFile::getFilePath, NetDiskConstant.MAIN_DIR_PATH) // 文件路径要相同
                     .eq(NetDiskFile::getFileName, source.getFileName()) // 文件名相同
                     .eq(NetDiskFile::getDeleted, 0));// 没有被删除
+            if (count > 0) {
+                String msg;
+                if (source.getIsDir() == NetDiskTypeEnum.DIR.getCode()) {
+                    msg = "目标路径同名文件夹，移动目录失败";
+                } else {
+                    msg = "目标路径同名文件，移动文件失败";
+                }
+                throw CommonException.builder().resultCode(CommonErrorEnum.ANY_MESSAGE.setParams(new Object[]{msg})).build();
+            }
         } else { // 移动到目标id目录
             NetDiskFile dir = this.getById(editParam.getDirId()); // 查出目标目录
             source.setBelongType(dir.getBelongType());
@@ -253,22 +260,22 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
             String filePath = getFilePath(dir);
             source.setFilePath(filePath);
             // 判断目标目录是否有同名文件
-            count = this.count(Wrappers.<NetDiskFile>lambdaQuery()
+            int count = this.count(Wrappers.<NetDiskFile>lambdaQuery()
                     .eq(NetDiskFile::getBelongType, source.getBelongType()) // 所属类型
                     .eq(NetDiskFile::getBelongId, source.getBelongId()) // 所属id
                     .eq(NetDiskFile::getIsDir, source.getIsDir()) // 是否为文件夹
                     .eq(NetDiskFile::getDirId, source.getDirId()) // 目录id要相同
                     .eq(NetDiskFile::getFileName, source.getFileName()) // 文件名相同
                     .eq(NetDiskFile::getDeleted, 0));// 没有被删除
-        }
-        if (count > 0) {
-            String msg;
-            if (source.getIsDir() == NetDiskTypeEnum.DIR.getCode()) {
-                msg = "目标路径同名文件夹，移动目录失败";
-            } else {
-                msg = "目标路径同名文件，移动文件失败";
+            if (count > 0) {
+                String msg;
+                if (source.getIsDir() == NetDiskTypeEnum.DIR.getCode()) {
+                    msg = "目标路径同名文件夹，移动目录失败";
+                } else {
+                    msg = "目标路径同名文件，移动文件失败";
+                }
+                throw CommonException.builder().resultCode(CommonErrorEnum.ANY_MESSAGE.setParams(new Object[]{msg})).build();
             }
-            throw CommonException.builder().resultCode(CommonErrorEnum.ANY_MESSAGE.setParams(new Object[]{msg})).build();
         }
         // 更新
         this.updateById(source);
@@ -284,11 +291,6 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
         return true;
     }
 
-    /**
-     * 复制文件或文件夹
-     * @param editParam
-     * @return
-     */
     @Override
     public boolean copyFile(NetDiskFileEditParam editParam) {
         if (StringUtils.isEmpty(editParam.getFilePath())) {
@@ -300,7 +302,6 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
         // 获取source的belongType和belongId
         Integer childBelongType = source.getBelongType();
         String childBelongId = source.getBelongId();
-        int count;
         // 目标目录id为空，则复制到目标filePath
         if (StringUtils.isEmpty(editParam.getDirId())) {
             if (!NetDiskConstant.MAIN_DIR_PATH.equals(editParam.getFilePath())) {
@@ -312,13 +313,16 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
             source.setBelongId(UserUtils.getCurrentUser().getUserid());
             source.setDirId("");
             // 判断主目录是否有同名文件
-            count = this.count(Wrappers.<NetDiskFile>lambdaQuery()
+            int count = this.count(Wrappers.<NetDiskFile>lambdaQuery()
                     .eq(NetDiskFile::getBelongType, source.getBelongType()) // 所属类型
                     .eq(NetDiskFile::getBelongId, source.getBelongId()) // 所属id
                     .eq(NetDiskFile::getIsDir, source.getIsDir()) // 是否为文件夹
                     .eq(NetDiskFile::getFilePath, NetDiskConstant.MAIN_DIR_PATH) // 文件路径要相同
                     .eq(NetDiskFile::getFileName, source.getFileName()) // 文件名相同
                     .eq(NetDiskFile::getDeleted, 0));// 没有被删除
+            if (count > 0) {
+                source.setFileName("copy副本 - " + source.getFileName());
+            }
         } else { // 移动到目标id目录
             NetDiskFile dir = this.getById(editParam.getDirId()); // 查出目标目录
             source.setBelongType(dir.getBelongType());
@@ -334,16 +338,16 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
                 source.setFilePath(source.getFilePath() + "(" + dir.getFileNameNum() + ")");
             }
             // 判断目标目录是否有同名文件
-            count = this.count(Wrappers.<NetDiskFile>lambdaQuery()
+            int count = this.count(Wrappers.<NetDiskFile>lambdaQuery()
                     .eq(NetDiskFile::getBelongType, source.getBelongType()) // 所属类型
                     .eq(NetDiskFile::getBelongId, source.getBelongId()) // 所属id
                     .eq(NetDiskFile::getIsDir, source.getIsDir()) // 是否为文件夹
                     .eq(NetDiskFile::getDirId, source.getDirId()) // 目录id要相同
                     .eq(NetDiskFile::getFileName, source.getFileName()) // 文件名相同
                     .eq(NetDiskFile::getDeleted, 0));// 没有被删除
-        }
-        if (count > 0) {
-            source.setFileName("copy副本 - " + source.getFileName());
+            if (count > 0) {
+                source.setFileName("copy副本 - " + source.getFileName());
+            }
         }
         // 保存
         source.setId(null);
@@ -397,11 +401,6 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
         return filePath;
     }
 
-    /**
-     * 根据用户id获取项目类型的文件列表
-     * @param queryParam
-     * @return
-     */
     @Override
     public PageResult<NetDiskFileDto> getProNetDisk(NetDiskFileQueryParam queryParam) {
         if (queryParam.getOffset() == null || queryParam.getOffset() == 0) {
@@ -425,11 +424,6 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
         return PageResult.<NetDiskFileDto>builder().records(fileList).total(total).build();
     }
 
-    /**
-     * 根据用户id获取个人类型的文件列表
-     * @param queryParam
-     * @return
-     */
     @Override
     public PageResult<NetDiskFileDto> getPerNetDisk(NetDiskFileQueryParam queryParam) {
         if (queryParam.getOffset() == null || queryParam.getOffset() == 0) {
@@ -453,11 +447,6 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
         return PageResult.<NetDiskFileDto>builder().records(fileList).total(total).build();
     }
 
-    /**
-     * 获取文件夹的层级结构
-     * @param queryParam
-     * @return
-     */
     @Override
     public List<DirTreeNode> getDirTree(NetDiskFileQueryParam queryParam) {
         String userid = UserUtils.getCurrentUser().getUserid();
@@ -522,6 +511,21 @@ public class NetDiskFileServiceImpl extends BaseServiceImpl<NetDiskFileMapper, N
             dto.setFileName(dto.getFileName() + "(" + dto.getFileNameNum() + ")");
         }
         return dto;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    @Transactional(rollbackFor = {Exception.class, Error.class})
+    public boolean saveDtoBatch(List<NetDiskFileDto> rows) {
+        return saveBatch(netDiskFileParamMapper.dtoList2Entity(rows));
+    }
+
+    private Wrapper<NetDiskFile> getPageSearchWrapper(NetDiskFileQueryParam netDiskFileQueryParam) {
+        LambdaQueryWrapper<NetDiskFile> wrapper = Wrappers.<NetDiskFile>lambdaQuery();
+        if (BaseEntity.class.isAssignableFrom(NetDiskFile.class)) {
+            wrapper.orderByDesc(NetDiskFile::getUpdateTime, NetDiskFile::getCreateTime);
+        }
+        return wrapper;
     }
 
     /**
